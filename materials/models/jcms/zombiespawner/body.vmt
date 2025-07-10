@@ -1,0 +1,9 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/jcms/zombiespawner/body"
+	"$bumpmap" "models/jcms/zombiespawner/normal"
+	"$phong" 1
+	"$phongexponenttexture" "models/jcms/zombiespawner/metallic"
+	"$phongboost" 1.0
+	"$phongfresnelranges"		"[0 0.5 1]"
+}

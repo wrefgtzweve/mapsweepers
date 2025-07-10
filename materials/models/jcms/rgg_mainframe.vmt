@@ -1,0 +1,14 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/jcms/rgg_mainframe"
+	"$bumpmap" "models/jcms/rgg_mainframe_normal"
+	"$phong" 1
+	"$phongexponenttexture" "models/jcms/rgg_mainframe_metallic"
+	"$phongboost" 1.0
+	"$phongfresnelranges"		"[0 0.5 1]"
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" 1
+	"$envmapcontrast" 1
+	"$envmapsaturation" 1
+	"$envmaptint" "[ .03 .01 0.06 ]"
+}

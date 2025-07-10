@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+    "$basetexture" "models/jcms/ultracopter/glass"
+    "$translucent" "1"
+}

@@ -1,0 +1,11 @@
+"VertexLitGeneric"
+{
+    "$basetexture" "models/jcms/ultracopter/body"
+    "$surfaceprop" "metal"
+    "$bumpmap" "models/Combine_Helicopter/combine_helicopter01_normal"
+    "$envmap" "env_cubemap"
+    "$normalmapalphaenvmapmask" 1
+    "$envmapcontrast" 1
+    "$envmapsaturation" 1
+    "$envmaptint" "[ .56 .67 .75 ]"
+}

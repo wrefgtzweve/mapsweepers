@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+    "$basetexture" "models/jcms/rgg_circuitry"
+    "$selfillum" "1"
+    "$selfillummask" "models/props_combine/combine_intwallunit_mask"
+}

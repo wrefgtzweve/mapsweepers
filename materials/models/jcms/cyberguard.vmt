@@ -1,0 +1,9 @@
+"VertexLitGeneric"
+{
+    "$baseTexture"     "models/jcms/cyberguard"
+    "$selfillum" 1
+    "$selfillummask" "models/jcms/cyberguard_illum"
+
+    "$surfaceprop" "metal"
+    "$model" 1
+}

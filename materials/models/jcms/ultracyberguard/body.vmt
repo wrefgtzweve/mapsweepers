@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+    "$basetexture" "models/jcms/ultracyberguard/body"
+    "$surfaceprop" "metal"
+    "$bumpmap" "models/jcms/ultracyberguard/body_normal"
+    "$phong" 1
+    "$phongexponenttexture" "models/jcms/ultracyberguard/body_metallic"
+    "$phongboost" 1.0
+    "$phongfresnelranges"		"[0 0.5 1]"
+    "$envmap" "env_cubemap"
+    "$normalmapalphaenvmapmask" 1
+    "$envmapcontrast" 1
+    "$envmapsaturation" 1
+    "$envmaptint" "[ .1 .04 .0 ]"
+}

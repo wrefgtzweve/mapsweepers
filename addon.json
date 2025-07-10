@@ -1,0 +1,11 @@
+{
+	"title"		:	"Map Sweepers",
+	"type"		:	"gamemode",
+	"tags"		:	[ "fun", "roleplay" ],
+	"ignore"	:
+	[
+		"*.kateproject",
+		"*.git*",
+		"*.gitignore"
+	]
+}
