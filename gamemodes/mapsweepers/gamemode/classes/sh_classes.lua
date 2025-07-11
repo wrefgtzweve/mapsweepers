@@ -127,8 +127,9 @@ table.Empty(jcms.classesOrderIndices)
 			return jcms.classes[ ply:GetNWString("jcms_class", "infantry") ]
 		end
 	elseif CLIENT then --Optimisation, the GetNW calls can get expensive here so we cache it.
-		function jcms.class_GetData()
-			return jcms.classes[ jcms.cachedValues.playerClass ] --I'm assuming we're only getting our own data on client. This should always be true but keep it in mind - j
+		function jcms.class_GetData(ply)
+			return jcms.classes[ ply:GetNWString("jcms_class", "infantry") ] --TODO: Temporary revert. 
+			--return jcms.classes[ jcms.cachedValues.playerClass ] --I'm assuming we're only getting our own data on client. This should always be true but keep it in mind - j
 		end
 	end
 
