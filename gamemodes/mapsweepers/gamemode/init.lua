@@ -1064,8 +1064,7 @@ end
 	end
 
 	function GM:PlayerNoClip(ply, flying)
-		return true
-		--return not flying
+		return false
 	end
 	
 	function GM:CanExitVehicle(veh, ply)
