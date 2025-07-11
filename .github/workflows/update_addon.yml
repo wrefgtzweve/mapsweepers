@@ -15,7 +15,7 @@ jobs:
       - name: Upload to Workshop
         uses: CFC-Servers/gmod-upload@master
         with:
-          id: 3360213737
+          id: 3523033966
           changelog: "[AUTO] Updated to the latest GitHub main branch version"
           title: "Map Sweepers"
           type: "gamemode"
