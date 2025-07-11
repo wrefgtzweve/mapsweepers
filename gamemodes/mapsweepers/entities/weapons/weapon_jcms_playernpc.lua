@@ -50,8 +50,8 @@ SWEP.SlotPos = 1
 SWEP.DrawAmmo = false
 SWEP.DrawCrosshair = false
 
-SWEP.ViewModel = "models/alyx_intro.mdl"
-SWEP.WorldModel = "models/alyx_intro.mdl"
+SWEP.ViewModel = "models/hunter/plates/plate.mdl"
+SWEP.WorldModel = "models/hunter/plates/plate.mdl"
 
 SWEP.m_bPlayPickupSound = false
 
@@ -87,22 +87,20 @@ SWEP.m_bPlayPickupSound = false
 				classData.SecondaryAttack(user, self.Weapon)
 			end
 		end
-    end
+	end
 
 -- // }}}
 
 -- // NPCs {{{
 
-    function SWEP:CanBePickedUpByNPCs()
-        return false
-    end
+	function SWEP:CanBePickedUpByNPCs()
+		return false
+	end
 
 -- // }}}
 
 if CLIENT then
-	
 	function SWEP:ShouldDrawViewModel()
 		return false
 	end
-	
 end
