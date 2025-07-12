@@ -294,7 +294,8 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 				local sweepers = jcms.GetAliveSweepers()
 
 				for i, sweeper in ipairs(sweepers) do
-					table.insert(origins, sweeper:EyePos())
+					local v = sweeper:EyePos()
+					table.insert(origins, v)
 				end
 
 				local areas = (d.zonePopulations[1] and d.zonePopulations[1]>0) and jcms.director_GetAreasAwayFrom(jcms.mapgen_ZoneList()[1], origins, 300, 2048) or {}
