@@ -162,7 +162,7 @@ if CLIENT then
 		local timeToActivation = (selfTbl.GetActivationTime(self) - CurTime())
 		local activationMult = Lerp( timeToActivation / selfTbl.activationDur, 1.2, 0.25)
 
-		if dist < 3500^2 then 
+		if IsValid(selfTbl.firePart1) and IsValid(selfTbl.firePart2) and IsValid(selfTbl.firePart3) and dist < 3500^2 then 
 			if dist < 1500^2 then 
 				selfTbl.firePart1:Render()
 				if dist < 750^2 and timeToActivation - selfTbl.activationDur/2 < 0 then --are we half-way activated

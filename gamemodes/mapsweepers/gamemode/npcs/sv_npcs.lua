@@ -154,12 +154,12 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 		if npc.SetMaxLookDistance then
 			npc:SetMaxLookDistance( math.max(npc:GetMaxLookDistance(), 4096) )
 		end
-		npc:SetPos(pos)
+		npc:SetPos(pos + Vector(0,0,15))
 
 		local hulltrace = util.TraceEntityHull({
 			start = npc:EyePos(),
 			endpos = pos,
-			mask = MASK_SOLID
+			mask = MASK_NPCSOLID_BRUSHONLY
 		}, npc)
 		npc:SetPos(hulltrace.HitPos)
 		

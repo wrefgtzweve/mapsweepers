@@ -1240,7 +1240,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		-- // Initial weights {{{
 			local defaultWeightedAreas = {}
 			for i, area in ipairs(jcms.mapdata.validAreas) do 
-				if pref.check(area) and area:GetSizeX() > sizeXY and area:GetSizeY() > sizeXY and not(onlyMainZone and not(zoneDict[area] == jcms.mapdata.largestZone)) then 
+				if not(onlyMainZone and not(zoneDict[area] == jcms.mapdata.largestZone)) and area:GetSizeX() > sizeXY and area:GetSizeY() > sizeXY and pref.check(area) then 
 					defaultWeightedAreas[area] = math.sqrt(area:GetSizeX() * area:GetSizeY())
 				end
 			end
@@ -1249,7 +1249,14 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		local prefabAreas = {}
 		local prefabs = {}
 
+		--Optimisation
 		local upVec = Vector(0, 0, 190)
+		local area_vectors = {}
+		local area_raisedVectors = {}
+		for area, weight in pairs(defaultWeightedAreas) do 
+			area_vectors[area] = area:GetCenter()
+			area_raisedVectors[area] = area:GetCenter() + upVec
+		end
 
 		for i=1, count, 1 do
 			local weightedAreas = {}
@@ -1258,9 +1265,9 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				local canSeeOther = false
 
 				for i, otherArea in ipairs(prefabAreas) do --Don't spawn too close to others.
-					local dist = area:GetCenter():Distance( otherArea:GetCenter() )
+					local dist = area_vectors[area]:Distance( area_vectors[otherArea] )
 					closestDist = (closestDist < dist and closestDist) or dist
-					canSeeOther = canSeeOther or otherArea:IsPartiallyVisible( area:GetCenter() + upVec )
+					canSeeOther = canSeeOther or otherArea:IsPartiallyVisible( area_raisedVectors[area] )
 				end
 				
 				if not(closestDist == math.huge) then  
@@ -1272,9 +1279,10 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				weightedAreas[area] = weight
 			end
 
-			--print(table.Count(weightedAreas))
 			local chosenArea = jcms.util_ChooseByWeight(weightedAreas)
-			--PrintTable(weightedAreas) 
+
+			if not chosenArea then return prefabs end --Fail safe (map has no or not enough valid areas)
+
 			local worked, pref = jcms.prefab_TryStamp(type, chosenArea) --We've already checked if our target area is valid, no need to check again
 			table.insert(prefabAreas, chosenArea) 
 			table.insert(prefabs, pref)
