@@ -1100,6 +1100,8 @@ end)
 	end)
 
 	hook.Add("OnPlayerChat", "jcms_trackChatHistory", function(ply, text, teamChat, isDead)
+		if not IsValid(ply) or not ply:IsPlayer() then return end 
+
 		jcms.chatHistory_Add(ply:Nick(), text, "chat")
 	end)
 

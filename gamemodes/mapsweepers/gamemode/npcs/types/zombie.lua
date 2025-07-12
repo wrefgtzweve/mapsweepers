@@ -353,7 +353,8 @@ jcms.npc_types.zombie_polyp = {
 			if plyArea then
 				local zID = jcms.mapgen_ZoneDict()[plyArea]
 				zone = jcms.mapgen_ZoneList()[zID]
-			else
+			end
+			if not zone then
 				local zList = jcms.mapgen_ZoneList()
 				zone = zList[math.random(#zList)]
 			end
