@@ -528,6 +528,22 @@ jcms.vectorOne = Vector(1, 1, 1)
 				stats.firerate = 60/gunData.RPM
 				
 				stats.accuracy = (tonumber(gunData.Spread) or 0)
+			elseif gunData.Base == "mg_base" then --MW Base --TODO: See if there's a better way to detect this for this base. 
+				stats.base = "MW Base"
+
+				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Primary.Ammo) or "") or tonumber(gunData.Primary.Ammo)  ) or "none"
+				stats.ammotype_lkey = ammotype .. "_ammo"
+				stats.ammotype = ammotype:lower()
+
+				stats.clipsize = gunData.Primary.ClipSize or 0
+
+				stats.numshots = gunData.Bullet.NumBullets or 1
+
+				stats.damage = gunData.Bullet.Damage[1] / stats.numshots
+				stats.firerate = 60/gunData.Primary.RPM
+
+				stats.accuracy = (gunData.Cone.Hip) or 0 --Not 100% sure I've done this correctly - j
+				radAccuracy = false
 			else
 				-- Fallback 
 				stats.base = "Default"

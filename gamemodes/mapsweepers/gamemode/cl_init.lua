@@ -453,7 +453,7 @@ end)
 
 	hook.Add("CalcViewModelView", "jcms_ViewModelView", function( wep, viewModel, oldPos, oldAng, cPos, cAng )
 		local owner = viewModel:GetOwner()
-		if not IsValid(owner) or not(owner:GetObserverMode() == OBS_MODE_NONE) then return end
+		if not IsValid(owner) or not owner:IsPlayer() or not(owner:GetObserverMode() == OBS_MODE_NONE) then return end
 		local classData = jcms.class_GetData(owner)
 		if classData and classData.CalcViewModelView then 
 			return classData.CalcViewModelView(wep, viewModel, oldPos, oldAng, cPos, cAng, owner)
