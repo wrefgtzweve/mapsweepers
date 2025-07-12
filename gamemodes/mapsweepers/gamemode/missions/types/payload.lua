@@ -41,6 +41,8 @@
 
 		for attempt = 1, 20 do
 			local area = jcms.util_ChooseByWeight(midAreaWeights)
+			if not area then break 
+			
 			local rad = 6000 - attempt * 100
 			local areas = jcms.director_GetAreasAwayFrom(jcms.mapdata.zoneList[jcms.mapdata.largestZone], {area:GetCenter()}, 0, rad)
 			local path, pathLength = jcms.mapgen_GenPathAround(areas, 256, 15000)
