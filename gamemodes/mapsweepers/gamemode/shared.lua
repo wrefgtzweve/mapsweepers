@@ -83,6 +83,41 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 -- }}}
 
+-- // ConVars {{{
+	
+	local FCVAR_JCMS_NOTIFY_AND_SAVE = bit.bor(FCVAR_ARCHIVE, FCVAR_NOTIFY)
+	local FCVAR_JCMS_SHARED_SAVED = bit.bor(FCVAR_REPLICATED, FCVAR_JCMS_NOTIFY_AND_SAVE) --TODO: More of these should probably be replicated, I've just done the obvious ones currently.
+	jcms.cvar_ffmul = CreateConVar("jcms_friendlyfire_multiplier", "1", FCVAR_JCMS_SHARED_SAVED, "Friendly fire damage is multiplied by this number. 0 disables friendly fire. This applies to turrets and orbitals!", 0, 100)
+
+	jcms.cvar_map_excludecurrent = CreateConVar("jcms_map_excludecurrent", "0", FCVAR_JCMS_SHARED_SAVED, "Excludes the current server map from the post-mission vote, ensuring that every mission is on a new map. Unless there's no other valid map.")
+	jcms.cvar_map_iswhitelist = CreateConVar("jcms_map_iswhitelist", "0", FCVAR_JCMS_SHARED_SAVED, "Alters the behaviour of jcms_map_list. If this is 1, the list of maps will be a 'whitelist' (ONLY those maps will be picked). If this is 0, the list of maps will be a 'blacklist' (those maps will be EXCLUDED)")
+	jcms.cvar_map_list = CreateConVar("jcms_map_list", "gm_flatgrass", FCVAR_JCMS_NOTIFY_AND_SAVE, "A comma-separated list of maps. This is either a whitelist or a blacklist, depending on the convar 'jcms_map_iswhitelist'")
+	jcms.cvar_map_votecount = CreateConVar("jcms_map_votecount", "6", FCVAR_JCMS_NOTIFY_AND_SAVE, "How many maps will be offered as options in the post-mission vote, provided that the server has this many available. Capped at 15.")	
+
+	jcms.cvar_cash_start = CreateConVar("jcms_cash_start", "600", FCVAR_JCMS_NOTIFY_AND_SAVE, "The amount of cash a new sweeper spawns with.", 0, 10000)
+	jcms.cvar_cash_evac = CreateConVar("jcms_cash_evac", "75", FCVAR_JCMS_NOTIFY_AND_SAVE, "This amount of cash is given to the sweeper a successful evacuation.", 0, 10000)
+	jcms.cvar_cash_victory = CreateConVar("jcms_cash_victory", "75", FCVAR_JCMS_NOTIFY_AND_SAVE, "This much cash is given to players for each consecutive victory.", 0, 10000)
+	jcms.cvar_cash_maxclerks = CreateConVar("jcms_cash_maxclerks", "5", FCVAR_JCMS_NOTIFY_AND_SAVE, "The upper cap on how many clerks (NPCs) can be evacuated for +1 J each.", 0, 10000)
+
+	jcms.cvar_cash_mul_final = CreateConVar("jcms_cash_mul_final", "1", FCVAR_JCMS_NOTIFY_AND_SAVE, "Global cash multiplier for kills, applied after every other bonus.", 0, 10)
+	jcms.cvar_cash_mul_base = CreateConVar("jcms_cash_mul_base", "1", FCVAR_JCMS_NOTIFY_AND_SAVE, "NPC bounty cash multiplier before any other bonuses are given.", 0, 10)
+	jcms.cvar_cash_mul_stunstick = CreateConVar("jcms_cash_mul_stunstick", "2", FCVAR_JCMS_NOTIFY_AND_SAVE, "Cash multiplier for stunstick kills.", 0, 10)
+	jcms.cvar_cash_mul_very_far = CreateConVar("jcms_cash_mul_very_far", "1.25", FCVAR_JCMS_NOTIFY_AND_SAVE, "Cash multiplier for kills over great distances", 0, 10)
+
+	jcms.cvar_cash_bonus_sidearm = CreateConVar("jcms_cash_bonus_sidearm", "10", FCVAR_JCMS_NOTIFY_AND_SAVE, "Extra credits given for pistol & revolver kills.", 0, 10000)
+	jcms.cvar_cash_bonus_airborne = CreateConVar("jcms_cash_bonus_airborne", "25", FCVAR_JCMS_NOTIFY_AND_SAVE, "Extra credits given for killing NPCs that are midair.", 0, 10000)
+	jcms.cvar_cash_bonus_headshot = CreateConVar("jcms_cash_bonus_headshot", "5", FCVAR_JCMS_NOTIFY_AND_SAVE, "Extra credits if a finishing shot was a headshot, but wasn't an instakill.", 0, 10000)
+	jcms.cvar_cash_bonus_headshot_instakill = CreateConVar("jcms_cash_bonus_headshot_instakill", "20", FCVAR_JCMS_NOTIFY_AND_SAVE, "Extra credits for instakilling an NPC with a headshot.", 0, 10000)
+
+	jcms.cvar_distance_headshot = CreateConVar("jcms_distance_headshot", "2000", FCVAR_JCMS_NOTIFY_AND_SAVE, "A minimum distance at which headshots start to give a cash bonus, to prevent easy up-close headshots.", 0, 100000)
+	jcms.cvar_distance_headshot_extralengths = CreateConVar("jcms_distance_headshot_extralengths", "200", FCVAR_JCMS_NOTIFY_AND_SAVE, "For every X units (200 by default) starting from 'jcms_distance_headshot', one extra j-credit will be rewarded to the killer. By default, headshot distance is 2000 and 'extra' distance is 200, so, for example, at the distance of 2600 the reward will be: <base headshot bonus> + 3 for the extra 600 units.", 0, 100000)
+	jcms.cvar_distance_very_far = CreateConVar("jcms_distance_very_far", "5000", FCVAR_JCMS_NOTIFY_AND_SAVE, "A distance that counts as an impressive sniping distance for a cash multiplier. Ideally, only players with long-range scopes should be able to get kills over this range.", 0, 100000)
+
+	-- Replicated
+	jcms.cvar_noepisodes = CreateConVar("jcms_noepisodes", "0", FCVAR_JCMS_SHARED_SAVED, "If set to 1, Half-Life 2: Episode One & Two content will never appear in-game. Useful if you don't want your poor friends to see errors.")
+
+-- // }}}
+
 -- Material Overrides {{{
 
 	hook.Add("InitPostEntity", "jcms_matOverride", function()
@@ -477,8 +512,22 @@ jcms.vectorOne = Vector(1, 1, 1)
 				stats.firerate = 60/gunData.RPM
 				
 				stats.accuracy = (tonumber(gunData.Spread) or 0) + (tonumber(gunData.SpreadAddHipFire) or 0)
+			elseif gunData.Base == "tacrp_base" then --TODO: Figure out if there's a value marking a gun as using the base like ARC9/CW. Couldn't find one when I looked.
+				stats.base = "Tactical RP"
+
+				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Ammo) or "") or tonumber(gunData.Ammo)  ) or "none"
+				stats.ammotype_lkey = ammotype .. "_ammo"
+				stats.ammotype = ammotype:lower()
+				
+				stats.clipsize = gunData.ClipSize
+				stats.numshots = gunData.Num or 1
+
+				stats.damage = gunData.Damage_Max
+				stats.firerate = 60/gunData.RPM
+				
+				stats.accuracy = (tonumber(gunData.Spread) or 0)
 			else
-				-- Fallback
+				-- Fallback 
 				stats.base = "Default"
 
 				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Primary.Ammo) or "") or tonumber(gunData.Primary.Ammo)  ) or "none"
