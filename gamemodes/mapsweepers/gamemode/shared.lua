@@ -827,7 +827,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 		if (e1 == e2) or ( jcms.team_JCorp(e1) and jcms.team_JCorp(e2) ) then
 			return true
 		else
-			local bothNPCs = jcms.team_NPC_optimised(e1) and jcms.team_NPC_optimised(e2)
+			local bothNPCs = jcms.team_NPC(e1) and jcms.team_NPC(e2)
 			
 			if bothNPCs then
 				local director = jcms.director
