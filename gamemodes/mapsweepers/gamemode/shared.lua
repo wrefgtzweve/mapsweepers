@@ -18,6 +18,8 @@
 	See the full GNU GPL v3 in the LICENSE file.
 	Contact E-Mail: merekidorian@gmail.com
 --]]
+GM.Name = "Map Sweepers"
+GM.Author = "Octantis Addons"
 
 jcms = jcms or {}
 jcms.inTutorial = game.GetMap() == "jcms_tutorial"
@@ -512,7 +514,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 				stats.firerate = 60/gunData.RPM
 				
 				stats.accuracy = (tonumber(gunData.Spread) or 0) + (tonumber(gunData.SpreadAddHipFire) or 0)
-			elseif gunData.Base == "tacrp_base" then --TODO: Figure out if there's a value marking a gun as using the base like ARC9/CW. Couldn't find one when I looked.
+			elseif gunData.ArcticTacRP then
 				stats.base = "Tactical RP"
 
 				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Ammo) or "") or tonumber(gunData.Ammo)  ) or "none"

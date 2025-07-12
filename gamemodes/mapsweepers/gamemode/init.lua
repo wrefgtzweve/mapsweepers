@@ -171,6 +171,10 @@ end
 		game.SetSkillLevel( 1 ) -- TODO Maybe warn the player.
 		--This will fucking annihilate performance if it's 1. It's saved from sandbox, so playtesters have repeatedly had issues with this.
 		RunConsoleCommand("ai_serverragdolls", "0")
+		timer.Create( "jcms_disableragdolls_bruteforce", 0, 2, function() --People are *STILL* having issues with this, so I guess we're going to try doing it this way.
+			RunConsoleCommand("ai_serverragdolls", "0")
+			game.ConsoleCommand("ai_serverragdolls 0\n")
+		end)
 
 		jcms.mission_Randomize()
 

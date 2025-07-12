@@ -31,6 +31,22 @@ hook.Add("InitPostEntity", "jcms_addonCompatibility", function()
 		end)
 	-- }}}
 
+	-- TACRP {{{
+		-- https://steamcommunity.com/sharedfiles/filedetails/?id=2588031232&searchtext=tacrp
+		-- Ditto, disables hud
+		timer.Simple(1, function()
+			if TacRP then
+				hook.Add("MapSweepersDrawHUD", "jcms_ArcCWHud", function(setup3d2dCentral, setup3d2dDiagonal)
+					local w = jcms.locPly:GetActiveWeapon()
+
+					if w.ArcticTacRP then
+						w.DrawHUDBackground = function(w) w:DrawCustomizeHUD() end
+					end
+				end)
+			end
+		end)
+	-- }}}
+
 	-- ArcCW {{{
 		-- https://steamcommunity.com/sharedfiles/filedetails/?id=2131057232
 		-- Replaces Firemode HUD
