@@ -1,9 +1,11 @@
 "mapsweepers"
 {
-	"base"		"base"
-	"title"		"Map Sweepers"
-	"maps"		"^jcms_|^mapsweepers_"
+	"base"			"base"
+	"title"			"Map Sweepers"
+	"maps"			"^jcms_|^mapsweepers_"
+	"category"		"pve"
 	"menusystem"	"1"
+	"workshopid"	"3523033966"
 
 	"settings"
 	{
