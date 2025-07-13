@@ -77,6 +77,10 @@ if SERVER then
 						else
 							jcms.printf("cant awaken physobj of dropped entity %s?", self.thing)
 						end
+
+						if CPPI then
+							self.thing:CPPISetOwner( game.GetWorld() )
+						end
 					end
 				end)
 			else
@@ -86,8 +90,17 @@ if SERVER then
 				timer.Simple(excessTime, function()
 					if IsValid(self.thing) then
 						self.thing:Spawn()
-						self.thing:GetPhysicsObject():Wake()
-						self.thing:GetPhysicsObject():SetVelocity( Vector(0, 0, -250) )
+
+						if IsValid(self.thing:GetPhysicsObject()) then
+							self.thing:GetPhysicsObject():Wake()
+							self.thing:GetPhysicsObject():SetVelocity( Vector(0, 0, -250) )
+						else
+							jcms.printf("cant awaken physobj of dropped entity %s?", self.thing)
+						end
+
+						if CPPI then
+							self.thing:CPPISetOwner( game.GetWorld() )
+						end
 					end
 				end)
 			end
@@ -110,13 +123,22 @@ if SERVER then
 			timer.Simple(delay, function()
 				if IsValid(self.thing) then
 					self.thing:Spawn()
-					self.thing:GetPhysicsObject():Wake()
+
+					if IsValid(self.thing:GetPhysicsObject()) then
+						self.thing:GetPhysicsObject():Wake()
+					else
+						jcms.printf("cant awaken physobj of dropped entity %s?", self.thing)
+					end
 					
 					local ed = EffectData()
 					ed:SetColor(colorInt)
 					ed:SetFlags(0)
 					ed:SetEntity(self.thing)
 					util.Effect("jcms_spawneffect", ed)
+
+					if CPPI then
+						self.thing:CPPISetOwner( game.GetWorld() )
+					end
 				end
 			end)
 		end

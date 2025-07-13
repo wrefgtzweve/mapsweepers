@@ -330,6 +330,10 @@
 
 				jcms.npc_UpdateRelations(turret)
 				turret:EmitSound("npc/roller/blade_cut.wav", 75, 90)
+
+				if CPPI then
+					turret:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -520,6 +524,10 @@
 				ed:SetEntity(pad)
 				util.Effect("jcms_spawneffect", ed)
 
+				if CPPI then
+					pad:CPPISetOwner( game.GetWorld() )
+				end
+
 				return pad
 			end
 		},
@@ -549,6 +557,10 @@
 				ed:SetFlags(0)
 				ed:SetEntity(vtol)
 				util.Effect("jcms_spawneffect", ed)
+
+				if CPPI then
+					vtol:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -577,6 +589,10 @@
 				ed:SetFlags(0)
 				ed:SetEntity(tank)
 				util.Effect("jcms_spawneffect", ed)
+
+				if CPPI then
+					tank:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 
@@ -599,6 +615,9 @@
 				crate:SetColor(col)
 				jcms.announcer_SpeakChance(0.4, jcms.ANNOUNCER_SUPPLIES)
 				jcms.net_NotifyGeneric(ply, jcms.NOTIFY_ORDERED, "#jcms.firstaid")
+				if CPPI then
+					crate:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -620,6 +639,9 @@
 				crate:SetColor(col)
 				jcms.announcer_SpeakChance(0.4, jcms.ANNOUNCER_SUPPLIES_AMMO)
 				jcms.net_NotifyGeneric(ply, jcms.NOTIFY_ORDERED, "#jcms.restock")
+				if CPPI then
+					crate:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -651,6 +673,10 @@
 				constraint.Weld(mine, attachEnt, 0, 0)
 				if (attachEnt:IsNPC() or attachEnt:IsNextBot()) then
 					mine:Detach()
+				end
+
+				if CPPI then
+					mine:CPPISetOwner( game.GetWorld() )
 				end
 			end
 		},
@@ -702,6 +728,10 @@
 				end)
 				
 				jcms.net_SendLocator("all", nil, "#jcms.mine_c4", mine, jcms.LOCATOR_TIMED, 10)
+
+				if CPPI then
+					mine:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -740,6 +770,10 @@
 				mine.jcms_weldedTo = attachEnt
 				constraint.Weld(mine, attachEnt, 0, 0, 0, true)
 
+				if CPPI then
+					mine:CPPISetOwner( game.GetWorld() )
+				end
+
 				return mine --todo: For all orders. Also make the way I'm doing this a bit less Jank.
 			end
 		},
@@ -770,6 +804,10 @@
 				ed:SetFlags(0)
 				ed:SetEntity(shieldcharger)
 				util.Effect("jcms_spawneffect", ed)
+
+				if CPPI then
+					shieldcharger:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 
@@ -801,6 +839,10 @@
 				ed:SetFlags(0)
 				ed:SetEntity(tesla)
 				util.Effect("jcms_spawneffect", ed)
+
+				if CPPI then
+					tesla:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 
@@ -825,6 +867,10 @@
 				util.Effect("jcms_spawneffect", ed)
 				
 				beacon:EmitSound("npc/roller/blade_cut.wav", 75, 100)
+
+				if CPPI then
+					beacon:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -844,6 +890,10 @@
 				device:Spawn()
 				device:SetupDevice("autohacker", attachEnt, boosted)
 				constraint.Weld(device, attachEnt, 0, 0)
+
+				if CPPI then
+					device:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 		
@@ -864,6 +914,10 @@
 				device:Spawn()
 				device:SetupDevice("locator", attachEnt, boosted)
 				constraint.Weld(device, attachEnt, 0, 0)
+
+				if CPPI then
+					device:CPPISetOwner( game.GetWorld() )
+				end
 			end
 		},
 	}
@@ -1264,6 +1318,10 @@
 		local tData = turret:GetTurretData()
 		if tData.postSpawn then 
 			tData.postSpawn(turret)
+		end
+
+		if CPPI then
+			turret:CPPISetOwner( game.GetWorld() )
 		end
 	end
 	

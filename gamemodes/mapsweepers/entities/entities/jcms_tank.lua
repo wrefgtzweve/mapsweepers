@@ -112,6 +112,13 @@ function ENT:Initialize()
 				ed:SetFlags(0)
 				ed:SetEntity(tower)
 				util.Effect("jcms_spawneffect", ed)
+
+				if CPPI then
+					local owner = tank:CPPIGetOwner()
+					if IsValid(owner) or (owner == game.GetWorld()) then
+						tower:CPPISetOwner(owner)
+					end
+				end
 			end)
 			
 			self.nextInteract = 0
