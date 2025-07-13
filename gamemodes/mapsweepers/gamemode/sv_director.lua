@@ -874,8 +874,9 @@
 				for i, ply in ipairs(deadPlayers) do
 					local timeSinceDeath = ct - (ply.jcms_lastDeathTime or 0)
 					local timeSinceRespawnAttempt = ply.jcms_lastRespawnTime and ct - ply.jcms_lastRespawnTime or respawnInterval + 1
+					local timeTabbedOut = CurTime() - ((jcms.playerAfkPings and jcms.playerAfkPings[ply]) or 0)
 
-					if (timeSinceDeath >= respawnDelay) and (timeSinceRespawnAttempt >= respawnInterval) then
+					if (timeSinceDeath >= respawnDelay) and (timeSinceRespawnAttempt >= respawnInterval) and timeTabbedOut < 20 then
 						local beacon = jcms.director_FindRespawnBeacon(false)
 						
 						if IsValid(beacon) then

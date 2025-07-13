@@ -251,6 +251,17 @@ end)
 		end
 	end
 
+	jcms.nextAfkPing = CurTime()
+	hook.Add("Think", "jcms_afkPing", function() 
+		local cTime = CurTime()
+		if jcms.nextAfkPing < cTime then 
+			if system.HasFocus() then
+				jcms.net_SendAfkPing()
+				jcms.nextAfkPing = cTime + 10
+			end
+		end
+	end)
+
 	hook.Add("Think", "jcms_OffgameHandler", function()
 		local ply = jcms.locPly
 		local obs = ply:GetObserverMode()

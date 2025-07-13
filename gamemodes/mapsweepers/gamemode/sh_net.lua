@@ -42,6 +42,7 @@ local bits_ply, bits_ent, bits_wld = 2, 2, 4
 
 	-- // CLIENT {{{
 		local CL_WLD_MAPVOTE = 0
+		local CL_WLD_AFKPING = 1
 
 		local CL_PLY_ = 0
 
@@ -96,6 +97,11 @@ if SERVER then
 
 				jcms.net_SendPlayerVote(ply, mapname)
 			end
+		end,
+		
+		[CL_WLD_AFKPING] = function(ply)
+			jcms.playerAfkPings = jcms.playerAfkPings or {}
+			jcms.playerAfkPings[ply] = CurTime()
 		end
 	}
 
@@ -1065,6 +1071,13 @@ if CLIENT then
 			net.WriteUInt(CL_ENT_TERMINAL, bits_ent)
 
 			net.WriteUInt(output, 8)
+		net.SendToServer()
+	end
+	
+	function jcms.net_SendAfkPing()
+		net.Start("jcms_msg")
+			net.WriteEntity(game.GetWorld())
+			net.WriteUInt(CL_WLD_AFKPING, bits_wld)
 		net.SendToServer()
 	end
 end
