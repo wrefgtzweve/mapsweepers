@@ -1068,7 +1068,11 @@ end
 	end
 
 	function GM:PlayerNoClip(ply, flying)
-		return false
+		if jcms.director and jcms.director.debug then
+			return true
+		else
+			return false
+		end
 	end
 	
 	function GM:CanExitVehicle(veh, ply)
