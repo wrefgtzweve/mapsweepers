@@ -36,11 +36,17 @@ hook.Add("InitPostEntity", "jcms_addonCompatibility", function()
 		-- Ditto, disables hud
 		timer.Simple(1, function()
 			if TacRP then
-				hook.Add("MapSweepersDrawHUD", "jcms_ArcCWHud", function(setup3d2dCentral, setup3d2dDiagonal)
+				hook.Add("MapSweepersDrawHUD", "jcms_TacRPHUD", function(setup3d2dCentral, setup3d2dDiagonal)
 					local w = jcms.locPly:GetActiveWeapon()
 
 					if w.ArcticTacRP then
-						w.DrawHUDBackground = function(w) w:DrawCustomizeHUD() end
+						w.DrawHUDBackground = function(w) 
+							w:DoScope()
+							
+    						w:DrawLockOnHUD()
+							w:DrawCustomizeHUD()
+							w:DrawGrenadeHUD()
+						end
 					end
 				end)
 			end
