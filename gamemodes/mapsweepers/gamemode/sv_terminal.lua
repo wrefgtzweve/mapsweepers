@@ -591,7 +591,7 @@ jcms.terminal_modeTypes = {
 				
 				if clickedNumber == selectedNumber and clickedId ~= selectedId then
 					split[3] = split[3]:sub(1, clickedNumber-1) .. "1" .. split[3]:sub(clickedNumber+1, -1)
-				else
+				elseif (clickedId ~= 0) and (clickedId ~= selectedId) then
 					jcms.terminal_Punish(ent, ply)
 				end
 				

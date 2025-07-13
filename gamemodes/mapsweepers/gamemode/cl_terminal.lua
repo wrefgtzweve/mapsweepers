@@ -1116,14 +1116,14 @@ jcms.terminal_modeTypes = {
 		for i, loc in ipairs(locations) do
 			local x, y, sym = unpack(loc)
 			local hovered = math.Distance(mx, my, x, y) < 32
-			if hovered then 
+			local complete = split[3]:sub(tonumber(sym),tonumber(sym))=="1"
+
+			if hovered and not complete then 
 				lastHover = i 
 				if selected then
 					hovered = false
 				end
 			end
-			
-			local complete = split[3]:sub(tonumber(sym),tonumber(sym))=="1"
 			
 			if complete or selected == i then
 				draw.NoTexture()
@@ -1164,7 +1164,11 @@ jcms.terminal_modeTypes = {
 		draw.SimpleText("#jcms.terminal_circuit_hint", "jcms_hud_small", w/2, 0, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 		draw.SimpleText("#jcms.terminal_circuit_hint", "jcms_hud_small", w/2, -2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 		
-		return lastHover
+		if selected then
+			return lastHover or 0
+		else
+			return lastHover
+		end
 	end,
 	
 	codematch = function(ent, mx, my, w, h, modedata)
