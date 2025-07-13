@@ -140,6 +140,7 @@ jcms.offgame = jcms.offgame or NULL
 		parentPanel.chatEntry:SetPlaceholderText("Say something...")
 		parentPanel.chatEntry:SetPaintBackground(false)
 		parentPanel.chatEntry.PaintOver = jcms.offgame_paint_ChatEntryOver
+
 		function parentPanel.chatEntry:OnEnter()
 			RunConsoleCommand("say", self:GetText())
 
@@ -531,7 +532,7 @@ jcms.offgame = jcms.offgame or NULL
 					end
 				end
 
-				jcms.offgame_CreateChatAsChild(pnl.controlPanel, pnl:GetWide() - 600 - 16, pnl:GetTall() - 200 - 36, 600, 200)
+				jcms.offgame_CreateChatAsChild(pnl, pnl:GetWide() - 600 - 32, pnl:GetTall() - 200 - 64, 600, 200)
 			-- }}}
 
 			local onlineTooltip = pnl:Add("DPanel")

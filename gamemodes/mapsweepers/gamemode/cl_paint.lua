@@ -1071,6 +1071,11 @@
 					local y = p.controlPanel:GetY()
 					local yTarget = (LocalPlayer():GetNWInt("jcms_desiredteam", 0) ~= 0) and (h - p.controlPanel:GetTall() - 4) or h + 32
 					p.controlPanel:SetPos(w - p.controlPanel:GetWide() - 4, (y*8 + yTarget)/9)
+
+					if IsValid(p.chatPanel) and IsValid(p.chatEntry) then
+						p.chatEntry:SetY( math.min(ScrH(), y) - p.chatEntry:GetTall() - 12 )
+						p.chatPanel:SetY( p.chatEntry:GetY() - p.chatPanel:GetTall() - 8 )
+					end
 				end
 			-- }}}
 
