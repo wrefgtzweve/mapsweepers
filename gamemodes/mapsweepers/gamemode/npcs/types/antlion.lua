@@ -483,7 +483,8 @@ jcms.npc_types.antlion_ultracyberguard = {
 	end,
 
 	scaleDamage = function(npc, hitGroup, dmgInfo)
-		local attkVec = npc:GetPos() - dmgInfo:GetInflictor():GetPos()
+		local inflictor = dmgInfo:GetInflictor()
+		local attkVec = IsValid(inflictor) and (npc:GetPos() - inflictor:GetPos()) or Vector(0, 0, 1)
 		attkVec.z = 0
 		
 		local attkNorm = attkVec:GetNormalized()
