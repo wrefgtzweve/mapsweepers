@@ -34,7 +34,7 @@ hook.Add("InitPostEntity", "jcms_addonCompatibility", function()
 	-- TACRP {{{
 		-- https://steamcommunity.com/sharedfiles/filedetails/?id=2588031232&searchtext=tacrp
 		-- Ditto, disables hud
-		timer.Simple(1, function()
+		timer.Create("jcms_TacRPHudRemove", 2, 10, function()
 			if TacRP then
 				hook.Add("MapSweepersDrawHUD", "jcms_TacRPHUD", function(setup3d2dCentral, setup3d2dDiagonal)
 					local w = jcms.locPly:GetActiveWeapon()
