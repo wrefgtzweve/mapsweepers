@@ -776,7 +776,7 @@ function jcms.terminal_ToPurpose(ent)
 end
 
 hook.Add("EntityTakeDamage", "jcms_HackerStunstick", function(ent, dmg)
-	if ent.jcms_hackType and dmg:GetInflictor():IsWeapon() and dmg:GetInflictor():GetClass() == "weapon_stunstick" and jcms.team_JCorp(dmg:GetAttacker()) then
+	if ent.jcms_hackType and dmg:GetInflictor():IsWeapon() and jcms.util_IsStunstick( dmg:GetInflictor() ) and jcms.team_JCorp(dmg:GetAttacker()) then
 		local ed = EffectData()
 		ed:SetEntity(ent)
 		ed:SetMagnitude(4)

@@ -276,7 +276,7 @@ jcms.npc_types.zombie_explodingcrab = {
 	takeDamage = function(npc, dmg)
 		local attacker = dmg:GetAttacker()
 		local inflictor = dmg:GetInflictor()
-		if not npc:IsOnGround() and jcms.team_JCorp(attacker) and IsValid(inflictor) and inflictor:GetClass() == "weapon_stunstick" then
+		if not npc:IsOnGround() and jcms.team_JCorp(attacker) and jcms.util_IsStunstick(inflictor) then
 			dmg:ScaleDamage(10)
 			local fromPos = npc:WorldSpaceCenter()
 

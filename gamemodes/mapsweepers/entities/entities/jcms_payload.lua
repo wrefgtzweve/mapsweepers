@@ -165,7 +165,7 @@ if SERVER then
 
 	function ENT:OnTakeDamage(dmgInfo)
 		local attacker = dmgInfo:GetAttacker()
-		if attacker:IsPlayer() and dmgInfo:GetInflictor():GetClass() == "weapon_stunstick" then
+		if attacker:IsPlayer() and jcms.util_IsStunstick( dmgInfo:GetInflictor() ) then
 			self.BoostTime = math.max(CurTime() + 0.1, self.BoostTime + 0.01)
 		end
 	end

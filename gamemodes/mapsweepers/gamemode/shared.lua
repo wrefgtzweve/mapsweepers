@@ -1158,6 +1158,10 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 		return chunks, chunksize, getChunkId, getChunkTable, getAllNearbyNodes
 	end
+
+	function jcms.util_IsStunstick(ent)
+		return not not (IsValid(ent) and ent:IsWeapon() and ent:GetClass():lower():find("stun_?stick"))
+	end
 	
 	function jcms.util_GetThresholdTimer() -- How many players need to be ready to start mission countdown
 		return math.min(#player.GetHumans(), game.MaxPlayers()/2)

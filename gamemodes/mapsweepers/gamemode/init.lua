@@ -1815,7 +1815,7 @@ end
 			bounty = bounty * jcms.cvar_cash_mul_base:GetFloat()
 
 			if IsValid(inflictor) and inflictor:IsWeapon() then
-				if inflictor:GetClass() == "weapon_stunstick" then
+				if jcms.util_IsStunstick(inflictor) then
 					bounty = bounty * jcms.cvar_cash_mul_stunstick:GetFloat()
 				else
 					local ammotype = game.GetAmmoName( inflictor:GetPrimaryAmmoType() )

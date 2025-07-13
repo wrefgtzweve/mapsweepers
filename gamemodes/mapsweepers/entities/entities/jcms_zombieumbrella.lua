@@ -78,7 +78,7 @@ if SERVER then
 		if self:Health() > 0 then
 			local inflictor, attacker = dmg:GetInflictor(), dmg:GetAttacker()
 
-			if IsValid(inflictor) and inflictor:GetClass() == "weapon_stunstick" and jcms.team_JCorp(attacker) then --Repairs
+			if IsValid(inflictor) and jcms.util_IsStunstick(inflictor) and jcms.team_JCorp(attacker) then --Repairs
 				local repairValue = 7
 				if jcms.isPlayerEngineer(attacker) then
 					repairValue = repairValue * 2.5

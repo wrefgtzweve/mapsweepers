@@ -871,7 +871,7 @@ if SERVER then
 		
 		if self:Health() > 0 then
 			local inflictor, attacker = dmg:GetInflictor(), dmg:GetAttacker()
-			if IsValid(inflictor) and inflictor:GetClass() == "weapon_stunstick" and jcms.team_JCorp(attacker) then --Repairs
+			if IsValid(inflictor) and jcms.util_IsStunstick(inflictor) and jcms.team_JCorp(attacker) then --Repairs
 				if self:GetHackedByRebels() then 
 					jcms.util_UnHack(self)
 					self.jcms_owner = (IsValid(self.jcms_owner) and self.jcms_owner:IsPlayer() and self.jcms_owner) or attacker
