@@ -32,6 +32,7 @@ function ENT:Initialize()
 	self:SetModel("models/jcms/jcorp_evac.mdl")
 
 	if SERVER then
+		self.nextSlowCharge = CurTime()
 		self:PhysicsInitStatic(SOLID_VPHYSICS)
 	end
 
@@ -48,6 +49,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "Charge")
 	self:NetworkVar("Int", 1, "MaxCharge")
 	self:NetworkVar("Bool", 0, "CanCharge")
+	self:NetworkVar("Bool", 1, "SlowCharge")
 	
 	if SERVER then
 		self:SetCharge(0)
@@ -115,7 +117,7 @@ if SERVER then
 			end
 		end
 
-		return #jcms.GetSweepersInRange(pos, 1000) > 0
+		return true
 	end
 	
 	function ENT:Think()
@@ -123,9 +125,14 @@ if SERVER then
 		if jcms.director or selfTbl.forceCharging then
 			local charge, maxcharge = selfTbl:GetCharge(), selfTbl:GetMaxCharge()
 			local safe = self:IsSafe()
+			local swpNearby = #jcms.GetSweepersInRange(self:WorldSpaceCenter(), 1000) > 0
 			
-			if safe ~= selfTbl:GetCanCharge() then
-				selfTbl:SetCanCharge(safe)
+			if swpNearby ~= selfTbl:GetCanCharge() then
+				selfTbl:SetCanCharge(swpNearby)
+			end
+
+			if not(safe) ~= selfTbl:GetSlowCharge() then 
+				selfTbl:SetSlowCharge(not safe)
 			end
 			
 			if selfTbl:IsBeamActive() then
@@ -141,8 +148,12 @@ if SERVER then
 				end
 			end
 
-			if safe and charge < maxcharge then
-				selfTbl:SetCharge(charge + 1)
+			if swpNearby and charge < maxcharge then
+				local cTime = CurTime()
+				if safe or selfTbl.nextSlowCharge < cTime then 
+					selfTbl:SetCharge(charge + 1)
+					selfTbl.nextSlowCharge = cTime + 10
+				end
 			end
 		end
 		
@@ -221,6 +232,7 @@ if CLIENT then
 				local charge = self:GetCharge()
 				local maxcharge = self:GetMaxCharge()
 				local safe = self:GetCanCharge()
+				local slow = self:GetSlowCharge()
 
 				if (not self.soundCharge) and (charge < maxcharge) and ( self:GetCanCharge() ) then
 					self.soundCharge = CreateSound(self, "ambient/levels/citadel/zapper_loop1.wav")
@@ -234,8 +246,11 @@ if CLIENT then
 						self.soundCharge:Stop()
 					end
 					
-					if safe then
+					if safe and not slow then
 						self.soundCharge:ChangePitch(Lerp(charge/maxcharge, 80, 200), 1)
+						self.soundCharge:ChangeVolume(1, 0.1)
+					elseif slow then
+						self.soundCharge:ChangePitch(Lerp(charge/maxcharge, 40, 100), 1)
 						self.soundCharge:ChangeVolume(1, 0.1)
 					else
 						self.soundCharge:ChangePitch(10, 1)
@@ -243,7 +258,7 @@ if CLIENT then
 					end
 				end
 				
-				if safe and charge < maxcharge then
+				if slow and charge < maxcharge then
 					if self:GetCharge() >= maxcharge then
 						self.soundCharge:ChangePitch(10, 5)
 						self.soundCharge:ChangeVolume(0, 5)
@@ -295,23 +310,35 @@ if CLIENT then
 				local color
 				
 				if self:GetCanCharge() then
-					local str1 = language.GetPhrase("jcms.evac_title1"):format( math.Round(self:GetCharge() / self:GetMaxCharge() * 100) )
-					local str2 = language.GetPhrase("jcms.evac_text1")
-					for i=1, n do
-						local frac = (i-1)/(n-1)
-						color = Color(Lerp(frac, 64, 0), Lerp(frac, 180, 0), 255, Lerp(frac*frac, 255, 0), 255/n)
-						draw.SimpleText(str1, "jcms_hud_medium", math.Rand(-4, 4), math.Rand(-1, 1), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-						draw.SimpleText(str2, "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					if self:GetSlowCharge() then
+						local str1 = language.GetPhrase("jcms.evac_title3"):format( math.Round(self:GetCharge() / self:GetMaxCharge() * 100) )
+						local str2 = language.GetPhrase("jcms.evac_text2")
+						
+						for i=1, n do
+							local frac = (i-1)/(n-1)
+							color = Color(Lerp(frac, 255, 100), Lerp(frac*frac, Lerp(sine, 32, 128), 0), Lerp(frac*frac, 64, 0), 255/n)
+							draw.SimpleText(str1, "jcms_hud_medium", math.Rand(-4, 4), math.Rand(-1, 1), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+							draw.SimpleText(str2, "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
+					else
+						local str1 = language.GetPhrase("jcms.evac_title1"):format( math.Round(self:GetCharge() / self:GetMaxCharge() * 100) )
+						local str2 = language.GetPhrase("jcms.evac_text1")
+						for i=1, n do
+							local frac = (i-1)/(n-1)
+							color = Color(Lerp(frac, 64, 0), Lerp(frac, 180, 0), 255, Lerp(frac*frac, 255, 0), 255/n)
+							draw.SimpleText(str1, "jcms_hud_medium", math.Rand(-4, 4), math.Rand(-1, 1), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+							draw.SimpleText(str2, "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
 					end
 				else
 					local str1 = language.GetPhrase("jcms.evac_title2")
-					local str2 = language.GetPhrase("jcms.evac_text2")
+					--local str2 = language.GetPhrase("jcms.evac_text2")
 					
 					for i=1, n do
 						local frac = (i-1)/(n-1)
 						color = Color(Lerp(frac, 255, 100), Lerp(frac*frac, Lerp(sine, 32, 128), 0), Lerp(frac*frac, 64, 0), 255/n)
 						draw.SimpleText(str1, "jcms_hud_medium", math.Rand(-4, 4), math.Rand(-1, 1), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-						draw.SimpleText(str2, "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						--draw.SimpleText(str2, "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 					end
 				end
 			cam.End3D2D()

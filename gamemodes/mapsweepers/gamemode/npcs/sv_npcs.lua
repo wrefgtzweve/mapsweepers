@@ -154,7 +154,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 		if npc.SetMaxLookDistance then
 			npc:SetMaxLookDistance( math.max(npc:GetMaxLookDistance(), 4096) )
 		end
-		npc:SetPos(pos + Vector(0,0,15))
+		npc:SetPos(pos + Vector(0,0,35))
 
 		local hulltrace = util.TraceEntityHull({
 			start = npc:EyePos(),
@@ -465,7 +465,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 	end
 
 	function jcms.npc_PortalReleaseXNPCs(ent, x, origin, faction, npcType, callback)
-		local navArea = navmesh.GetNearestNavArea(origin)
+		local navArea = navmesh.GetNearestNavArea(origin) --TODO: Replace with something that only uses validAreas.
 		if not IsValid(navArea) or not jcms.mapgen_ValidArea(navArea) then 
 			return
 		end
