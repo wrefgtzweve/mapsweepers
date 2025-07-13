@@ -2204,6 +2204,25 @@ jcms.offgame = jcms.offgame or NULL
 							scale:SetMinMax(0, 2)
 							scale:SetConVar("jcms_friendlyfire_multiplier")
 							scale.Paint = jcms.paint_NumSlider
+
+							local softcap = content:Add("DNumSlider")
+							softcap:SetText("#jcms.opt_softcap")
+							softcap:SetSize(contentSize - 48, 24)
+							softcap:SetPos(24, 24*2 + 32)
+							softcap:SetMinMax(1, 100)
+							softcap:SetDecimals(0)
+							softcap:SetConVar("jcms_npc_softcap")
+							softcap.Paint = jcms.paint_NumSlider
+							local softcap_clarify = content:Add("DTextEntry")
+							softcap_clarify:SetPos(softcap:GetX() + 16, softcap:GetY() + softcap:GetTall() + 4)
+							softcap_clarify:SetSize(contentSize - 32 - softcap_clarify:GetX(), 84)
+							softcap_clarify:SetMultiline(true)
+							softcap_clarify:SetEditable(false)
+							softcap_clarify:SetFont("jcms_small")
+							softcap_clarify:SetPaintBackground(false)
+							softcap_clarify:SetTextColor(jcms.color_pulsing)
+							softcap_clarify.PaintOver = jcms.paintover_PanelClarify
+							softcap_clarify:SetText(language.GetPhrase("jcms.opt_softcap_desc1") .. "\n" .. language.GetPhrase("jcms.opt_softcap_desc2"))
 						end
 					-- }}}
 

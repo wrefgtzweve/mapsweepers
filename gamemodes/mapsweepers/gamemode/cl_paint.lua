@@ -111,6 +111,16 @@
 		end
 	end
 
+	function jcms.paintover_PanelClarify(p, w, h)
+		surface.SetDrawColor(jcms.color_pulsing)
+		DisableClipping(true)
+		local tw, th = draw.SimpleText("?", "jcms_medium", -13, h/2, jcms.color_pulsing, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		local height = th/2+2
+		jcms.hud_DrawStripedRect(-14, 0, 2, h/2-height, 32, CurTime()*16)
+		jcms.hud_DrawStripedRect(-14, h/2+height, 2, h/2-height, 32, CurTime()*16)
+		DisableClipping(false)
+	end
+
 	function jcms.paint_Button(p, w, h)
 		local pad = math.min(w/4, 8)
 		local clr = p:IsHovered() and jcms.color_bright_alt or jcms.color_bright

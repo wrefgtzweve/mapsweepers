@@ -1138,7 +1138,16 @@
 		
 		function jcms.director_ThinkSwarm(d)
 			if not d then return end
+
 			local missionTime = jcms.director_GetMissionTime()
+			local softcap = jcms.cvar_softcap:GetInt()
+			local softcap_slowdown = softcap * 0.8
+
+			if #d.npcs > softcap then
+				d.swarmNext = missionTime + 5
+				return 
+			end
+
 			local missionTypeData = jcms.missions[ d.missionType ]
 			
 			d.swarmCount = d.swarmCount or 0
@@ -1148,7 +1157,7 @@
 
 			if missionTime >= d.swarmNext then
 				d.swarmCount = d.swarmCount + 1
-				local swarmCost = math.Round(2.5 + math.sqrt(missionTime/50), 1) - math.max(0, #d.npcs - 57) + d.livingPlayers
+				local swarmCost = math.Round(2.5 + math.sqrt(missionTime/50), 1) - math.max(0, #d.npcs - softcap_slowdown) + d.livingPlayers
 				
 				-- // Calculate "Danger Score" based on how many waves we've sent. Up the danger every 3rd/6th wave. {{{
 					local dangerScale = math.min(d.swarmCount / 20, 3) --Don't scale to the point where every wave is a boss
@@ -1221,7 +1230,7 @@
 			if d.encounters then
 				local curNpcCount = #d.npcs
 				
-				if curNpcCount > 67 then
+				if curNpcCount > jcms.cvar_softcap:GetInt() then
 					return
 				end
 				
@@ -1241,7 +1250,7 @@
 						local encPos = enc.pos
 						
 						local mustTrigger = false
-						local aggressor = NULL
+					local aggressor = NULL
 						for j, ply in ipairs(sweepers) do
 							local dist2 = encPos:DistToSqr(ply:WorldSpaceCenter())
 							if (dist2 <= math.min(enc.rad/2, 300)^2 and ply:TestPVS(encPos)) 
