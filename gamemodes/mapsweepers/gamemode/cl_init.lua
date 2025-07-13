@@ -311,6 +311,12 @@ end)
 
 	hook.Add("Think", "jcms_cachevalues", function()
 		local locPly = jcms.locPly
+		
+		if not IsValid(locPly) then
+			locPly = LocalPlayer()
+			jcms.locPly = locPly
+		end
+
 		jcms.cachedValues.playerClass = locPly:GetNWString("jcms_class", "infantry") 
 	end)
 	

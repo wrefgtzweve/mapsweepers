@@ -1773,6 +1773,11 @@
 		jcms.draw_Vignette()
 		
 		local ply = jcms.locPly
+		if not IsValid(ply) then
+			ply = LocalPlayer()
+			jcms.locPly = ply
+		end
+		
 		local obs = ply:GetObserverMode()
 
 		if jcms.hud_beginsequencet <= jcms.hud_beginsequenceLen then
