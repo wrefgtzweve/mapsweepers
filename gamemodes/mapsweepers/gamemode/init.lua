@@ -526,7 +526,7 @@ end
 	}
 
 	function jcms.runprogress_CalculateDifficultyFromWinstreak(winstreak, totalWins)
-		local newPlayerScalar = 1 - math.max((5 - totalWins), 0) * 0.05
+		local newPlayerScalar = 1 - math.max((6 - totalWins), 0) * 0.06
 		return (0.9 + winstreak * 0.175) * newPlayerScalar
 		
 		--Winstreaks increase difficulty (17.5% per mission).
@@ -819,17 +819,11 @@ end
 
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
+			local spawn = ents.FindByClass("info_player_start")[1]
 
-			local pos = ply:GetPos()
-			local i = ply:EntIndex()
-
-			local x = i % 8
-			local y = math.floor(i/8)
-
-			pos.x = x * 72 - 2048
-			pos.y = y * 72 - 2048
-			pos.z = 1024
-
+			local pos = spawn:GetPos()
+			pos.z = pos.z + ply:EntIndex()*72
+			
 			ply:SetPos(pos)
 
 			if not ply:Alive() then

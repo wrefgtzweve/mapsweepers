@@ -380,7 +380,7 @@ jcms.offgame = jcms.offgame or NULL
 							table.remove(self.list, i)
 						else
 							local elem = self.elementDict[ ply ]
-							if not elem then
+							if not IsValid(elem) then
 								elem = self:Add("DPanel")
 								elem:SetPos(self:GetWide(), 48 * (i-1))
 								elem:SetSize(self:GetWide(), 48)
@@ -455,7 +455,7 @@ jcms.offgame = jcms.offgame or NULL
 							table.remove(self.list, i)
 						else
 							local elem = self.elementDict[ ply ]
-							if not elem then
+							if not IsValid(elem) then
 								elem = self:Add("DPanel")
 								elem:SetPos(self:GetWide(), 24 * (i-1))
 								elem:SetSize(self:GetWide(), 24)
