@@ -268,6 +268,8 @@
 			elseif wep.ArcCW then
 				local gA, gD = wep:GetFOVAcc( wep:GetBuff("AccuracyMOA"), wep:GetDispersion() )
 				return math.max(8, (gA + gD)*3.5) + math.Clamp(wep.RecoilAmount, 0, 1) * 200
+			elseif wep.ArcticTacRP then
+				return wep:GetSpread() * 5000
 			elseif wep.GetBaseSpread and wep.SpreadRatio then
 				return wep.SpreadRatio * math.deg( wep:GetBaseSpread() ) * 42
 			elseif wep.Primary and wep.Primary.RPM and wep.Primary.Spread then
