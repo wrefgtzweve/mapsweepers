@@ -820,8 +820,14 @@ end
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
 			local spawn = ents.FindByClass("info_player_start")[1]
+			
+			local pos
+			if not IsValid(spawn) then 
+				pos = Vector(0,0,0)
+			else
+				pos = spawn:GetPos()
+			end
 
-			local pos = spawn:GetPos()
 			pos.z = pos.z + ply:EntIndex()*72
 			
 			ply:SetPos(pos)
