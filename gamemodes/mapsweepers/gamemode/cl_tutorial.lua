@@ -206,12 +206,12 @@ jcms.tutorPoints = {
 	},
 
 	{
-		v = Vector(3157, -969, -304),
+		v = Vector(3190, -969, -304),
 		a = Angle(0, 270, 0),
 
 		box1 = Vector(2957, -1321, -269),
 		box2 = Vector(3479, -952, -385),
-		width = 1600,
+		width = 1660,
 		scale = 1.5,
 
 		bgcol = jcms.color_bright_alt,
@@ -796,7 +796,7 @@ hook.Add("Think", "jcms_Tutorial", function()
 		pnl.p2.bRecMaps.jFont = "jcms_medium"
 		pnl.p2.bRecMaps.Paint = jcms.paint_ButtonFilled
 		function pnl.p2.bRecMaps:DoClick()
-			-- TODO Open collection
+			gui.OpenURL("https://steamcommunity.com/sharedfiles/filedetails/?id=3522258079")
 		end
 
 		pnl.p3 = jcms.offgame_CreateSocialPanel(pnl, -1024, -1024, 600, 128)
