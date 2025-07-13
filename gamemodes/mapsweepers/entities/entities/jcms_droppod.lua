@@ -162,6 +162,8 @@ if SERVER then
 				ed:SetFlags(1)
 				util.Effect("jcms_evacbeam", ed)
 			end
+		elseif IsValid(self.boardingPlayer) and self.forceExitTime and self.forceExitTime < CurTime() then
+			self.boardingPlayer:ExitVehicle()
 		end
 	end
 
@@ -189,7 +191,9 @@ if SERVER then
 			ed:SetEntity(self)
 			util.Effect("ThumperDust", ed)
 			util.Decal("Scorch", self:GetPos(), data.HitPos + data.HitNormal*32, { self, self._pod })
-			util.BlastDamage(self.boardingPlayer, self.boardingPlayer, data.HitPos, 128, 40)
+			if IsValid(self.boardingPlayer) then
+				util.BlastDamage(self.boardingPlayer, self.boardingPlayer, data.HitPos, 128, 40)
+			end
 
 			timer.Simple(0, function()
 				if IsValid(self) then
@@ -212,6 +216,9 @@ if SERVER then
 				end
 			end)
 
+			if not game.SinglePlayer() then
+				self.forceExitTime = CurTime() + 40
+			end
 			self.cleanupTime = CurTime() + math.random(5, 15)
 		end
 	end
