@@ -151,6 +151,8 @@ if SERVER then
 							plyZone = zoneList[plyZoneId]
 						end
 
+						if not plyZone then return end --This is stupid but I guess people are willing to play on maps made of tiny rooms.
+
 						local plyMins, plyMaxs = ply:GetHull()
 						local zOff = Vector(0,0, plyMaxs.z + 5)
 						local zOff2 = Vector(0,0,5)
