@@ -154,11 +154,13 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 		if npc.SetMaxLookDistance then
 			npc:SetMaxLookDistance( math.max(npc:GetMaxLookDistance(), 4096) )
 		end
-		npc:SetPos(pos + Vector(0,0,35))
+
+		local v35 = Vector(0,0,20)
+		npc:SetPos(pos + v35)
 
 		local hulltrace = util.TraceEntityHull({
 			start = npc:EyePos(),
-			endpos = pos,
+			endpos = pos + ((enemyData.isStatic and jcms.vectorOrigin) or v35),
 			mask = MASK_NPCSOLID_BRUSHONLY
 		}, npc)
 		npc:SetPos(hulltrace.HitPos)
@@ -314,6 +316,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 				local output = {}
 				local trdata = { mask = MASK_VISIBLE, output = output }
 
+				local upVec = Vector(0,0,15)
 				for i, v in ipairs(vectors) do
 					v.z = v.z + 32
 					local invisible = true
@@ -349,7 +352,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 
 							timer.Simple(stragglerDelay, function()
 								if IsValid(npc) then
-									npc:SetPos(sqv)
+									npc:SetPos(sqv + upVec)
 									jcms.npc_GetRowdy(npc)
 
 									local ed = EffectData()

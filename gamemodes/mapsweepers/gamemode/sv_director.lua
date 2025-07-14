@@ -597,7 +597,7 @@
 						util.TraceLine(traceData)
 						
 						--Are we on a valid surface?
-						if traceRes.HitNoDraw or not(traceRes.Hit and (traceRes.MatType ~= MAT_SLOSH) and traceRes.HitNormal:Dot(vUp) >= dotTolerance) then
+						if traceRes.HitSky or traceRes.HitNoDraw or not(traceRes.Hit and (traceRes.MatType ~= MAT_SLOSH) and traceRes.HitNormal:Dot(vUp) >= dotTolerance) then
 							continue
 						end
 						

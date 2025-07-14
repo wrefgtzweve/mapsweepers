@@ -340,8 +340,11 @@ jcms.npc_types.zombie_polyp = {
 	portalScale = 0.5,
 
 	anonymous = true, --Don't contribute to the softcap / director.
+	isStatic = true, 
 
 	postSpawn = function(npc)
+		npc.jcms_ignoreStraggling = true
+
 		if not jcms.director then return end
 
 		local npcPos = npc:GetPos()
@@ -478,6 +481,8 @@ jcms.npc_types.zombie_minitank = {
 	end,
 
 	postSpawn = function(npc)
+		npc.jcms_ignoreStraggling = true
+
 		local hp = math.ceil(npc:GetMaxHealth()*2.75)
 		npc:SetMaxHealth(hp)
 		npc:SetHealth(hp)
