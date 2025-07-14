@@ -606,6 +606,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 			if stats.clipsize < 0 then
 				stats.clipsize = tonumber(gunData.Primary.DefaultClip) or 0
 			end
+			stats.clipsize = math.min(stats.clipsize, 9999) --Infinite clip sizes cause issues.
 
 			if SERVER and gunData.ViewModel and gunData.ViewModel ~= "" then
 				--Note: This function gets called in render hooks, so we either need to cache this or only have the data serverside.
