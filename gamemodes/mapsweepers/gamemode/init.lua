@@ -413,8 +413,8 @@ end
 				
 				if jcms.director and jcms.director.persisting_loadout then
 					ply.jcms_lastLoadout = jcms.director.persisting_loadout[ sid64 ]
-					ply:SetNWString("jcms_desiredclass", jcms.director.persisting_class[ sid64 ])
-					ply:SetNWInt("jcms_cash", jcms.director.persisting_cash[ sid64 ])
+					ply:SetNWString("jcms_desiredclass", jcms.director.persisting_class[ sid64 ] or "infantry")
+					ply:SetNWInt("jcms_cash", jcms.director.persisting_cash[ sid64 ] or jcms.runprogress_GetStartingCash(ply))
 					jcms.printf("Restoring loadout, class and cash for player " .. tostring(ply))
 				end
 
