@@ -56,8 +56,6 @@ if SERVER then
 		self.jcms_hackType = nil
 
 		self:AddFlags( FL_NOTARGET )
-
-		self.alarmSound = CreateSound(self, "npc/attack_helicopter/aheli_crash_alert2.wav")
 		
 		local pos, ang = self:WorldSpaceCenter(), self:GetAngles()
 		self.bullseyes = {}
@@ -171,9 +169,11 @@ if SERVER then
 			self:EmitSound("Weapon_StriderBuster.StickToEntity")
 		end
 
-		self.deathAlert = CreateSound(self, "ambient/alarms/combine_bank_alarm_loop4.wav")
+		local filter = RecipientFilter()
+		filter:AddAllPlayers()
+		self.deathAlert = CreateSound(self, "ambient/alarms/combine_bank_alarm_loop4.wav", filter)
+		self.deathAlert:SetSoundLevel(130)
 		self.deathAlert:PlayEx(1, 50)
-		self.deathAlert:SetSoundLevel(140)
 		self.deathAlert:SetDSP(38)
 		self.deathAlert:ChangePitch(255, 4)
 
@@ -231,6 +231,11 @@ if SERVER then
 
 	function ENT:StartCountdown()
 		self:EmitSound("ambient/alarms/klaxon1.wav")
+
+		local filter = RecipientFilter()
+		filter:AddAllPlayers()
+		self.alarmSound = CreateSound(self, "npc/attack_helicopter/aheli_crash_alert2.wav", filter )
+		self.alarmSound:SetSoundLevel(90)
 		self.alarmSound:PlayEx(1, 90)
 
 		self:SetMaxHealth(500)

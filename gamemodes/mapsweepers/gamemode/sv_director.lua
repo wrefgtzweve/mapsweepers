@@ -1165,8 +1165,14 @@
 					local danger2 = (1 - math.min(d.swarmCount%2, 1))/2 --Add a bit of noise/variation based on wave.
 
 					local danger3 = (1 - math.min(d.swarmCount%3, 1)) --STRONG on 3rds
-					local danger6 = (1 - math.min(d.swarmCount%5, 1)) * (3.5) --BOSS on 5ths
-					local dangerScore = 1 + dangerScale + danger3 + danger6 + danger2
+					local danger5 = (1 - math.min(d.swarmCount%5, 1)) * (3.5) --BOSS on 5ths
+					local dangerScore = 1 + dangerScale + danger3 + danger5 + danger2
+
+					if dangerScale >= 3 and d.swarmCount % 8 == 0 then 
+						--After we hit max danger, introduce lulls every now and then so players have an opportunity to get out and do things.
+						dangerScore = 1
+						swarmCost = swarmCost - 20
+					end
 					
 					if dangerScore >= 3.5 then
 						d.swarmDanger = jcms.NPC_DANGER_BOSS
