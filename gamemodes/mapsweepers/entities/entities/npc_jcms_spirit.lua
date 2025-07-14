@@ -344,7 +344,7 @@ if SERVER then
 			local ent = toDeploy[i]
 			ent:SetParent()
 			ent:SetPos(v + upVec)
-			ent:DropToFloor()
+			--ent:DropToFloor()
 			ent:SetNoDraw(false)
 
 			local foe = self:GetEnemy()

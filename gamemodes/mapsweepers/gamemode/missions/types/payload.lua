@@ -160,17 +160,26 @@
 						term:SetPos(wallspots[ri] + normals[ri] * 25)
 						term:SetAngles(normals[ri]:Angle())
 					else
-						local ang = ent:GetAngles()
-						ang:RotateAroundAxis( ang:Up(), math.random() < 0.5 and -90 or 90 )
+						--Prevents us from using the navArea we're in if it's too small. Don't want the terminal immediately under the payload.
+						local ang1 = ent:GetAngles()
+						ang1:RotateAroundAxis( ang1:Up(), math.random() < 0.5 and -90 or 90 )
 						
-						local pos = ent:GetPos()
-						pos:Add( ang:Forward() * math.random(100, 130) )
+						local navPos = ent:GetPos()
+						navPos:Add( ang1:Forward() * math.random(120, 200) )
 
-						term:SetAngles(ang)
-						term:SetPos(pos)
+						local newArea = navmesh.GetNearestNavArea(navPos, false, 250, true, true)
+
+						--Puts us at the edge of whichever area we're at
+						local dir = math.random(0, 3)
+						term:SetPos(jcms.mapgen_GetAreaEdgePos(newArea, dir))
+						local ang2 = Angle(0,90,0)
+						ang2:RotateAroundAxis( ang2:Up(), dir * 90 )
+						term:SetAngles(ang2)
+
 					end
-					
-					term:DropToFloor()
+
+					jcms.mapgen_DropEntToNav(term)
+
 					term:Spawn()
 					term:InitAsTerminal("models/props_combine/combine_interface002.mdl", "payload_controls")
 					term.jcms_hackTypeStored = term.jcms_hackType --workaround to make us unhackable with stunstick

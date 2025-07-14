@@ -486,8 +486,8 @@
 			end
 
 			local evac = ents.Create("jcms_evac")
-			evac:SetPos(pos + Vector(0,0,25))
-			evac:DropToFloor()
+			evac:SetPos(pos)
+			--evac:DropToFloor()
 			evac:Spawn()
 
 			if timeToWaitOverride then

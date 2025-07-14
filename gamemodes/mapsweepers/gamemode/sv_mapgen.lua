@@ -973,6 +973,31 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		return a:GetClosestPointOnArea(center)
 	end
 
+	function jcms.mapgen_NearestArea(pos) --Similar to GetNearestNavArea but only using valid ones.
+		local closest = nil
+		local closestDist = math.huge
+		for i, area in ipairs(jcms.mapdata.validAreas) do 
+			local dist = pos:DistToSqr(area)
+			if dist < closestDist then 
+				closest = area
+				closestDist = dist
+			end
+		end
+		return closest, closestDist
+	end
+
+	function jcms.mapgen_GetAreaEdgePos(navArea, edge)
+		local c1 = navArea:GetCorner( edge ) 
+		local c2 = navArea:GetCorner( (edge + 1)%4 )
+		return (c1 + c2)/2 
+	end
+
+	function jcms.mapgen_DropEntToNav(ent, pos) --More reliable :DropToFloor. Don't use on npcs/non-statics as they could fall through a displacement.
+		pos = pos or ent:GetPos()
+		local nearestArea = navmesh.GetNearestNavArea(pos, false, 250, true, true)
+		ent:SetPos( nearestArea:GetClosestPointOnArea(pos) )
+	end
+
 -- // }}}
 
 -- // Distribution {{{

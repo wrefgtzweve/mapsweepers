@@ -375,9 +375,7 @@
 			end
 		end
 		
-		local c1 = navArea:GetCorner( bestAdj ) 
-		local c2 = navArea:GetCorner( (bestAdj + 1)%4 )
-		local edgePos = (c1 + c2)/2 
+		local edgePos = jcms.mapgen_GetAreaEdgePos(navArea, bestAdj)
 
 		local cDir = (navArea:GetCenter() - edgePos):GetNormalized()
 		
