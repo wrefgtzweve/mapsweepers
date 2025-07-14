@@ -150,7 +150,7 @@
 			maxDist = maxDist*maxDist
 			
 			for i, area in ipairs(zoneAreas) do
-				if not (area:IsUnderwater() or area:IsDamaging()) then
+				if IsValid(area) and not (area:IsUnderwater() or area:IsDamaging()) then
 					local bad = false
 					for j, origin in ipairs(origins) do
 						local d1, d2, d3, d4, d5 = area:GetCorner(0):DistToSqr(origin), area:GetCorner(1):DistToSqr(origin), area:GetCorner(2):DistToSqr(origin), area:GetCorner(3):DistToSqr(origin), area:GetCenter():DistToSqr(origin)

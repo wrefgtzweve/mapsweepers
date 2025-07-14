@@ -252,7 +252,9 @@ if SERVER then
 
 				if not self:TurretVisibleTrace(self.currentTarget) then
 					--Start node is precalculated / stored because missile turrets don't move. Saves some performance.
-					missile.Path = jcms.pathfinder.navigate(self.startNode, self.currentTarget:WorldSpaceCenter())
+					if IsValid(self.startNode) then --Lua error prevention. Some maps don't have an airgraph at all.
+						missile.Path = jcms.pathfinder.navigate(self.startNode, self.currentTarget:WorldSpaceCenter())
+					end
 					missile.Damping = 0.89
 				end
 			end
