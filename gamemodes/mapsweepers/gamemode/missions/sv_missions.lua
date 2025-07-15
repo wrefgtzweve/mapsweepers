@@ -327,7 +327,7 @@
 			-- The game is ongoing. We can spawn the players.
 
 			if not jcms.director.gameover then
-				for i, ply in ipairs( player.GetAll() ) do
+				for i, ply in player.Iterator() do
 					if ply:GetObserverMode() == OBS_MODE_FIXED then
 						local desiredTeam = ply:GetNWInt("jcms_desiredteam", 0)
 						local ready = ply:GetNWBool("jcms_ready", false) or game.SinglePlayer()

@@ -810,7 +810,7 @@
 			local livingCount, evacCount = 0, 0
 			local deadPlayers = {}
 
-			for i, ply in ipairs( player.GetAll() ) do
+			for i, ply in player.Iterator() do
 				jcms.director_stats_Ensure(d, ply)
 				if d.evacuated[ply] then
 					evacCount = evacCount + 1
