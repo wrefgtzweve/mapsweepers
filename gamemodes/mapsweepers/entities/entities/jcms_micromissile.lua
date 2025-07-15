@@ -320,6 +320,8 @@ if SERVER then
 	end
 
 	function ENT:GetHackedByRebels() --todo: Jank.
+		if not IsValid(self) then return false end
+
 		local selfTbl = self:GetTable()
 		return IsValid(selfTbl.jcms_owner) and not jcms.team_JCorp(selfTbl.jcms_owner)
 	end
