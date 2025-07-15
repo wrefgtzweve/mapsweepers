@@ -821,6 +821,20 @@ end)
 
 -- // Util {{{
 
+	function jcms.util_GetRealFOV()
+		local frame = FrameNumber()
+		if (not jcms.cachedValues.fov) or (frame > jcms.cachedValues.fov_frame) then
+			jcms.cachedValues.fov_frame = frame
+			
+			local v1 = gui.ScreenToVector(0, ScrH()/2)
+			local v2 = gui.ScreenToVector(ScrW(), ScrH()/2)
+
+			jcms.cachedValues.fov = math.deg( math.acos( v1:Dot(v2) ) )
+		end
+
+		return jcms.cachedValues.fov
+	end
+
 	function jcms.util_ShortEyeTrace(ply, distance, mask)
 		local pos = ply:EyePos()
 		local fwd = ply:EyeAngles():Forward()

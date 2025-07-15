@@ -182,7 +182,7 @@
 	jcms.hud_npcConfirmation = 0
 
 	function jcms.hud_Get3D2DScale() --todo: Could maybe be calculated once instead of repeated, but I've had some minor issues with caching so haven't done that yet -j
-		return Lerp(jcms.hud_spawnmenuAnim, 1, 0.8) / ( 6500 / jcms.locPly:GetFOV() ) * jcms.cachedValues.hudScale
+		return Lerp(jcms.hud_spawnmenuAnim, 1, 0.8) / ( 6500 / jcms.util_GetRealFOV() ) * jcms.cachedValues.hudScale
 	end
 	
 	function jcms.hud_UpdateColors()
@@ -1122,7 +1122,7 @@
 			jcms.hud_playedBoostSound = false
 
 			local blend_sb = 1-jcms.hud_scoreboard
-			local blend_fov = math.Clamp(1-(75-me:GetFOV())/5,0,1)
+			local blend_fov = math.Clamp(1-(75-jcms.util_GetRealFOV())/5,0,1)
 			local blend = math.min(blend_sb, blend_fov)
 
 			local ammofrac = 1
