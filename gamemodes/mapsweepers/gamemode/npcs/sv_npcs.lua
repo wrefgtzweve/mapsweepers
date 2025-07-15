@@ -562,6 +562,10 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 
 				jcms.npc_UpdateRelations(ent)
 			end
+				
+			if not game.SinglePlayer() then
+				ent:SetLagCompensated( true )
+			end
 		end
 	end)
 
