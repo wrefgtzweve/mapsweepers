@@ -367,6 +367,8 @@
 		npc_portal = {
 			natural = true,
 			weight = 0.3,
+			
+			onlyMainZone = true,
 
 			check = function(area)
 				return ( area:GetSizeX()*area:GetSizeY() ) > 400

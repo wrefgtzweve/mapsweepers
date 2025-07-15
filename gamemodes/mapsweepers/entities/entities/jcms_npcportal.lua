@@ -108,7 +108,8 @@ if SERVER then
 			self.NextNPCSpawnTime = math.min(self.NextNPCSpawnTime, CurTime() + 8)
 		end
 
-		if (CurTime() > self.NextNPCSpawnTime) and #self.MyNPCs < self.NPCLimit then
+		local nearestSwpr, nearestDist = jcms.GetNearestSweeper(self:WorldSpaceCenter())
+		if (CurTime() > self.NextNPCSpawnTime) and #self.MyNPCs < self.NPCLimit and nearestDist < 8000 then
 			if self:GetIsProvoked() then
 				self.QueuedSpawns = math.min(math.random(5, 11), self.NPCLimit - #self.MyNPCs)
 				self.NextNPCSpawnTime = CurTime() + math.Rand(10, 30)
