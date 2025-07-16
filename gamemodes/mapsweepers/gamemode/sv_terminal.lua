@@ -163,7 +163,7 @@ jcms.terminal_modeTypes = {
 					ply.jcms_incendiaryUpgrade = (ply.jcms_incendiaryUpgrade and ply.jcms_incendiaryUpgrade + 1) or 1
 					-- Incendiary Ammo upgrade
 					ply.jcms_damageEffect = function(ply, target, dmgInfo)
-						if not jcms.team_JCorp(target) and not(target:GetClass() == "jcms_fire" or target:GetClass() == "gmod_hands") and not target:IsWeapon() then 
+						if not jcms.team_JCorp(target) and not(target:GetClass() == "jcms_fire" or target:GetClass() == "gmod_hands" or target:GetClass() == "predicted_viewmodel") and not target:IsWeapon() then 
 							target:Ignite(ply.jcms_incendiaryUpgrade * 2)
 						end
 					end
