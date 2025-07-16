@@ -32,6 +32,9 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetModel("models/jcms/jcorp_flashpoint.mdl")
 		self:PhysicsInitStatic(SOLID_VPHYSICS)
+
+		self.chargeThinkInterval = (math.random(20,35) * 60)/100 --will auto charge itself in 30-45 mins as a fallback
+		self:NextThink(CurTime() + 10 * 60) --Only start charging 10m in, avoids confusing people
 	end
 	
 	if CLIENT then
@@ -110,6 +113,17 @@ if SERVER then
 		if jcms.director.commander and jcms.director.commander.flashpointSummon then 
 			jcms.director.commander:flashpointSummon(self, boss)
 		end
+	end
+
+	function ENT:Think()
+		self:SetCharge( math.min(self:GetCharge() + math.ceil(self:GetMaxCharge()/100), self:GetMaxCharge()) )
+
+		if not self:GetIsComplete() and self:GetCharge() >= self:GetMaxCharge() then
+			self:ReleaseBoss()
+		end
+
+		self:NextThink(CurTime() + self.chargeThinkInterval)
+		return true
 	end
 
 	hook.Add("MapSweepersDeathNPC", "jcms_FlashpointKill", function(ply_or_npc, attacker, inflictor, isPlayerNPC)

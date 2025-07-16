@@ -288,97 +288,124 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 		end)
 	end
 	
+
 	function jcms.npc_HandleStragglers(npcs)
 		local d = jcms.director
-		if d then
-			local stragglerDelay = 1
-
-			-- We only handle stragglers if there's at least a small squad of them.
-			if #npcs >= 3 then
-				local origins = {}
-				local sweepers = jcms.GetAliveSweepers()
-
-				for i, sweeper in ipairs(sweepers) do
-					local v = sweeper:EyePos()
-					table.insert(origins, v)
-				end
-
-				local areas = (d.zonePopulations[1] and d.zonePopulations[1]>0) and jcms.director_GetAreasAwayFrom(jcms.mapgen_ZoneList()[1], origins, 300, 2048) or {}
-				for ply, area in pairs(d.playerAreas) do
-					local zoneIndex = jcms.mapgen_ZoneDict()[ area ]
-					if zoneIndex and zoneIndex > 1 then
-						table.Add(areas, jcms.mapgen_ZoneList()[zoneIndex])
-					else
-						table.insert(areas, area)
-					end
-				end
-
-				local vectors = jcms.mapgen_SubdivideAreasIntoVectors(areas, 512)
-				table.Shuffle(vectors)
-
-				local output = {}
-				local trdata = { mask = MASK_VISIBLE, output = output }
-
-				local upVec = Vector(0,0,15)
-				for i, v in ipairs(vectors) do
-					v.z = v.z + 32
-					local invisible = true
-					trdata.endpos = v
-					for j, origin in ipairs(origins) do
-						trdata.start = origin
-						util.TraceLine(trdata)
-
-						if not output.Hit then
-							invisible = false
-							break
-						end
-					end
-
-					if invisible then
-						local sqvectors = jcms.director_PackSquadVectors(v, math.min(math.random(3, 7), #npcs), 70)
-						for j, sqv in ipairs(sqvectors) do
-							local npc = npcs[ #npcs ]
-							
-							local colorInt = jcms.factions_GetColorInteger(npc.jcms_faction)
-							npc.jcms_npcStragglerTime = CurTime() + 1
-							npc.jcms_npcIsStraggler = false
-							npcs[ #npcs ] = nil
-
-							local ed = EffectData()
-							ed:SetColor(colorInt)
-							ed:SetFlags(1)
-							ed:SetOrigin(v)
-							ed:SetStart(Vector(sqv.x, sqv.y, sqv.z + 32))
-							ed:SetMagnitude(stragglerDelay)
-							ed:SetScale(1)
-							util.Effect("jcms_spawneffect", ed)
-
-							timer.Simple(stragglerDelay, function()
-								if IsValid(npc) then
-									npc:SetPos(sqv + upVec)
-									jcms.npc_GetRowdy(npc)
-
-									local ed = EffectData()
-									ed:SetColor(colorInt)
-									ed:SetFlags(0)
-									ed:SetEntity(npc)
-									util.Effect("jcms_spawneffect", ed)
-								end
-							end)
-						end
-					end
-
-					if #npcs <= 0 then
-						break
-					end
-				end
-			end
-		else
+		if not d then 
 			-- This case is actually impossible due to being called from director code, but whatever.
 			for i, npc in ipairs(npcs) do
 				npc:Remove()
 			end
+			return
 		end
+
+		if #npcs <= 3 then return end -- We only handle stragglers if there's at least a small squad of them.
+
+
+
+		--Get the eyePositions of our sweepers to use later
+		local swpEyes = {}
+		local sweepers = jcms.GetAliveSweepers()
+		for i, sweeper in ipairs(sweepers) do
+			local v = sweeper:EyePos()
+			table.insert(swpEyes, v)
+		end
+
+		--Get all nodes we're allowed to send stragglers to
+		local zoneDict = jcms.mapgen_ZoneDict()
+		local trRes = {}
+		local trData = { mask = MASK_SOLID_BRUSHONLY, output = trRes }
+		local addVec = Vector(0,0,16)
+		
+		local nodeDistDict = {}
+		local validNodePositions = {}
+		for i, node in ipairs(ainReader.nodePositions) do --"node" is a vector. I wrote this before realising nodes didn't exist at runtime.
+			local area = jcms.mapdata.nodeAreas[node]
+			local zone = zoneDict[area]
+
+			if d.zonePopulations[zone] and d.zonePopulations[zone] > 0 then --Only if the zone the node is in has players.
+				local nodePos = node + addVec --New vec with an offset.
+
+				local nearest = math.huge
+				for i, eyePos in ipairs(swpEyes) do 
+					local dist = eyePos:DistToSqr(nodePos)
+					nearest = (nearest > dist and dist) or nearest
+				end
+
+				--Only use nodes between 750 and 6500 units
+				if nearest > 750^2 and nearest < 6500^2 then 
+					local visible = false
+
+					if nearest > 3000 then --Check if we can be seen, but only within 3000u
+						trData.start = nodePos
+						for i, eyePos in ipairs(swpEyes) do 
+							trData.endpos = eyePos
+							util.TraceLine(trData)
+							if not trRes.Hit then 
+								visible = true
+								break
+							end
+						end
+					end
+
+					if not visible then --If we're far or can't be seen add us to the list of valid choices.
+						table.insert(validNodePositions, nodePos)
+						nodeDistDict[nodePos] = nearest
+					end
+				end
+			end
+		end
+
+		table.sort(validNodePositions, function(a,b) return nodeDistDict[a] < nodeDistDict[b] end )
+
+
+		--Try to relocate our NPCs
+		local vTrRes = {}
+		local vTrData = {MASK_NPCSOLID, output = vTrRes}
+		for i, npc in ipairs(npcs) do
+			if #validNodePositions == 0 then break end  --If we can't relocate any more enemies, stop trying. 
+
+			for i, nPos in ipairs(validNodePositions) do 
+				--Test if we can spawn here/if it's obstructed
+				vTrData.start = nPos
+				vTrData.endpos = nPos 
+				util.TraceEntityHull(vTrData, npc)
+
+				if not vTrRes.Hit then 
+					jcms.SendStragglerAfterDelay(npc, nPos, 1) --Send with a portal effect/etc
+					table.remove(validNodePositions, i) --Don't spawn other npcs here.
+					break --On-to the next npc
+				end
+			end
+		end
+	end
+
+	function jcms.SendStragglerAfterDelay(npc, pos, stragglerDelay)
+		local colorInt = jcms.factions_GetColorInteger(npc.jcms_faction)
+		npc.jcms_npcStragglerTime = CurTime() + 1
+		npc.jcms_npcIsStraggler = false
+
+		local ed = EffectData()
+		ed:SetColor(colorInt)
+		ed:SetFlags(1)
+		ed:SetOrigin(pos)
+		ed:SetStart(pos)
+		ed:SetMagnitude(stragglerDelay)
+		ed:SetScale(1)
+		util.Effect("jcms_spawneffect", ed)
+
+		timer.Simple(stragglerDelay, function()
+			if IsValid(npc) then
+				npc:SetPos(pos)
+				jcms.npc_GetRowdy(npc)
+
+				local ed = EffectData()
+				ed:SetColor(colorInt)
+				ed:SetFlags(0)
+				ed:SetEntity(npc)
+				util.Effect("jcms_spawneffect", ed)
+			end
+		end)
 	end
 
 -- }}}
@@ -469,7 +496,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 	end
 
 	function jcms.npc_PortalReleaseXNPCs(ent, x, origin, faction, npcType, callback)
-		local navArea = navmesh.GetNearestNavArea(origin) --TODO: Replace with something that only uses validAreas.
+		local navArea = navmesh.GetNearestNavArea(origin) --TODO: Nodegraph-based instead.
 		if not IsValid(navArea) or not jcms.mapgen_ValidArea(navArea) then 
 			return
 		end

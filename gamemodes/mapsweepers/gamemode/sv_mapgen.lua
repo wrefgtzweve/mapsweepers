@@ -116,6 +116,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 -- // Util {{{
 	function jcms.mapgen_ValidArea(area)
 		--Are we a trigger_hurt or underwater
+		if jcms.mapdata and not(jcms.mapdata.validAreaDict[area] == nil) then return jcms.mapdata.validAreaDict[area] end --Optimisation, going to be using this func outside mapgen in future.
 		if area:IsDamaging() or area:IsUnderwater() then return false end
 
 		--Are we somehow inside a solid fucking block (conflux has this issue)
@@ -229,6 +230,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		md.areaAreasUnrestricted = {}
 
 		md.validAreas = {} --Table of all valid areas
+		md.validAreaDict = {} --Dict for valid areas
 		
 		md.usefulness = 0 -- Tells us how much of the navmesh is actually valid. 0 = none, 1 = all of it.
 		
@@ -296,7 +298,8 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				md.visUnrestricted.max = math.max(md.visUnrestricted.max or areaVis, areaVis)
 				md.visUnrestricted.avgAccumulator = md.visUnrestricted.avgAccumulator + areaVis
 				
-				if not jcms.mapgen_ValidArea(area) then continue end
+				md.validAreaDict[area] = jcms.mapgen_ValidArea(area)
+				if not md.validAreaDict[area] then continue end
 				table.insert(md.validAreas, area)
 				
 				local adj = area:GetAdjacentAreas()
@@ -476,6 +479,11 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				local vol = ( (maxX - minX) * (maxY - minY) * (maxZ - minZ) ) ^ (1/3)
 				md.volumeTotal = md.volumeTotal + vol
 			end
+		end
+
+		md.nodeAreas = {}
+		for i, nodePos in ipairs(ainReader.nodePositions) do 
+			md.nodeAreas[nodePos] = jcms.mapgen_NearestArea(nodePos)
 		end
 
 		if md.areaCount <= 1 then
@@ -977,7 +985,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		local closest = nil
 		local closestDist = math.huge
 		for i, area in ipairs(jcms.mapdata.validAreas) do 
-			local dist = pos:DistToSqr(area)
+			local dist = pos:DistToSqr(area:GetCenter())
 			if dist < closestDist then 
 				closest = area
 				closestDist = dist

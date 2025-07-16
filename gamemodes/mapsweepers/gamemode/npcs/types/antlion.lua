@@ -131,6 +131,10 @@
 	end
 
 	function jcms.npc_AntlionFodder_Think(npc)
+		if npc:GetInternalVariable("startburrowed") and npc.jcms_shouldUnburrow then 
+			npc:Fire("Unburrow")
+		end
+
 		local enemy = npc:GetEnemy()
 		if not IsValid(enemy) or not jcms.npc_NearThumper(enemy) then return end
 
@@ -169,6 +173,8 @@ jcms.npc_types.antlion_worker = {
 
 	class = "npc_antlion",
 	bounty = 50,
+	
+	episodes = true,
 
 	preSpawn = function(npc)
 		if not npc.jcms_fromPortal then
@@ -194,10 +200,15 @@ jcms.npc_types.antlion_worker = {
 	timedEvent = function(npc)
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
+			npc.jcms_shouldUnburrow = true
 		end
 	end,
 	
 	think = function(npc, state)
+		if npc:GetInternalVariable("startburrowed") and npc.jcms_shouldUnburrow then 
+			npc:Fire("Unburrow")
+		end
+
 		if npc:GetCurrentSchedule() == SCHED_COMBAT_FACE then
 			npc:SetSchedule(SCHED_CHASE_ENEMY)
 		end
@@ -236,6 +247,7 @@ jcms.npc_types.antlion_drone = {
 	timedEvent = function(npc)
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
+			npc.jcms_shouldUnburrow = true
 		end
 	end
 }
@@ -295,6 +307,7 @@ jcms.npc_types.antlion_waster = {
 	timedEvent = function(npc)
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
+			npc.jcms_shouldUnburrow = true
 		end
 	end,
 }
@@ -334,6 +347,13 @@ jcms.npc_types.antlion_guard = {
 	timedEvent = function(npc) --Not replicated for cyberguards because they're teleported in by mafia.
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
+			npc.jcms_shouldUnburrow = true
+		end
+	end,
+
+	think = function(npc) 
+		if npc:GetInternalVariable("startburrowed") and npc.jcms_shouldUnburrow then 
+			npc:Fire("Unburrow")
 		end
 	end,
 	

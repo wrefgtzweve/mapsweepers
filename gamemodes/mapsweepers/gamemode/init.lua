@@ -26,6 +26,9 @@ bspReader.readNodeData()
 bspReader.readPlaneData()
 bspReader.readPVSData()
 
+include "sh_ainReader.lua" --i like eating binrary numbrs- j
+ainReader.readNodeData()
+
 include "shared.lua"
 include "sh_net.lua"
 include "sh_hints.lua"
