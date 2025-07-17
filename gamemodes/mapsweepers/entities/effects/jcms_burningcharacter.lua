@@ -71,7 +71,7 @@ function EFFECT:Render()
 
 	local selfPos = self:GetPos()
 	
-	local dist = EyePos():DistToSqr(selfPos)
+	local dist = jcms.EyePos_lowAccuracy:DistToSqr(selfPos)
 	local mult2 = math.Clamp(math.Remap(dist, 1250*1250, 300^2, 1, 0), 0.75, 1)	--Alpha/Brightness
 
 	local r, g, b = math.random(250, 255) * mult2, math.random(100, 150)*mult2, 32*mult2

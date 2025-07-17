@@ -555,7 +555,9 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 
 		local npcCount = 0
 		for i, npc in ipairs(jcms.director.npcs) do
-			npcCount = npcCount + ( ( npc:GetClass() == class and 1 ) or 0 )
+			if IsValid(npc) then
+				npcCount = npcCount + ( ( npc:GetClass() == class and 1 ) or 0 )
+			end
 		end
 
 		return npcCount < maxCount

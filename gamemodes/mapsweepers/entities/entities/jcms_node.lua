@@ -88,7 +88,7 @@ if CLIENT then
 	ENT.MatGlow = Material("sprites/gmdm_pickups/light")
 
 	function ENT:Draw()
-		local eyeDist = EyePos():DistToSqr(self.trackPosition)
+		local eyeDist = jcms.EyePos_lowAccuracy:DistToSqr(self.trackPosition)
 		if eyeDist < 1500^2 then 
 			self:DrawModel()
 		end
@@ -109,7 +109,7 @@ if CLIENT then
 		--local trackPos = selfTbl.GetTrackPosition(self)
 		local trackPos = selfTbl.trackPosition
 		render.SetMaterial(selfTbl.MatGlow)
-		local distToEyes = EyePos():Distance(trackPos)
+		local distToEyes = jcms.EyePos_lowAccuracy:Distance(trackPos)
 		
 		local ps = isEnabled and 0 or 8
 

@@ -117,7 +117,7 @@ end
 
 function EFFECT:Render()
 	local selfTbl = self:GetTable()
-	local eyeDist = EyePos():DistToSqr(selfTbl.endpos)
+	local eyeDist = jcms.EyePos_lowAccuracy:DistToSqr(selfTbl.endpos)
 	local f = selfTbl.t / selfTbl.tout
 	local ff = math.ease.InQuart(1 - f)
 	

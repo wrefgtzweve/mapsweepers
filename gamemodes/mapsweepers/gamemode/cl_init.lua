@@ -307,6 +307,7 @@ end)
 	jcms.nextCacheValues = CurTime()
 	
 	-- // Defaults {{{
+		jcms.EyePos_lowAccuracy = EyePos()
 		jcms.cachedValues.playerClass = "infantry"
 
 		jcms.cachedValues.crosshair_gap = jcms.cvar_crosshair_gap:GetInt()
@@ -328,7 +329,8 @@ end)
 			jcms.locPly = locPly
 		end
 
-		jcms.cachedValues.playerClass = locPly:GetNWString("jcms_class", "infantry") 
+		jcms.cachedValues.playerClass = locPly:GetNWString("jcms_class", "infantry")
+		jcms.EyePos_lowAccuracy = EyePos() --This doesn't work for things like the 3D2D HUD elements, but is suitable for LOD systems.
 	end)
 	
 	hook.Add("Think", "jcms_cachevalues_slow", function() --Stuff that doesn't change often/that we don't need accuracy for.
@@ -595,7 +597,7 @@ end)
 	end)
 
 	local function jcms_lod_renderOverride(self, flags) --Weapon LOD
-		if self:WorldSpaceCenter():DistToSqr(EyePos()) < 1750^2 then 
+		if self:WorldSpaceCenter():DistToSqr(jcms.EyePos_lowAccuracy) < 1750^2 then 
 			self:DrawModel(flags)
 		end
 	end

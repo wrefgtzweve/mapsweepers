@@ -1030,7 +1030,7 @@ if CLIENT then
 	function ENT:Draw(flags)
 		self:DrawModel()
 
-		local dist = EyePos():DistToSqr(self:WorldSpaceCenter())
+		local dist = jcms.EyePos_lowAccuracy:DistToSqr(self:WorldSpaceCenter())
 		if dist < 1000^2 then 
 			self:DrawAmmoCounter()
 		end
@@ -1048,7 +1048,7 @@ if CLIENT then
 		end
 	end
 	
-	function ENT:DrawAmmoCounter()
+	function ENT:DrawAmmoCounter() --TODO: see if there's any way to further optimise this.
 		local pos = self:GetPos()
 		local ang = self:GetAngles()
 		local selfTbl = self:GetTable()

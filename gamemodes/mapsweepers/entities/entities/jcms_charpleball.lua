@@ -172,7 +172,7 @@ if CLIENT then
 
 	function ENT:Think()
 		if not self.didIncomingSound then
-			local distToObserver = EyePos():Distance( self:WorldSpaceCenter() )
+			local distToObserver = jcms.EyePos_lowAccuracy:Distance( self:WorldSpaceCenter() )
 			self.maxDistToObserver = self.maxDistToObserver and math.max(self.maxDistToObserver, distToObserver) or distToObserver
 
 			if self.maxDistToObserver >= 1000 and distToObserver <= 400 then

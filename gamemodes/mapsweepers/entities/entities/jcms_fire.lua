@@ -148,24 +148,26 @@ if CLIENT then
 			--self.firePart3:SetShouldDraw( true )
 		end)
 		--end)
+
+		self.fire_col_obj = Color(0,0,0) --Set in DrawTranslucent, created here for optimisation.
 	end
 
-	function ENT:DrawTranslucent() 
+	function ENT:DrawTranslucent() --TODO: Significant lua lag in this function, probably want to optimise more
 		self:DestroyShadow()
 
 		local selfTbl = self:GetTable()
 
 		local mypos = self:GetPos()
 		local rad = selfTbl.GetRadius(self)
-		local dist = EyePos():DistToSqr(mypos)
+		local dist = jcms.EyePos_lowAccuracy:DistToSqr(mypos)
 
 		local timeToActivation = (selfTbl.GetActivationTime(self) - CurTime())
 		local activationMult = Lerp( timeToActivation / selfTbl.activationDur, 1.2, 0.25)
 
 		if IsValid(selfTbl.firePart1) and IsValid(selfTbl.firePart2) and IsValid(selfTbl.firePart3) and dist < 3500^2 then 
-			if dist < 1500^2 then 
+			if dist < 1500^2 and jcms.performanceEstimate > 25 then 
 				selfTbl.firePart1:Render()
-				if dist < 750^2 and timeToActivation - selfTbl.activationDur/2 < 0 then --are we half-way activated
+				if dist < 750^2 and jcms.performanceEstimate > 40 and timeToActivation - selfTbl.activationDur/2 < 0 then --are we half-way activated
 					selfTbl.firePart2:Render()
 				end
 			end
@@ -181,14 +183,16 @@ if CLIENT then
 		mult = mult * activationMult
 		--mult2 = mult2 * activationMult
 
-		local col = Color(math.random(250, 255) * mult2, math.random(100, 150) * mult2, 32 * mult2)
+		selfTbl.fire_col_obj:SetUnpacked(math.random(250, 255) * mult2, math.random(100, 150) * mult2, 32 * mult2)
 		render.SetMaterial(selfTbl.mat_glow)
 
-		render.DrawQuadEasy(mypos + selfTbl.normal, selfTbl.normal, 6*rad*mult, 6*rad*mult, col, 0)
+		local offsPos = mypos + selfTbl.normal
+		render.DrawQuadEasy(offsPos, selfTbl.normal, 6*rad*mult, 6*rad*mult, selfTbl.fire_col_obj, 0)
 
 		if dist > 200^2 then 
+			local col = selfTbl.fire_col_obj
 			col.r, col.g, col.b = col.r * mult2, col.g * mult2, col.b * mult2
-			render.DrawSprite(mypos + selfTbl.normal * 10, mult*14*rad, mult*14*rad, col)
+			render.DrawSprite(offsPos * 10, mult*14*rad, mult*14*rad, col)
 		end
 	end
 end

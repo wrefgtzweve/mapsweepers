@@ -346,7 +346,7 @@ if CLIENT then
 	
 	function ENT:Draw()
 		local mypos = self:GetPos()
-		local dist2 = EyePos():DistToSqr(self:GetPos())
+		local dist2 = jcms.EyePos_lowAccuracy:DistToSqr(self:GetPos())
 		
 		if dist2 < 1500*1500 then
 			self:DrawModel()

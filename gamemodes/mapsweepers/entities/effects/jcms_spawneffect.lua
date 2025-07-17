@@ -119,7 +119,7 @@ end
 function EFFECT:Render()
 	local selfTbl = self:GetTable()
 	if selfTbl.isPortal and selfTbl.t <= 1 then
-		local dist = EyePos():DistToSqr(self:WorldSpaceCenter())
+		local dist = jcms.EyePos_lowAccuracy:DistToSqr(self:WorldSpaceCenter())
 
 		if selfTbl.points then
 			local f = selfTbl.fadein * selfTbl.scale
@@ -183,7 +183,7 @@ function EFFECT:RenderEntity()
 	mins:Add(mypos)
 	maxs:Add(mypos)
 
-	local eyeDist = EyePos():DistToSqr(mypos)
+	local eyeDist = jcms.EyePos_lowAccuracy:DistToSqr(mypos)
 
 	local time = effect.reverse and math.max(0, 2-effect.t) or effect.t
 

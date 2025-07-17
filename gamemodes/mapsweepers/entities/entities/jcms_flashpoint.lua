@@ -89,7 +89,7 @@ if SERVER then
 		for npcType, data in pairs(jcms.npc_types) do
 			if (not hasEpisodes and data.episodes) then continue end
 			
-			if data.faction == self.faction then
+			if data.faction == self.faction and (not data.check or data.check()) then
 				validTypes[ npcType ] = data.swarmWeight or 1
 			end
 		end
@@ -157,33 +157,34 @@ if CLIENT then
 	ENT.mat_tesla = Material "effects/tool_tracer"
 	
 	function ENT:Think()
-		local rotatorSpeed, bladesOpen = self:GetIsComplete() and 1000 or Lerp(self.chargeFraction, 0, 100), self:GetIsComplete() and 0.9 or self.chargeFraction*0.33
+		local selfTbl = self:GetTable()
+		local rotatorSpeed, bladesOpen = selfTbl:GetIsComplete() and 1000 or Lerp(selfTbl.chargeFraction, 0, 100), selfTbl:GetIsComplete() and 0.9 or selfTbl.chargeFraction*0.33
 		local dt = FrameTime()
 		
-		self.bladesOpen = math.Approach(self.bladesOpen, bladesOpen, dt * 0.63)
-		self.rotatorAngle = (self.rotatorAngle + rotatorSpeed*dt) % 360
+		selfTbl.bladesOpen = math.Approach(selfTbl.bladesOpen, bladesOpen, dt * 0.63)
+		selfTbl.rotatorAngle = (selfTbl.rotatorAngle + rotatorSpeed*dt) % 360
 		
 		local boneIdRotator = self:LookupBone("rotator")
 		
 		if boneIdRotator then
-			self:ManipulateBoneAngles(boneIdRotator, Angle(self.rotatorAngle, 0, 0))
+			self:ManipulateBoneAngles(boneIdRotator, Angle(selfTbl.rotatorAngle, 0, 0))
 		end
 		
 		for i=1, 2 do
 			local boneIdBlade = self:LookupBone("blade" .. i)
-			self:ManipulateBoneAngles(boneIdBlade, Angle(0, self.bladesOpen * 90 * (i==1 and -1 or 1), 0))
+			self:ManipulateBoneAngles(boneIdBlade, Angle(0, selfTbl.bladesOpen * 90 * (i==1 and -1 or 1), 0))
 		end
 
 		local W = 7
-		self.chargeFraction = ((self.chargeFraction * W) + (self:GetCharge()/self:GetMaxCharge()))/(W+1)
+		selfTbl.chargeFraction = ((selfTbl.chargeFraction * W) + (selfTbl:GetCharge()/selfTbl:GetMaxCharge()))/(W+1)
 
-		if not self.soundCharge and self.chargeFraction > 0 then
-			self.soundCharge = CreateSound(self, "weapons/gauss/chargeloop.wav")
-			self.soundCharge:PlayEx(1, 66)
+		if not selfTbl.soundCharge and selfTbl.chargeFraction > 0 then
+			selfTbl.soundCharge = CreateSound(self, "weapons/gauss/chargeloop.wav")
+			selfTbl.soundCharge:PlayEx(1, 66)
 		end
 		
-		if self.soundCharge then
-			self.soundCharge:ChangePitch( self:GetIsComplete() and math.Remap(self.bladesOpen, 0.33, 0.9, 150, 200) or Lerp(self.chargeFraction^2, 66, 150) )
+		if selfTbl.soundCharge then
+			selfTbl.soundCharge:ChangePitch( selfTbl:GetIsComplete() and math.Remap(selfTbl.bladesOpen, 0.33, 0.9, 150, 200) or Lerp(selfTbl.chargeFraction^2, 66, 150) )
 		end
 	end
 
@@ -197,29 +198,32 @@ if CLIENT then
 		self:DrawModel()
 	end
 	
-	function ENT:DrawTranslucent()
+	function ENT:DrawTranslucent() --TODO: Significant lua lag in this function, probably want to optimise more
+		local selfTbl = self:GetTable()
+
 		local time = CurTime()*3 + self:EntIndex()*0.4
-		local chargeFraction = self.chargeFraction
+		local chargeFraction = selfTbl.chargeFraction
 		local dt = FrameTime()
 		
 		local v, a = self:GetPos(), self:GetAngles()
-		local colorLerpFraction = math.Remap(self.bladesOpen, 0.33, 0.9, 0, 1)
+		local colorLerpFraction = math.Remap(selfTbl.bladesOpen, 0.33, 0.9, 0, 1)
 		local col = Color(Lerp(colorLerpFraction, 255, 64), Lerp(colorLerpFraction, 64, 180), Lerp(colorLerpFraction, 64, 255))
 		local colBlack = Color(0, 0, 0)
 		local colBrighter = Color( (col.r+255)/2, (col.g+255)/2, (col.b+255)/2 )
 		
 		local sphereRad = Lerp(chargeFraction, 4, 18)
 		local sphereBigRad = sphereRad + 4
-		local beamStartPos = v + a:Up()*135.6
-		local beamEndPos = beamStartPos + a:Up()*Lerp( (math.sin(time)+1)/2, 117, 137 )
-		local beamSpherePos = beamEndPos + a:Up()*sphereRad
+		local up = a:Up()
+		local beamStartPos = v + up*135.6
+		local beamEndPos = beamStartPos + up*Lerp( (math.sin(time)+1)/2, 117, 137 )
+		local beamSpherePos = beamEndPos + up*sphereRad
 
-		local dist2ToEyes = EyePos():DistToSqr(beamSpherePos)
+		local dist2ToEyes = jcms.EyePos_lowAccuracy:DistToSqr(beamSpherePos)
 		local lodRings = dist2ToEyes > 800^2
 		local lodSphere = dist2ToEyes > 200^2
 
 		render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-			render.SetMaterial(self.mat_beam)
+			render.SetMaterial(selfTbl.mat_beam)
 			render.DrawBeam(beamStartPos, beamEndPos, Lerp(chargeFraction, 2, 7), 0, 1, col)
 			render.DrawBeam(beamStartPos, beamEndPos, Lerp(chargeFraction, 0, 2), 0, 1, colBrighter)
 
@@ -236,12 +240,12 @@ if CLIENT then
 			end
 		render.OverrideBlend( false )
 
-		if not self.rings then
-			self.rings = {}
+		if not selfTbl.rings then
+			selfTbl.rings = {}
 
 			for i=1, 5 do
 				local sizeRand = math.random()
-				table.insert(self.rings, { 
+				table.insert(selfTbl.rings, { 
 					angle = Angle(math.random()*360, math.random()*360, math.random()*360), 
 					pitchSpeed = math.Rand(60, 120), yawSpeed = math.Rand(60, 120), rollSpeed = math.Rand(60, 120),
 					size1 = Lerp(sizeRand, 16, 48),
@@ -253,8 +257,8 @@ if CLIENT then
 		end
 
 		render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-			render.SetMaterial(lodRings and self.mat_ring or self.mat_ring_hq)
-			for i, ring in ipairs(self.rings) do
+			render.SetMaterial(lodRings and selfTbl.mat_ring or selfTbl.mat_ring_hq)
+			for i, ring in ipairs(selfTbl.rings) do
 				local size = sphereBigRad*2 +  Lerp( (math.sin( time + ring.phase ) + 1)/2, ring.size1, ring.size2 )
 				ring.angle.pitch = ring.angle.pitch + ring.pitchSpeed*dt
 				ring.angle.yaw = ring.angle.yaw + ring.yawSpeed*dt
@@ -267,7 +271,7 @@ if CLIENT then
 			end
 
 			if chargeFraction > 0.7 then
-				render.SetMaterial(self.mat_tesla)
+				render.SetMaterial(selfTbl.mat_tesla)
 				for i=1, 2 do
 					local boneId = self:LookupBone("blade" .. i)
 					if boneId then
@@ -279,7 +283,7 @@ if CLIENT then
 			end
 		render.OverrideBlend( false )
 
-		local blackMul = self:GetIsComplete() and math.Remap(self.bladesOpen, 0.33, 0.9, 1, 0) or 1
+		local blackMul = self:GetIsComplete() and math.Remap(selfTbl.bladesOpen, 0.33, 0.9, 1, 0) or 1
 		if blackMul > 0 then
 			if lodSphere then
 				local size = sphereRad*blackMul*2
@@ -291,14 +295,18 @@ if CLIENT then
 			end
 		end
 
-		self:DrawKillCounter()
+		if dist2ToEyes < 4000^2 then
+			selfTbl.DrawKillCounter(self, v, a) --thank you merkidor for always writgn coherent variable anems that I can rea d.
+		end
 	end
 
-	function ENT:DrawKillCounter()
-		local pos = self:GetPos()
-		local ang = self:GetAngles()
+	function ENT:DrawKillCounter(pos, ang) --pos and ang are self:GetPos(), and self:GetAngles(), they're passed for optimsation.
+		local selfTbl = self:GetTable()
 
-		if (self.chargeFraction + 0.0001) < self:GetCharge()/self:GetMaxCharge() or self.chargeFraction > 0.9999 then
+		--local pos = self:GetPos()
+		--local ang = self:GetAngles()
+
+		if (selfTbl.chargeFraction + 0.0001) < selfTbl:GetCharge()/selfTbl:GetMaxCharge() or selfTbl.chargeFraction > 0.9999 then
 			surface.SetDrawColor(64, 180, 255)
 		else
 			surface.SetDrawColor(255, 0, 0)
@@ -313,14 +321,14 @@ if CLIENT then
 
 			cam.Start3D2D(cpos, cang, 1/16)
 				local x, y, w, h, p = 200, -40, 1410, 80, 16
-				local f = 1 - math.Clamp(self.chargeFraction*(w+310)/w, 0, 1)
+				local f = 1 - math.Clamp(selfTbl.chargeFraction*(w+310)/w, 0, 1)
 				
 				local ch = w - p*2
 				surface.DrawOutlinedRect(x,y,w,h, p/3)
 				surface.DrawRect(x+p,y+p,w-p*2-ch*f,h-p*2)
 
 				x = x + w + 120
-				f = 1 - math.Clamp((self.chargeFraction*(w+310)-w)/310, 0, 1)
+				f = 1 - math.Clamp((selfTbl.chargeFraction*(w+310)-w)/310, 0, 1)
 				w = 310
 				ch = w - p*2
 				surface.DrawOutlinedRect(x,y,w,h, p/3)
