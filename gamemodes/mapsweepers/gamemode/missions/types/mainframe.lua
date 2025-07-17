@@ -22,10 +22,10 @@
 -- Mainframe {{{
 	function jcms.mapgen_MainframeGenerateTrack(missionObjects, sectorDistances, areaSectors, totalSectors, mainframeArea, chosenSector, nodeCount) 
 		local zoneDict = jcms.mapgen_ZoneDict()
-		local mainframeZone = zoneDict[mainframeArea] 
+		local mainframeZone = zoneDict[mainframeArea] or jcms.mapdata.largestZone
 		
-		local prevArea = mainframeArea
-		local mapCentre = mainframeArea:GetCenter()
+		local prevArea = (IsValid(mainframeArea) and mainframeArea) or jcms.mapgen_UseRandomArea()
+		local mapCentre = (IsValid(mainframeArea) and mainframeArea:GetCenter()) or Vector(0,0,0)
 		
 		local sectorDistance = sectorDistances[chosenSector] 
 
@@ -207,7 +207,7 @@
 
 						local dist = 32000 * tr.Fraction
 						if dist < 200 then 
-							midWeights[area] = midWeights[area] * 0.000000001
+							midWeights[area] = midWeights[area] * 0.0000001
 						elseif not tr.HitSky then 
 							midWeights[area] = midWeights[area] * 0.001
 						end
@@ -226,22 +226,26 @@
 						end
 
 						if area:GetSizeX() < 50 or area:GetSizeY() < 50 then 
-							midWeights[area] = midWeights[area] * 0.000000001
+							midWeights[area] = midWeights[area] * 0.0000001
 						end
 					end
 				end
 				mainframeArea = jcms.util_ChooseByWeight(midWeights)
 
-				local worked, mainframe = jcms.prefab_TryStamp("rgg_mainframe", mainframeArea)
-				table.insert(missionObjects, mainframe)
-				missionData.mainframe = mainframe
+				if IsValid(mainframeArea) then
+					local worked, mainframe = jcms.prefab_TryStamp("rgg_mainframe", mainframeArea)
+					table.insert(missionObjects, mainframe)
+					missionData.mainframe = mainframe
+				else
+					PrintMessage( HUD_PRINTTALK, "[Map Sweepers] Failed to place mainframe, map is probably too small.")
+				end
 			-- // }}}
 
 			local sectorDebugAreaCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 			-- // Sectors {{{
 				local xMin, yMin, xMax, yMax = jcms.mapgen_GetNavmeshSpan(unrestricted)
 				--local mapCentre = Vector((xMin+xMax)/2, (yMin+yMax)/2, 0)
-				local mapCentre = mainframeArea:GetCenter() 
+				local mapCentre = (IsValid(mainframeArea) and  mainframeArea:GetCenter()) or Vector(0,0,0)
 
 				local sectorSplits = 6
 
