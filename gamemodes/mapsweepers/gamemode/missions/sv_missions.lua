@@ -467,7 +467,7 @@
 
 		for i, area in ipairs(zone) do 
 			if not jcms.mapgen_ValidArea(area) then continue end
-			if area:GetSizeX() < 250 or area:GetSizeY() < 250 then continue end
+			if not IsValid(area) or area:GetSizeX() < 250 or area:GetSizeY() < 250 then continue end
 
 			local center = area:GetCenter()
 			local ply, dist = jcms.director_PickClosestPlayer(center)

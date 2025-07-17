@@ -791,7 +791,7 @@
 				local entTbl = ent:GetTable() 
 				entTbl.jcms_weaponDieTime = entTbl.jcms_weaponDieTime or (CurTime() + 120) --Set our timer if we don't have one
 
-				if entTbl.jcms_weaponDieTime < CurTime() then --If our time's up
+				if entTbl.jcms_weaponDieTime < CurTime() or not ent:IsInWorld() then --If our time's up, (or we're outside the map? Somehow?)
 					if #jcms.GetSweepersInRange(ent:GetPos(), 600) > 0 then --Give us more if a sweeper's nearby
 						entTbl.jcms_weaponDieTime = CurTime() + 20
 					else

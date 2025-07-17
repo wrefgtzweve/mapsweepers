@@ -481,6 +481,10 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			end
 		end
 
+		if not ainReader.nodePositions then 
+			ainReader.readNodeData()
+		end
+
 		if ainReader.nodePositions then  
 			md.nodeAreas = {}
 			for i, nodePos in ipairs(ainReader.nodePositions) do 

@@ -11,9 +11,11 @@ ainReader = ainReader or {} --Likely to use this in other addons, don't want to 
 		if ainReader.nodeDataRead then return end 
 
 		local fileName = "maps/graphs/" .. game.GetMap() .. ".ain"
-		if not file.Exists(fileName, "GAME") then return end --not gonna be good if this happens.
+		local path = "GAME"
+		if not file.Exists(fileName, path) then path = "BSP" end
+		if not file.Exists(fileName, path) then return end --not gonna be good if this happens.
 
-		local ainFile = file.Open(fileName, "rb", "GAME")
+		local ainFile = file.Open(fileName, "rb", path)
 		ainFile:Seek(8)
 		local numNodes = ainFile:ReadLong()
 
