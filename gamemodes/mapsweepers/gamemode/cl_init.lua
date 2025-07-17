@@ -1152,7 +1152,10 @@ end)
 				local dataTxt = file.Read(statsFile, "DATA")
 				local dataTbl = util.JSONToTable(util.Decompress(dataTxt))
 
-				jcms.statistics = dataTbl
+				jcms.statistics = dataTbl or jcms.statistics --fallback for if our file's fucked.
+				if not dataTbl then
+					Error("[Map Sweepers] Failed to read stats file. Stats reset.")
+				end
 			end
 		end)
 
