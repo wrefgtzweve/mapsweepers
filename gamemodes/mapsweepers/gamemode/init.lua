@@ -2560,8 +2560,6 @@ end
 					end
 
 					if stats then
-						print(class)
-						print(jcms.weapon_prices[ class ])
 						jcms.weapon_prices[ class ] = jcms.gunstats_CalcWeaponPrice(stats)
 					end
 				end

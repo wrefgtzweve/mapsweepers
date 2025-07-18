@@ -411,6 +411,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 			stats.name = tostring(gunData.PrintName or class)
 			stats.baseclass = tostring(gunData.Base) or "weapon_base"
 			stats.category = tostring(gunData.Category or "_")
+			stats.costOverride = gunData.JCMS_COSTOVERRIDE
 			local radAccuracy = true
 
 			if (gunData.SciFiWorldStats) then
@@ -533,7 +534,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 				stats.firerate = 60/gunData.RPM
 
 				stats.accuracy = (tonumber(gunData.Spread) or 0)
-			elseif gunData.Base == "mg_base" then --MW Base --TODO: See if there's a better way to detect this for this base.
+			elseif gunData.Base == "mg_base" then --MW Base --TODO: See if there's a better way to detect this base.
 				stats.base = "MW Base"
 
 				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Primary.Ammo) or "") or tonumber(gunData.Primary.Ammo)  ) or "none"
@@ -549,6 +550,22 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 				stats.accuracy = (gunData.Cone.Hip) or 0 --Not 100% sure I've done this correctly - j
 				radAccuracy = false
+			elseif string.StartsWith(gunData.Base or "", "draconic_") then --Draconic Base -- TODO: See if there's a better way to detect this base
+				stats.base = "Draconic"
+
+				local ammotype = game.GetAmmoName( game.GetAmmoID(tostring(gunData.Primary.Ammo) or "") or tonumber(gunData.Primary.Ammo)  ) or "none"
+				stats.ammotype_lkey = ammotype .. "_ammo"
+				stats.ammotype = ammotype:lower()
+
+				stats.clipsize = gunData.Primary.ClipSize or 0
+				stats.numshots = gunData.Primary.NumShots or 1
+
+				stats.damage = gunData.Primary.Damage
+				stats.firerate = 60/(gunData.Primary.RPM or 60)
+
+				stats.accuracy = (gunData.Primary.Spread or 1) / (gunData.Primary.SpreadDiv or 1)
+
+				stats.automatic = gunData.Primary.Automatic
 			else
 				-- Fallback
 				stats.base = "Default"
@@ -679,6 +696,10 @@ jcms.vectorOne = Vector(1, 1, 1)
 	end
 
 	function jcms.gunstats_CalcWeaponPrice(stats, noDivider)
+		if stats.costOverride then 
+			return stats.costOverride
+		end
+
 		-- // Calculate our average time between shots, accounting for reload. {{{
 			local fullCycle = (stats.firerate * math.max(stats.clipsize, 1)) + stats.reloadtime
 			local avgFireRate = fullCycle / math.max(stats.clipsize, 1)
