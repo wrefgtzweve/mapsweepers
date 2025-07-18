@@ -2543,6 +2543,10 @@ end
 				if not weapons.GetStored(class) then continue end -- Doesn't exist
 				jcms.weapon_prices[class] = jcms.weapon_prices[class] or price
 			end
+
+			for class, price in pairs(jcms.weapon_HL2Prices) do 
+				jcms.weapon_prices[class] = jcms.weapon_prices[class] or price
+			end
 			
 			for i, data in ipairs( weapons.GetList() ) do
 				if data.Spawnable then
