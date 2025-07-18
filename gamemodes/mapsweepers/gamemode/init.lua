@@ -2520,7 +2520,8 @@ end
 	if not jcms.inTutorial then
 		local weaponPricesFile = "mapsweepers/server/weapon_prices.json"
 		hook.Add("InitPostEntity", "jcms_WeaponPrices", function(ply)
-			local preventDefaultBehaviour = false
+
+			table.Empty(jcms.weapon_prices)
 			if file.Exists(weaponPricesFile, "DATA") then
 				local json = file.Read(weaponPricesFile, "DATA")
 
@@ -2529,45 +2530,39 @@ end
 					if success and type(rtn) == "table" then
 						for class, price in pairs(rtn) do
 							if type(class) == "string" and type(price) == "number" and (weapons.GetStored(class) or jcms.default_weapons_datas[class]) then
-								if not preventDefaultBehaviour then
-									table.Empty(jcms.weapon_prices)
-									preventDefaultBehaviour = true
-								end
-
 								jcms.weapon_prices[ class ] = math.ceil( math.Clamp(price, 0, 16777215) )
 							end
 						end
+						
+					jcms.printf("Loaded weapon prices from '%s'.", weaponPricesFile)
 					end
 				end
 			end
 
-			if preventDefaultBehaviour then
-				jcms.printf("Loaded weapon prices from '%s'.", weaponPricesFile)
-			else
-				jcms.printf("Custom weapon prices file was not found. Default prices will be used.")
-				for class, price in pairs(jcms.weapon_predefinedPrices) do
-					if not weapons.GetStored(class) then continue end -- Doesn't exist
-					jcms.weapon_prices[class] = price
-				end
-				
-				for i, data in ipairs( weapons.GetList() ) do
-					if data.Spawnable then
-						local class = data.ClassName
-						if jcms.weapon_blacklist[ class ] then continue end
-						if jcms.weapon_prices[ class ] then continue end
-						
-						local success, rtn = pcall(jcms.gunstats_GetExpensive, class)
-						local stats
-						if not success then
-							jcms.printf("Weapon: '%s' caused an error/contains garbage data.", class)
-							ErrorNoHaltWithStack(rtn)
-						else
-							stats = rtn
-						end
+			for class, price in pairs(jcms.weapon_predefinedPrices) do
+				if not weapons.GetStored(class) then continue end -- Doesn't exist
+				jcms.weapon_prices[class] = jcms.weapon_prices[class] or price
+			end
+			
+			for i, data in ipairs( weapons.GetList() ) do
+				if data.Spawnable then
+					local class = data.ClassName
+					if jcms.weapon_blacklist[ class ] then continue end
+					if jcms.weapon_prices[ class ] then continue end
+					
+					local success, rtn = pcall(jcms.gunstats_GetExpensive, class)
+					local stats
+					if not success then
+						jcms.printf("Weapon: '%s' caused an error/contains garbage data.", class)
+						ErrorNoHaltWithStack(rtn)
+					else
+						stats = rtn
+					end
 
-						if stats then
-							jcms.weapon_prices[ class ] = jcms.gunstats_CalcWeaponPrice(stats)
-						end
+					if stats then
+						print(class)
+						print(jcms.weapon_prices[ class ])
+						jcms.weapon_prices[ class ] = jcms.gunstats_CalcWeaponPrice(stats)
 					end
 				end
 			end
