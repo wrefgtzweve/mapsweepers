@@ -314,6 +314,13 @@ if SERVER then
 
 				if IsValid(hitEntity) and math.random() < 0.25 then
 					hitEntity:Ignite(math.Rand(1, 3), self.Radius * 0.75)
+					
+					local movetype = hitEntity:GetMoveType()
+					local flying = movetype == MOVETYPE_FLY or movetype == MOVETYPE_FLYGRAVITY
+
+					if flying or jcms.team_flyingEntityClasses[ hitEntity:GetClass() ] then
+						hitEntity:TakeDamage(self.Damage, IsValid(self.jcms_owner) and self.jcms_owner or self, self)
+					end
 				end
 			end
 		end

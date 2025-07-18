@@ -932,6 +932,10 @@ if SERVER then
 				else
 					dmg:ScaleDamage(0.75)
 				end
+
+				if self:GetHackedByRebels() then
+					dmg:ScaleDamage(3)
+				end
 				
 				local final = dmg:GetDamage()
 				self:SetHealth(self:Health() - final)
