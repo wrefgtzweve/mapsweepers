@@ -981,6 +981,10 @@ jcms.npc_types.rebel_alyx = { --todo: Stun when hit w/stunstick
 	end,
 
 	takeDamage = function(npc, dmg) --Alyx self-heals and there's no way (that I've found in the documentation) to disable that. This is a work-around because that's awful.
+		if jcms.util_IsStunstick( dmg:GetInflictor() ) then
+			dmg:ScaleDamage(2)
+		end
+		
 		npc.jcms_alyxHealth = npc.jcms_alyxHealth - dmg:GetDamage()
 		if npc.jcms_alyxHealth < 0 and not npc.jcms_alyxDead then 
 			npc.jcms_alyxDead = true

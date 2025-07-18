@@ -46,6 +46,8 @@ function ENT:Initialize()
 
 		self.nextAttack = CurTime()
 	end
+
+	self.hackStunEnd = CurTime()
 end
 
 function ENT:SetupDataTables()
@@ -55,6 +57,7 @@ function ENT:SetupDataTables()
 	self:NetworkVarNotify("HackedByRebels", function(ent, name, old, new )
 		if new then 
 			self:SetColor(Color(162, 81, 255))
+			self.hackStunEnd = CurTime() + 2.5
 		else
 			self:SetColor(Color(255, 32, 32))
 		end
@@ -79,7 +82,7 @@ if SERVER then
 	function ENT:Think()
 		if self:Health() > 0 then
 			local cTime = CurTime()
-			if self.nextAttack <= cTime then
+			if self.nextAttack <= cTime and (self.hackStunEnd < CurTime() or not self:GetHackedByRebels()) then
 				local selfPos = self:GetPos()
 
 				local targets = ents.FindInSphere(selfPos, self.Radius)

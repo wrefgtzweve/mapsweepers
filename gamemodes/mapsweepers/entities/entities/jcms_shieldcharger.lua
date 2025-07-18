@@ -44,6 +44,8 @@ function ENT:Initialize()
 	if CLIENT then
 		self.chargeEffectX = 0
 	end
+
+	self.hackStunEnd = CurTime()
 end
 
 function ENT:SetupDataTables()
@@ -56,6 +58,7 @@ function ENT:SetupDataTables()
 	self:NetworkVarNotify("HackedByRebels", function(ent, name, old, new )
 		if new then 
 			self:SetColor(Color(162, 81, 255))
+			self.hackStunEnd = CurTime() + 2.5
 		else
 			self:SetColor(Color(32, 230, 255))
 		end
@@ -66,11 +69,13 @@ if SERVER then
 	function ENT:Think()
 		local charging = false
 		if self:Health() > 0 then
-			local radius = self:GetChargeRadius()
-			for i, ply in ipairs(jcms.GetAliveSweepers()) do
-				if (ply:Armor() < ply:GetMaxArmor()) and (ply:WorldSpaceCenter():DistToSqr(self:WorldSpaceCenter()) <= radius*radius) then
-					self:ChargeShield(ply)
-					charging = true
+			if self.hackStunEnd < CurTime() or not self:GetHackedByRebels() then 
+				local radius = self:GetChargeRadius()
+				for i, ply in ipairs(jcms.GetAliveSweepers()) do
+					if (ply:Armor() < ply:GetMaxArmor()) and (ply:WorldSpaceCenter():DistToSqr(self:WorldSpaceCenter()) <= radius*radius) then
+						self:ChargeShield(ply)
+						charging = true
+					end
 				end
 			end
 		else
@@ -128,6 +133,8 @@ if CLIENT then
 	end
 	
 	function ENT:Think()
+		if self:GetHackedByRebels() and self.hackStunEnd > CurTime() then return end
+
 		if FrameTime() > 0 then
 			self.chargeEffectX = (self.chargeEffectX + 1) % 3
 
