@@ -76,7 +76,9 @@
 				dir.z = -dir.z * 0.75
 			end
 			timer.Simple(0.1, function()
-				target:SetVelocity(dir)
+				if IsValid(target) then
+					target:SetVelocity(dir)
+				end
 			end)
 		end
 	end
@@ -198,7 +200,7 @@ jcms.npc_commanders["zombie"] = {
 					if not IsValid(npc) then return end
 
 					for i=1, 3, 1 do --Advance 3 times
-						if not npc:IsCurWaypointGoal() and npc:GetPathDistanceToGoal() > 1000 then
+						if (npc.IsCurWaypointGoal and not npc:IsCurWaypointGoal()) and npc:GetPathDistanceToGoal() > 1000 then
 							local npcPos = npc:WorldSpaceCenter()
 							local npcNextPos = npc:GetCurWaypointPos()
 
