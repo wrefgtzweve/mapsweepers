@@ -426,41 +426,29 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 		end
 	end
 
-	local nmt = FindMetaTable("NPC")
 	function jcms.npc_UpdateRelations(ent)
-		local buddies, baddies = {}, {}
+		local entRelFunc = ent.AddEntityRelationship
 		
 		local function iterateEnts(entList) 
 			for i, oent in ipairs(entList) do 
-				local same = jcms.team_SameTeam(ent, oent)
+				local oentRelFunc = oent.AddEntityRelationship
+				local same = (entRelFunc or oentRelFunc) and jcms.team_SameTeam(ent, oent)
 				
-				if getmetatable(oent) == nmt then
-					if same then
-						nmt.AddEntityRelationship(oent, ent, D_LI, 1)
-					else
-						nmt.AddEntityRelationship(oent, ent, D_HT, 0)
-					end
+				if oentRelFunc then
+					oentRelFunc(oent, ent, same and D_LI or D_HT, same and 1 or 0)
 				end
 	
-				table.insert(same and buddies or baddies, oent)
+				if entRelFunc then
+					entRelFunc(ent, oent, same and D_LI or D_HT, same and 1 or 0)
+				end
 			end
 		end
-
+	
 		--More optimised than ents.iterator, as we don't have to check huge amounts of point entities (like ai nodes)
 		--NOTE: Assumes all npcs are have npc_ classnames. This is not an issue for default npcs, but could be a problem for other npc packs.
 		iterateEnts(ents.FindByClass("jcms_*"))
 		iterateEnts(ents.FindByClass("npc_*"))
 		iterateEnts(player.GetAll())
-
-		if getmetatable(ent) == nmt then
-			for i, buddy in ipairs(buddies) do
-				nmt.AddEntityRelationship(ent, buddy, D_LI, 1)
-			end
-	
-			for i, baddy in ipairs(baddies) do
-				nmt.AddEntityRelationship(ent, baddy, D_HT, 0)
-			end
-		end
 	end
 
 	function jcms.npc_SetupSweeperShields(npc, max, regen, regenDelay, col)
