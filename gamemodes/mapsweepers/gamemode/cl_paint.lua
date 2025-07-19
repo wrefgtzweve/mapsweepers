@@ -1701,7 +1701,7 @@
 				jcms.hud_DrawNoiseRect(x + 4, y + 4, w - 8, h - 8)
 				surface.SetAlphaMultiplier(1)
 
-				draw.SimpleText(entry.name, "jcms_medium", 24, 24, jcms.color_bright)
+				draw.SimpleText(p.entryName, "jcms_medium", 24, 24, jcms.color_bright)
 
 				if mat then
 					surface.SetMaterial(mat)

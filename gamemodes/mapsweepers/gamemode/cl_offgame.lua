@@ -1773,11 +1773,12 @@ jcms.offgame = jcms.offgame or NULL
 				surface.PlaySound("buttons/combine_button2.wav")
 				local entry = jcms.bestiary[ b.entryName ]
 				imageArea.entry = entry
+				imageArea.entryName = language.GetPhrase("#jcms.bestiary_" .. b.entryName)
 				imageArea.factionMat = Material("jcms/factions/" .. tostring(entry.faction) .. ".png")
 				imageArea.anim = 0
 				
-				descArea.name = entry.name
-				descArea.jText = entry.desc
+				descArea.name = language.GetPhrase("jcms.bestiary_" .. b.entryName)
+				descArea.jText = language.GetPhrase("jcms.bestiary_" .. b.entryName .. "_desc")
 				descArea.markup = nil
 
 				if type(entry.doModel) == "function" then
@@ -1843,7 +1844,7 @@ jcms.offgame = jcms.offgame or NULL
 				for j, entryName in ipairs(entryNames) do
 					local entry = jcms.bestiary[ entryName ]
 					local b = scrollArea:Add("DButton")
-					b:SetText(entry.name)
+					b:SetText(language.GetPhrase("jcms.bestiary_"..entryName))
 					b:Dock(TOP)
 					b:DockMargin(0, 0, 0, 4)
 					b.entryName = entryName
