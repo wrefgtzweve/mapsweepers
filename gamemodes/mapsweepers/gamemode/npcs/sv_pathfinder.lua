@@ -205,10 +205,10 @@ function jcms.pathfinder.navigate( startPoint, endPoint ) --A*
 	local startNode = (isvector(startPoint) and jcms.pathfinder.getNearestNodePVS( startPoint )) or startPoint
 	local endNode = (isvector(endPoint) and jcms.pathfinder.getNearestNodePVS( endPoint )) or endPoint
 
-	if not startNode then --fallback
+	if not startNode or isvector(startNode) then --fallback
 		startNode = jcms.pathfinder.getNearestNode( startPoint )
 	end
-	if not endNode then --fallback
+	if not endNode or isvector(endNode) then --fallback
 		endNode = jcms.pathfinder.getNearestNode( endPoint )
 	end
 
