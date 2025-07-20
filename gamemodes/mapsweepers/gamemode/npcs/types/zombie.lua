@@ -21,7 +21,10 @@
 
 -- // Zombie-Specific Functions {{{
 	function jcms.npc_SlowZombieThink(npc) --Slow zombies get "sped up" when ridiculously far and out of sight.
-		if npc:GetPathDistanceToGoal() > 2500 then
+		--Game was never really designed for this many players, zombie missions in particular end up feeling very empty with 16 people. This should help.
+		local swpCountReduce = math.max(#team.GetPlayers(1) - 8, 0) * 150
+
+		if npc:GetPathDistanceToGoal() > (2250 - swpCountReduce) then
 			local npcPos = npc:WorldSpaceCenter()
 			local npcNextPos = npc:GetCurWaypointPos()
 
@@ -34,13 +37,32 @@
 			if tr.Hit then return end --Don't teleport us into the goddamn wall.
 
 			local isVisible = false
+			local shouldTP = true
+			local isFar = true
 			for i, ply in ipairs(jcms.GetAliveSweepers()) do
-				isVisible = isVisible or ply:VisibleVec( npcPos )
-				isVisible = isVisible or ply:VisibleVec( npcNextPos )
+				local startVisible = ply:VisibleVec( npcPos )
+				local endVisible = ply:VisibleVec( npcNextPos )
+
+				local swpEyePos = ply:EyePos()
+				local maxDist = (4000 - swpCountReduce)^2
+				local far = npcNextPos:DistToSqr(swpEyePos) > maxDist and npcPos:DistToSqr(swpEyePos) > maxDist --are we and our dest super far
+
+				local visibleForThisSwp = startVisible or endVisible --are we or our destination visible
+
+				isFar = isFar and ( not visibleForThisSwp or far ) --set far to false if we're close and can be seen
+				shouldTP = shouldTP and (not visibleForThisSwp or far) --only block us if we're close and can be seen
+				isVisible = isVisible or visibleForThisSwp
 			end
 
-			if not isVisible then
-				npc:SetPos(npcNextPos)
+			if shouldTP then
+				if isFar and isVisible then --Visual justification for far-away teleports.
+					local ed = EffectData()
+					ed:SetFlags(1)
+					ed:SetEntity(npc)
+					ed:SetOrigin(npcNextPos)
+					util.Effect("jcms_chargebeam", ed)
+				end
+				npc:SetPos(npcNextPos + Vector(0,0,15))
 				npc:AdvancePath()
 			end
 		end
@@ -85,6 +107,10 @@
 -- // }}}
 
 jcms.npc_commanders["zombie"] = {
+	start = function(c)
+		c.nextRowdy = CurTime() + 10
+	end,
+
 	think = function(c)
 		if jcms.director_GetMissionTime() < 7.5 then return end
 
@@ -92,13 +118,15 @@ jcms.npc_commanders["zombie"] = {
 		if d and #d.npcs < 40 then
 			d.swarmNext = d.swarmNext - 1 -- Speeding up hordes
 		end
-	end,
 
-	postWaveSpawn = function(c) --Keeps the horde constantly closing in on players.
-		for i, npc in ipairs( ents.FindByClass("npc_*") ) do
-			if npc.jcms_faction == "zombie" then
-				jcms.npc_GetRowdy(npc)
+		local cTime = CurTime()
+		if c.nextRowdy < cTime then --Zombies (almost) always know where you are.
+			for i, npc in ipairs(d.npcs) do 
+				if npc.jcms_faction == "zombie" and npc.GetEnemy and not IsValid(npc:GetEnemy()) then
+					jcms.npc_GetRowdy(npc)
+				end
 			end
+			c.nextRowdy = cTime + 10
 		end
 	end,
 
@@ -217,7 +245,7 @@ jcms.npc_commanders["zombie"] = {
 								ed:SetOrigin(npcNextPos)
 								util.Effect("jcms_chargebeam", ed)
 
-								npc:SetPos(npcNextPos)
+								npc:SetPos(npcNextPos + Vector(0,0,15))
 								npc:AdvancePath()
 							end
 						end
@@ -248,6 +276,8 @@ jcms.npc_types.zombie_explodingcrab = {
 
 	class = "npc_headcrab_fast",
 	bounty = 2,
+	
+	anonymous = true,
 
 	portalScale = 0.5,
 	postSpawn = function(npc)
@@ -262,6 +292,28 @@ jcms.npc_types.zombie_explodingcrab = {
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS)
 
 		npc.jcms_explodingCrab_despawnTimer = 0
+
+		local timerName = "jcms_" .. tostring(npc) .. "_think" --Anonymous npcs don't get their think called by director, this is a workaround
+		timer.Create(timerName, 2.5, 0, function()
+			if not IsValid(npc) then 
+				timer.Remove(timerName)
+				return
+			end
+
+			local npcPos = npc:GetPos()
+			local nearest = jcms.GetNearestSweeper(npcPos)
+			if not IsValid(nearest) then return end
+	
+			if nearest:GetPos():DistToSqr(npcPos) > 2500^2 then
+				npc.jcms_explodingCrab_despawnTimer = npc.jcms_explodingCrab_despawnTimer + 1
+			end
+	
+			if npc.jcms_explodingCrab_despawnTimer > 25 then --If we've been >2500 units from a player for more than 25s, explode
+				npc:EmitSound("NPC_Vortigaunt.Shoot")
+				util.ParticleTracerEx("vortigaunt_beam", npc:WorldSpaceCenter(), npc:WorldSpaceCenter(), false, -1, -1)
+				npc:Remove()
+			end
+		end)
 	end,
 
 	damageEffect = function(npc, target, dmgInfo)
@@ -308,22 +360,6 @@ jcms.npc_types.zombie_explodingcrab = {
 					util.ParticleTracerEx("vortigaunt_beam", fromPos, pos, false, -1, -1)
 				end
 			end
-		end
-	end,
-
-	think = function(npc)
-		local npcPos = npc:GetPos()
-		local nearest = jcms.GetNearestSweeper(npcPos)
-		if not IsValid(nearest) then return end
-
-		if nearest:GetPos():DistToSqr(npcPos) > 2500^2 then
-			npc.jcms_explodingCrab_despawnTimer = npc.jcms_explodingCrab_despawnTimer + 1
-		end
-
-		if npc.jcms_explodingCrab_despawnTimer > 25 then --If we've been >2500 units from a player for more than 25s, explode
-			npc:EmitSound("NPC_Vortigaunt.Shoot")
-			util.ParticleTracerEx("vortigaunt_beam", npc:WorldSpaceCenter(), npc:WorldSpaceCenter(), false, -1, -1)
-			npc:Remove()
 		end
 	end
 }
@@ -689,7 +725,7 @@ jcms.npc_types.zombie_spirit = {
 
 	danger = jcms.NPC_DANGER_STRONG,
 	cost = 1,
-	swarmWeight = 0.3,
+	swarmWeight = 0.35,
 
 	class = "npc_jcms_spirit",
 	bounty = 60,

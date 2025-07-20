@@ -954,11 +954,17 @@
 					if state == NPC_STATE_COMBAT then
 						combat = combat + 1
 					elseif not npcTbl.jcms_ignoreStraggling then
-						local npcpos = npc:WorldSpaceCenter()
-
-						local npcArea = navmesh.GetNearestNavArea(npcpos, false, 250, false)
-						if not IsValid(npcArea) or not jcms.mapgen_ValidArea(npcArea) then 
+						if not npc:IsInWorld() then 
 							confirmedStraggler = true
+						end
+
+						local npcpos 
+						if not confirmedStraggler then 
+							npcpos = npc:WorldSpaceCenter()
+							local npcArea = navmesh.GetNearestNavArea(npcpos, false, 250, false)
+							if not IsValid(npcArea) or not jcms.mapgen_ValidArea(npcArea) then 
+								confirmedStraggler = true
+							end
 						end
 
 						if not confirmedStraggler then 
