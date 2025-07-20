@@ -1933,34 +1933,24 @@ jcms.offgame = jcms.offgame or NULL
 					content:DockPadding(0, 0, 0, 16)
 					bar:SetContents(content)
 
-					local cb
-					cb = content:Add("DCheckBoxLabel")
-					cb:SetPos(24, 16)
-					cb:SetText("#jcms.opt_announcer")
-					cb:SetWide(400)
-					cb:SetConVar("jcms_announcer")
-					cb.Paint = jcms.paint_CheckBoxLabel
-
-					cb = content:Add("DCheckBoxLabel")
-					cb:SetPos(24, 16 + 24)
-					cb:SetText("#jcms.opt_imperial")
-					cb:SetWide(400)
-					cb:SetConVar("jcms_imperial")
-					cb.Paint = jcms.paint_CheckBoxLabel
-
-					cb = content:Add("DCheckBoxLabel")
-					cb:SetPos(24, 16 + 24*2)
-					cb:SetText("#jcms.opt_motionsickness")
-					cb:SetWide(400)
-					cb:SetConVar("jcms_motionsickness")
-					cb.Paint = jcms.paint_CheckBoxLabel
-
-					cb = content:Add("DCheckBoxLabel")
-					cb:SetPos(24, 16 + 24*3)
-					cb:SetText("#jcms.opt_nomusic")
-					cb:SetWide(400)
-					cb:SetConVar("jcms_nomusic")
-					cb.Paint = jcms.paint_CheckBoxLabel
+					local checkboxes = { 
+						{ loc = "announcer", cvar = "announcer" },
+						{ loc = "imperial", cvar = "imperial" },
+						{ loc = "motionsickness", cvar = "motionsickness" },
+						{ loc = "nomusic", cvar = "nomusic" },
+						{ loc = "novignette", cvar = "hud_novignette" },
+						{ loc = "nocolourfilter", cvar = "hud_nocolourfilter" },
+						{ loc = "noneardeathfilter", cvar = "hud_noneardeathfilter" }
+					}
+					
+					for i, cbdata in ipairs(checkboxes) do
+						local cb = content:Add("DCheckBoxLabel")
+						cb:SetPos(24, 16 + 24 * (i-1))
+						cb:SetText("#jcms.opt_" .. cbdata.loc)
+						cb:SetWide(400)
+						cb:SetConVar("jcms_" .. cbdata.cvar)
+						cb.Paint = jcms.paint_CheckBoxLabel
+					end
 				end
 				-- }}}
 

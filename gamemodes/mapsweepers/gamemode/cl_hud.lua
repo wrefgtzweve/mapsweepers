@@ -429,6 +429,8 @@
 			return
 		end
 
+		local shouldDrawVignette = not jcms.cvar_hud_novignette:GetBool()
+
 		cam.Start2D()
 			surface.SetMaterial(jcms.mat_vignette)
 			if jcms.hud_shieldRestoredAnim then
@@ -443,14 +445,16 @@
 					surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 				render.OverrideBlend(false)
 
-				surface.SetAlphaMultiplier(1-anim2)
-				surface.SetDrawColor(jcms.color_dark)
-				surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+				if shouldDrawVignette then
+					surface.SetAlphaMultiplier(1-anim2)
+					surface.SetDrawColor(jcms.color_dark)
+					surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+				end
 
 				if jcms.hud_shieldRestoredAnim >= 1 then
 					jcms.hud_shieldRestoredAnim = nil
 				end
-			else
+			elseif shouldDrawVignette then
 				surface.SetDrawColor(jcms.color_dark)
 				surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 			end

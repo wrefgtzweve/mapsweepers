@@ -226,6 +226,9 @@ end)
 	jcms.cvar_nomusic = CreateClientConVar("jcms_nomusic", "0", true, false, "Disables mission-start HL2 ambience at the start of each mission")
 
 	jcms.cvar_hud_scale = CreateClientConVar("jcms_hud_scale", "1", true, false, "Scale multiplier for the in-game HUD")
+	jcms.cvar_hud_novignette = CreateClientConVar("jcms_hud_novignette", "0", true, false, "Disables the darkening around corners of the screen")
+	jcms.cvar_hud_nocolourfilter = CreateClientConVar("jcms_hud_nocolourfilter", "0", true, false, "Disables the colour-modifying screen tint")
+	jcms.cvar_hud_noneardeathfilter = CreateClientConVar("jcms_hud_noneardeathfilter", "0", true, false, "Disables the near-death black-and-white effect")
 
 	jcms.cvar_crosshair_style = CreateClientConVar("jcms_crosshair_style", "1", true, false, "0: None\n1: T-shaped\n2: Triangle\n3: Plus-shaped\n4: Circle")
 	jcms.cvar_crosshair_dot = CreateClientConVar("jcms_crosshair_dot", "0", true, false, "Enables the central dot on the crosshair")
@@ -863,48 +866,65 @@ end)
 	jcms.colormod_death = 0
 
 	hook.Add("RenderScreenspaceEffects", "jcms_jvision", function()
+		local colourmod = not jcms.cvar_hud_nocolourfilter:GetBool()
+		local deathmod = not jcms.cvar_hud_noneardeathfilter:GetBool()
+
 		local me = jcms.locPly
 		local classData = jcms.class_GetData(me)
+
+		local cTime = CurTime()
 		
-		if classData and classData.ColorMod then
-			classData.ColorMod(me, jcms.colormod)
-		else
-			local color = jcms.color_bright
-			local avg = (color.r + color.g + color.b) / 3
-			local cTime = CurTime()
-
-			local addFactor, mulFactor = (math.sin(cTime) + 1)/2 * 0.03 + 0.08, (math.cos(cTime) + 1)/2 * 0.05
-			
-			local blind = 0
-			local red = math.Clamp(jcms.hud_blindingRedLight or 0, -1, 1)
-			if red > 0 then
-				jcms.hud_blindingRedLight = math.max(0, red - FrameTime())
-				blind = math.ease.InCubic(red)
-			elseif red < 0 then
-				jcms.hud_blindingRedLight = math.min(0, red + FrameTime())
-				blind = -math.ease.InCubic(-red)
-			end
-			
-			jcms.colormod["$pp_colour_addr"] = (color.r - avg) / 255 * addFactor
-			jcms.colormod["$pp_colour_addg"] = (color.g - avg) / 255 * addFactor - blind*0.3
-			jcms.colormod["$pp_colour_addb"] = (color.b - avg) / 255 * addFactor - blind*0.3
-
-			jcms.colormod["$pp_colour_mulr"] = (color.r - avg) / 255 * mulFactor
-			jcms.colormod["$pp_colour_mulg"] = (color.g - avg) / 255 * mulFactor
-			jcms.colormod["$pp_colour_mulb"] = (color.b - avg) / 255 * mulFactor
-			
-			jcms.colormod["$pp_colour_contrast"] = Lerp(blind^2, 1.06, math.Rand(2.7, 3.06))
-			jcms.colormod["$pp_colour_brightness"] = Lerp(blind^2, 0.025, -math.Rand(0.67, 0.72))
-			
-			if IsValid(me) and me:GetObserverMode() == OBS_MODE_NONE then
-				local W = 15
-				local maxArmour = me:GetMaxArmor()
-				jcms.colormod_death = (jcms.colormod_death*W + 1-math.Clamp( math.max(me:Health()/me:GetMaxHealth(), maxArmour>0 and ((me:Armor()/maxArmour)^2)/2 or 0), 0, 1))/(W+1)
-				jcms.colormod[ "$pp_colour_colour" ] = Lerp(jcms.colormod_death^3, 1, math.sin( cTime*2 )*0.05)
+		if colourmod then
+			if classData and classData.ColorMod then
+				classData.ColorMod(me, jcms.colormod)
 			else
-				jcms.colormod_death = 0
-				jcms.colormod[ "$pp_colour_colour" ] = 1
+				local color = jcms.color_bright
+				local avg = (color.r + color.g + color.b) / 3
+
+				local addFactor, mulFactor = (math.sin(cTime) + 1)/2 * 0.03 + 0.08, (math.cos(cTime) + 1)/2 * 0.05
+				
+				local blind = 0
+				local red = math.Clamp(jcms.hud_blindingRedLight or 0, -1, 1)
+				if red > 0 then
+					jcms.hud_blindingRedLight = math.max(0, red - FrameTime())
+					blind = math.ease.InCubic(red)
+				elseif red < 0 then
+					jcms.hud_blindingRedLight = math.min(0, red + FrameTime())
+					blind = -math.ease.InCubic(-red)
+				end
+				
+				jcms.colormod["$pp_colour_addr"] = (color.r - avg) / 255 * addFactor
+				jcms.colormod["$pp_colour_addg"] = (color.g - avg) / 255 * addFactor - blind*0.3
+				jcms.colormod["$pp_colour_addb"] = (color.b - avg) / 255 * addFactor - blind*0.3
+
+				jcms.colormod["$pp_colour_mulr"] = (color.r - avg) / 255 * mulFactor
+				jcms.colormod["$pp_colour_mulg"] = (color.g - avg) / 255 * mulFactor
+				jcms.colormod["$pp_colour_mulb"] = (color.b - avg) / 255 * mulFactor
+				
+				jcms.colormod["$pp_colour_contrast"] = Lerp(blind^2, 1.06, math.Rand(2.7, 3.06))
+				jcms.colormod["$pp_colour_brightness"] = Lerp(blind^2, 0.025, -math.Rand(0.67, 0.72))
 			end
+		else
+			jcms.colormod["$pp_colour_addr"] = 0
+			jcms.colormod["$pp_colour_addg"] = 0
+			jcms.colormod["$pp_colour_addb"] = 0
+
+			jcms.colormod["$pp_colour_mulr"] = 0
+			jcms.colormod["$pp_colour_mulg"] = 0
+			jcms.colormod["$pp_colour_mulb"] = 0
+
+			jcms.colormod["$pp_colour_contrast"] = 1
+			jcms.colormod["$pp_colour_brightness"] = 0
+		end
+
+		if IsValid(me) and me:GetObserverMode() == OBS_MODE_NONE and deathmod then
+			local W = 15
+			local maxArmour = me:GetMaxArmor()
+			jcms.colormod_death = (jcms.colormod_death*W + 1-math.Clamp( math.max(me:Health()/me:GetMaxHealth(), maxArmour>0 and ((me:Armor()/maxArmour)^2)/2 or 0), 0, 1))/(W+1)
+			jcms.colormod[ "$pp_colour_colour" ] = Lerp(jcms.colormod_death^3, 1, math.sin( cTime*2 )*0.05)
+		else
+			jcms.colormod_death = 0
+			jcms.colormod[ "$pp_colour_colour" ] = 1
 		end
 		
 		DrawColorModify(jcms.colormod)
