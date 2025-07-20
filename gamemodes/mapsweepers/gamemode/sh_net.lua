@@ -38,6 +38,7 @@ local bits_ply, bits_ent, bits_wld = 2, 2, 4
 		local WLD_ORDERDATA = 6
 		local WLD_ANNOUNCER = 7
 		local WLD_FOG = 8
+		local WLD_ANNOUNCER_UPDATE = 9
 	-- // }}}
 
 	-- // CLIENT {{{
@@ -687,6 +688,15 @@ if SERVER then
 			end
 		end
 	end
+
+	function jcms.net_SendNewAnnouncer(name)
+		net.Start("jcms_msg")
+			net.WriteBool(false)
+			net.WriteEntity(game.GetWorld())
+			net.WriteUInt(WLD_ANNOUNCER_UPDATE, bits_wld)
+			net.WriteString(name)
+		net.Broadcast()
+	end
 end
 
 if CLIENT then
@@ -1026,6 +1036,10 @@ if CLIENT then
 			jcms.mapFog.fogIntensity = net.ReadFloat()
 			jcms.mapFog.fogStart = net.ReadFloat()
 			jcms.mapFog.fogEnd = net.ReadFloat()
+		end,
+
+		[ WLD_ANNOUNCER_UPDATE ] = function()
+			jcms.announcer_Set(net.ReadString())
 		end
 	}
 

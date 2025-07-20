@@ -40,20 +40,42 @@ jcms.ANNOUNCER_HA = 18
 
 jcms.announcer_vo = {}
 jcms.announcer_vo_weights = {}
-jcms.announcer_vo_types = {["default"] = {["vo"] = jcms.announcer_vo, ["voW"] = jcms.announcer_vo_weights}}
 local vo = jcms.announcer_vo
 local voW = jcms.announcer_vo_weights
+jcms.announcer_vo_types = {["default"] = {["vo"] = vo, ["voW"] = voW}}
 
-cvars.AddChangeCallback("jcms_announcer_type", function(_, _, new)
-	local voType = jcms.announcer_vo_types[new]
+function jcms.announcer_Set(name)
+	local voType = jcms.announcer_vo_types[name]
 
 	if not voType then
 		voType = jcms.announcer_vo_types["default"]
 	end
 
-	vo = voType["vo"]
-	voW = voType["voW"]
+	jcms.announcer_vo = voType["vo"]
+	jcms.announcer_vo_weights = voType["voW"]
+end
+
+cvars.AddChangeCallback("jcms_announcer_type", function(_, _, new)
+	jcms.announcer_Set(new)
+	jcms.net_SendNewAnnouncer(new)
 end)
+
+-- // Custom Announcers {{{
+	do
+		--Not technically necessary but I want to make this as brain-dead easy for people as possible.
+		local announcerFiles, _ = file.Find( "mapsweepers/gamemode/announcers_custom/*.lua", "LUA")
+		for i, v in ipairs(announcerFiles) do 
+			AddCSLuaFile("announcers_custom/" .. v)
+			local cVo, cVoW = include("announcers_custom/" .. v)
+			local name = string.StripExtension( v )
+
+			jcms.announcer_vo_types[name] = { ["vo"] = cVo, ["voW"] = cVoW }
+		end
+	end
+-- // }}}
+
+--Set our announcer to whatever the stored announcer value is
+jcms.announcer_Set(jcms.cvar_announcer_type:GetString())
 
 -- {{{
 	vo[jcms.ANNOUNCER_FAILED] = {
@@ -314,7 +336,7 @@ table.Add(vo[jcms.ANNOUNCER_SUPPLIES_AMMO], vo[jcms.ANNOUNCER_SUPPLIES])
 if CLIENT then
 	jcms.announcer_nextSpeak = 0
 	function jcms.announcer_Speak(id, index)
-		local voTable = vo[id]
+		local voTable = jcms.announcer_vo[id]
 		local chosenLine = voTable[index or math.random(#voTable)]
 
 		local soundDur = SoundDuration("vo/jcms/" .. chosenLine .. ".mp3")
@@ -359,7 +381,7 @@ if SERVER then
 	end
 
 	function jcms.announcer_Speak(id, ply)
-		local voTable = vo[id]
+		local voTable = jcms.announcer_vo[id]
 
 		local weightedTable = {}
 		for i, line in ipairs(voTable) do
