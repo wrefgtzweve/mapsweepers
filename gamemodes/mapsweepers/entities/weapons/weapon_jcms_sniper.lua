@@ -134,9 +134,10 @@ SWEP.ShootSound = Sound("NPC_Sniper.FireBullet")
 	end
 
 	function SWEP:DrawWorldModel()
+		local owner = self.Owner -- Do not use selfTbl, owner does not exist in it
 		local selfTbl = self:GetTable()
-		if IsValid(selfTbl.Owner) and selfTbl.Owner:IsNPC() then
-			selfTbl.Owner.RenderOverride = selfTbl.NPCRifleDraw
+		if IsValid(owner) and owner:IsNPC() then
+			owner.RenderOverride = selfTbl.NPCRifleDraw
 
 			if EyePos():DistToSqr(self:WorldSpaceCenter()) < 1000^2 then
 				self:DrawModel()
@@ -189,14 +190,14 @@ SWEP.ShootSound = Sound("NPC_Sniper.FireBullet")
 
 		local self = npc:GetActiveWeapon()
 		local selfTbl = self:GetTable()
-		if not(IsValid(self) and IsValid(selfTbl.Owner) and self:GetClass() == "weapon_jcms_sniper") then return end 
+		if not(IsValid(self) and IsValid(self.Owner) and self:GetClass() == "weapon_jcms_sniper") then return end 
 
 		local att = self:GetAttachment(self:LookupAttachment("muzzle")) or self:GetAttachment(self:LookupAttachment("1"))
 
 		if not att then
 			att = { Pos = npc:EyePos(), Ang = npc:EyeAngles() }
 		end
-		
+
 		local normal = att.Ang:Forward()
 		--att.Pos = att.Pos + normal
 		att.Pos:Add(normal)
