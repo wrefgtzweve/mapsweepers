@@ -654,7 +654,7 @@ jcms.offgame = jcms.offgame or NULL
 				tutor.jText = "#jcms.menututor_title"
 
 				local tutorImg = tutor:Add("DImage")
-				tutorImg:SetImage("maps/jcms_tutorial.png")
+				tutorImg:SetImage("jcms/tutorialicon.png")
 				tutorImg:SetSize(128, 128)
 				tutorImg:Center()
 				tutorImg:SetY( tutorImg:GetY() - 32)
