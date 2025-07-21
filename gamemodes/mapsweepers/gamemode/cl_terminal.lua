@@ -982,7 +982,7 @@ jcms.terminal_modeTypes = {
 		-- }}}
 
 		if buttonId == 0 and hoveredWeaponClass then
-			cam.PushModelMatrix(getGlitchMatrix(8, 2), true)
+			cam.PushModelMatrix(getGlitchMatrix(), true)
 				local price = jcms.weapon_prices[hoveredWeaponClass]
 				local canAfford = me:GetNWInt("jcms_cash", 0) >= price
 				
@@ -1250,6 +1250,62 @@ jcms.terminal_modeTypes = {
 			return hoverId
 		end
 	end,
+
+	jeechblock = function(ent, mx, my, w, h, modedata)
+		local color_bg, color_fg, color_accent = jcms.terminal_GetColors(ent)
+
+		local target, written = unpack( modedata:Split(" ") )
+		local str1 = "#jcms.terminal_writethisdown"
+		local str2 = tostring(target or "")
+		local str3 = tostring(written or "") .. (CurTime()%1<=0.5 and "_" or " ")
+
+		draw.SimpleText(str1, "jcms_hud_small", w/2, 0, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		draw.SimpleText(str2, "jcms_hud_medium", w/2, 32, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		draw.SimpleText(str3, "jcms_hud_small", w/2, 114+24, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		
+		local kb = { -- im so cool for writing this down myself
+			{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" },
+			{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "<<<" },
+			{ "A", "S", "D", "F", "G", "H", "J", "K", "L", "#jcms.confirm" },
+			{ "Z", "X", "C", "V", "B", "N", "M", "#jcms.reset" }
+		}
+
+		for i, row in ipairs(kb) do
+			local xbase = w/2-#row/2*48-12
+			for j, sym in ipairs(row) do
+				draw.SimpleText(sym, "jcms_hud_small", xbase+j*48 - (i==1 and 24 or 0), 168+i*42, color_bg, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			end
+		end
+
+		surface.SetDrawColor(jcms.color_dark)
+
+		cam.PushModelMatrix(getGlitchMatrix(4, 0.05), true)
+		render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+			draw.SimpleText(str1, "jcms_hud_small", w/2, 0, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(str2, "jcms_hud_medium", w/2, 32, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
+			surface.SetDrawColor(color_fg)
+			surface.DrawOutlinedRect(16, 114, w-32, 48, 3)
+			draw.SimpleText(str3, "jcms_hud_small", w/2, 114+24, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+			local curBtn = -1
+			local _ = 0
+			for i, row in ipairs(kb) do
+				local xbase = w/2-#row/2*48-12
+				for j, sym in ipairs(row) do
+					_ = _ + 1
+					local bx, by = xbase+j*48 - (i==1 and 24 or 0), 168+i*42
+					if curBtn == -1 and math.DistanceSqr(bx, by, mx, my) <= 32*32 then
+						curBtn = _
+					end
+					draw.SimpleText(sym, "jcms_hud_small", bx, by, _ == curBtn and color_white or color_fg, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				end
+			end
+		render.OverrideBlend( false )
+		cam.PopModelMatrix()
+
+		return curBtn
+	end
 }
 
 function jcms.terminal_GetCursor(pos, normal, fromPos, fromNormal)

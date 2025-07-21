@@ -662,6 +662,55 @@ jcms.terminal_modeTypes = {
 			
 			return false
 		end
+	},
+
+	jeechblock = {
+		weight = 1,
+
+		generate = function(ent)
+			local str = ""
+
+			for i=1, 14 do
+				str = str .. string.char(math.random() < 0.75 and math.random(0x41, 0x5a) or math.random(0x30, 0x39))
+			end
+			
+			return str .. " "
+		end,
+
+		command = function(ent, cmd, data, ply)
+			local sample = "1234567890QWERTYUIOP-ASDFGHJKL+ZXCVBNM_"
+			local char = sample:sub(cmd, cmd)
+
+			local parts = data:Split(" ")
+
+			if char then
+				if char == "-" then
+					local newWord = parts[2]:sub(1, -2)
+					return #parts[2]>0, parts[1] .. " " .. newWord
+				elseif char == "+" then
+					if parts[1] == parts[2] then
+						jcms.terminal_Unlock(ent, ply, false)
+						return true, data
+					else
+						jcms.terminal_Punish(ent, ply)
+						ent:EmitSound("buttons/button8.wav", 75, 110, 1.0)
+						return true, parts[1] .. " " .. parts[2]
+					end
+				elseif char == "_" then
+					return (parts[2] and #parts[2]>0), parts[1] .. " "
+				else
+					if parts[2] and #parts[2] > #parts[1] + 5 then
+						jcms.terminal_Punish(ent, ply)
+						ent:EmitSound("buttons/button8.wav", 75, 110, 1.0)
+						return true, parts[1] .. " "
+					else
+						return true, data .. char
+					end
+				end
+			else
+				return false
+			end
+		end
 	}
 }
 
