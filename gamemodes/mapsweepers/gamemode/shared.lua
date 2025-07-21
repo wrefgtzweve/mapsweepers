@@ -59,6 +59,11 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 -- }}}
 
+-- // Compatibility {{{
+	local pmt = FindMetaTable("Player")
+	pmt.CheckLimit = function() return true end --This function only exists in sandbox, but some addons assume it exists always.
+-- // }}
+
 -- Enums {{{
 
 	jcms.LOCATOR_GENERIC = 0

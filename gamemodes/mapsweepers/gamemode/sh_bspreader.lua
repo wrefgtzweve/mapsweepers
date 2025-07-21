@@ -160,8 +160,14 @@ bspReader = bspReader or {} --Likely to use this in other addons, don't want to 
 		bspReader.clusterCount = numClusters
 
 		for i = 1, numClusters, 1 do --Read all of the offsets 
-			table.insert(bspReader.pvsIndices, mapFile:ReadLong())
-			table.insert(bspReader.pasIndices, mapFile:ReadLong())
+			local pvs, pas = mapFile:ReadLong(), mapFile:ReadLong()
+			if not pvs or not pas then --todo: Somewhere down the line I probably want to support these maps.
+				ErrorNoHaltWithStack("[BSPReader] Issue reading map data, might be an unsupported format.")
+				return 
+			end 
+
+			table.insert(bspReader.pvsIndices, pvs)
+			table.insert(bspReader.pasIndices, pas)
 		end
 
 		--[[todo: We don't get the length of this properly here at all, and so read in a lot more than necessary. 

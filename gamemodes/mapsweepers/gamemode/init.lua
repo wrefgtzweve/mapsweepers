@@ -162,11 +162,6 @@ end
 
 -- // }}}
 
--- // Compatibility {{{
-	local pmt = FindMetaTable("Player")
-	pmt.CheckLimit = function() return true end --This function only exists in sandbox, but some addons assume it exists always.
--- // }}
-
 -- // General {{{
 
 	-- These are areas through which turrets cannot see.
