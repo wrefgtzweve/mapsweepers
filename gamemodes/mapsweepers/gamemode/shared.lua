@@ -657,6 +657,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 			end
 
 			stats.accuracy = stats.accuracy or 0
+			stats.accuracy = (isvector(stats.accuracy) and 0) or stats.accuracy
 			if radAccuracy then
 				stats.accuracy = math.Round(math.deg(stats.accuracy), 2)
 			end
