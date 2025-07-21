@@ -2659,7 +2659,7 @@ end
 	function jcms.recolorAllDollies()
 		-- this is EXTREMELY important
 		for i, ent in ipairs(ents.GetAll()) do
-			if ent:GetModel() == "models/maxofs2d/companion_doll.mdl" then
+			if ent.GetModel and ent:GetModel() == "models/maxofs2d/companion_doll.mdl" then
 				ent:SetColor(Color(255, 0, 0))
 			end
 		end

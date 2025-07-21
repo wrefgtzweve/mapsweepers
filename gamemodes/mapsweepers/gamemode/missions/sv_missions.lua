@@ -369,11 +369,11 @@
 				local desiredTeam = ply:GetNWInt("jcms_desiredteam", 0)
 				local ready = ply:GetNWBool("jcms_ready", false)
 
-				if desiredTeam <= 1 then
+				if isnumber(desiredTeam) and desiredTeam <= 1 then
 					potentialMaxPlayers = potentialMaxPlayers + 1
 				end
 
-				if desiredTeam == 1 and ready then
+				if isnumber(desiredTeam) and desiredTeam == 1 and ready then
 					readySweepers = readySweepers + 1
 				end
 			end
