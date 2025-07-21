@@ -578,6 +578,13 @@ jcms.offgame = jcms.offgame or NULL
 					surface.PlaySound("buttons/button14.wav")
 					jcms.offgame_BuildMissionPrepTab(tab)
 					RunConsoleCommand("jcms_jointeam", "1")
+					
+					local favclass = jcms.cvar_favclass:GetString()
+					if jcms.classes[ favclass ] then
+						timer.Simple(0.1, function()
+							RunConsoleCommand("jcms_setclass", favclass)
+						end)
+					end
 				end
 				y = y + 32 + 8
 
@@ -762,6 +769,7 @@ jcms.offgame = jcms.offgame or NULL
 				local function cbtnClick(self)
 					RunConsoleCommand("jcms_setclass", self.classname)
 					surface.PlaySound("weapons/slam/mine_mode.wav")
+					jcms.cvar_favclass:SetString(self.classname)
 				end
 
 				local minimizeButtons = #jcms.classesOrder > 4
@@ -3129,6 +3137,8 @@ jcms.offgame = jcms.offgame or NULL
 			local function cbtnClick(self)
 				RunConsoleCommand("jcms_setclass", self.classname)
 				surface.PlaySound("weapons/slam/mine_mode.wav")
+				--jcms.cvar_favclass:SetString(self.classname)
+				-- Technically could set fav class here as well, but I doubt people who change class mid-game want to reset their fav class
 			end
 
 			local bWidth = 0

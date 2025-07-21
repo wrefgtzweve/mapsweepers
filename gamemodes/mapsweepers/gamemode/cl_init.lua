@@ -238,6 +238,8 @@ end)
 	jcms.cvar_crosshair_length = CreateClientConVar("jcms_crosshair_length", "17", true, false, "Length of the crosshair lines")
 	jcms.cvar_crosshair_gap = CreateClientConVar("jcms_crosshair_gap", "0", true, false, "Added gap to the crosshair (there's a default one of ~8)")
 
+	jcms.cvar_favclass = CreateClientConVar("jcms_favclass", "", true, false, "Will automatically select this class whenever you join a game")
+
 -- // }}}
 
 -- // Hooks {{{

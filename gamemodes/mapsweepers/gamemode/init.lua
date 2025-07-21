@@ -2146,7 +2146,7 @@ end
 	end)
 	
 	concommand.Add("jcms_setclass", function(ply, cmd, args)
-		if (ply:GetObserverMode() == OBS_MODE_FIXED) or (ply:GetObserverMode() == OBS_MODE_CHASE and ply:GetNWInt("jcms_desiredteam", 0) == 1) then
+		if (ply:GetObserverMode() == OBS_MODE_FIXED) or (ply:GetObserverMode() == OBS_MODE_CHASE) then
 			local classData = jcms.classes[ args[1] ]
 			if classData and classData.jcorp then
 				ply:SetNWString("jcms_desiredclass", args[1])
