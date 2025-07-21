@@ -1422,7 +1422,7 @@ jcms.offgame = jcms.offgame or NULL
 
 				local thanks = creditsContainer:Add("DPanel")
 				thanks.jText = "#jcms.credits_thanks"
-				thanks.peopleList = { "UberJ", "Acheron Panda", "Ady", "Basto3456", "bonsto", "CadetTrev", "lordpatek", "luigikart87", "Malyko", "mr.murdersalot", "oreiboon", "sgt_sas1905", "TalonSolid/Redline", "TH3LOAD3R", "TheOfficialJaydee", "Triaki", "nonsensicalhumanoid", "Szabi", "emnil", "paulchartres", "Endy0396", "Marum", "Pushnidze", "thecraftianman" }
+				thanks.peopleList = { "UberJ", "Acheron Panda", "Ady", "Basto3456", "bonsto", "CadetTrev", "lordpatek", "luigikart87", "Malyko", "mr.murdersalot", "oreiboon", "sgt_sas1905", "TalonSolid/Redline", "TH3LOAD3R", "TheOfficialJaydee", "Triaki", "nonsensicalhumanoid", "Szabi", "emnil", "paulchartres", "Endy0396", "Marum", "Pushnidze", "thecraftianman", "Redox", "boblikut" }
 				table.sort(thanks.peopleList)
 				thanks.Paint = jcms.offgame_paint_CreditsPanelPeopleList
 				thanks.columnCount = 2
