@@ -259,6 +259,18 @@
 			end
 		end
 
+		function jcms.director_ShouldForceSpawnNPCPlayers()
+			local d = jcms.director
+			if not(#d.npcs > jcms.cvar_softcap:GetInt()) then return false end
+
+			local cTime = CurTime()
+			for i, v in ipairs(jcms.npc_GetPlayersToRespawn()) do
+				if (d.npcPlayerSlowRespawnTimes and d.npcPlayerSlowRespawnTimes[ply] or 0) < cTime then
+					return true
+				end
+			end
+			return false
+		end
 	-- }}}
 
 	-- Swarm-related {{{
@@ -359,12 +371,10 @@
 
 						local enemyData = jcms.npc_types[ enemyType ]
 						if enemyData and enemyData.aerial then
-							
 							local nearestNode = jcms.pathfinder.getNearestNode(pos)
 							if nearestNode then 
 								pos = nearestNode.pos
 							end
-
 						end
 						
 						if type(enemyType) == "table" then
@@ -501,7 +511,6 @@
 			local npcPlayers = jcms.npc_GetPlayersToRespawn()
 			
 			if #npcPlayers > 0 then
-				
 				for i, ply in ipairs(npcPlayers) do
 					table.insert(queue, jcms.npc_GeneratePlayerRespawnTable(ply))
 					d.npcPlayerRespawnTimes[ply] = CurTime() + 5
@@ -1161,7 +1170,7 @@
 
 			if #d.npcs > softcap then
 				d.swarmNext = missionTime + 5
-				return 
+				--return 
 			end
 
 			local missionTypeData = jcms.missions[ d.missionType ]
@@ -1244,6 +1253,28 @@
 				end
 				
 				local queue = jcms.director_MakeQueue(d, swarmCost, d.swarmDanger)
+				jcms.director_SpawnSwarm(d, queue)
+			elseif jcms.director_ShouldForceSpawnNPCPlayers() then
+				local npcPlayers = jcms.npc_GetPlayersToRespawn()
+
+				if not d.npcPlayerRespawnTimes then
+					d.npcPlayerRespawnTimes = {} -- In theory should prevent the same player from spawning in 2 different swarms
+				end
+				if not d.npcPlayerSlowRespawnTimes then --Ditto for softcap specifically. 
+					d.npcPlayerSlowRespawnTimes = {}
+				end
+
+				local queue = {}
+				for i, ply in ipairs(npcPlayers) do
+					d.npcPlayerSlowRespawnTimes[ply] = d.npcPlayerSlowRespawnTimes[ply] or CurTime()
+
+					if d.npcPlayerSlowRespawnTimes[ply] < CurTime() then
+						table.insert(queue, jcms.npc_GeneratePlayerRespawnTable(ply))
+						d.npcPlayerRespawnTimes[ply] = CurTime() + 5
+						d.npcPlayerSlowRespawnTimes[ply] = CurTime() + 30 --softcap spawn delay is 30s
+					end
+				end
+
 				jcms.director_SpawnSwarm(d, queue)
 			end
 		end
