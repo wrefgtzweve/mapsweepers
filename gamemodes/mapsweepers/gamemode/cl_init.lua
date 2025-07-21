@@ -739,7 +739,8 @@ end)
 		local coin_mat = CreateMaterial( "jcms_coin_mat", "UnlitGeneric", {
 			["$basetexture"] = coin_rt:GetName(),
 			["$translucent"] = 1,
-			["$vertexcolor"] = 1
+			["$vertexcolor"] = 1,
+			["$vertexalpha"] = 1
 		} )
 		
 		function jcms.draw_IconCash_optimised(x, y)

@@ -845,7 +845,7 @@
 
 		local dead = ply:GetObserverMode() == OBS_MODE_CHASE or not ply:Alive()
 		local evacuated = ply:GetNWBool("jcms_evacuated", false)
-		local w, h = 1500, 128
+		local w, h = 1500, 134
 
 		if not jcms.classmats then
 			jcms.classmats = {}
@@ -867,7 +867,7 @@
 		local healthFrac = math.Clamp(ply:Health() / ply:GetMaxHealth(), 0, 1)
 		local armorWidth = ply:GetMaxArmor()*3
 		local armorFrac = math.Clamp(ply:Armor() / ply:GetMaxArmor(), 0, 1)
-		local pingString = ply:IsBot() and "BOT" or ply:Ping()
+		local pingString = ply:IsBot() and "BOT" or ply:Ping() .. "ms"
 		local cashString = jcms.util_CashFormat( ply:GetNWInt("jcms_cash", 0) )
 		local nick = ply:Nick()
 
@@ -885,11 +885,11 @@
 			surface.SetMaterial(cmat)
 			surface.DrawTexturedRectRotated(x-w/2+h/2+4, y, 96, 96, 0)
 			draw.SimpleText(nick, "jcms_hud_medium", x - w/2 + h, y, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-			draw.SimpleText(cashString, "jcms_hud_medium", x + w/2 - h*2, y, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			local cashStringWidth = surface.GetTextSize(cashString, "jcms_hud_medium")
-			local cashIconX = x + w/2 - h*2 + cashStringWidth/2 + 30
-			jcms.draw_IconCash_optimised(cashIconX, y, 16, 16, color)
-			draw.SimpleText(pingString, "jcms_hud_medium", x + w/2 - h / 2, y, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+			
+			local cashLineX = x + w/2 - h + 26
+			draw.SimpleText(cashString, #cashString >= 8 and "jcms_hud_small" or "jcms_hud_medium", cashLineX, y-26, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+			jcms.draw_IconCash_optimised(cashLineX+38, y-26, 16, 16, color)
+			draw.SimpleText(pingString, "jcms_hud_medium", cashLineX+8, y+26, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 			surface.SetAlphaMultiplier(alphamul)
 
 			if not dead then
