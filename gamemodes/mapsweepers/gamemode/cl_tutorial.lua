@@ -595,6 +595,39 @@ jcms.tutorPoints = {
 	}
 }
 
+hook.Add("Think", "jcms_TutorialSpeedrunStart", function()
+	if not (jcms.statistics and jcms.statistics.playedTutorial) then return end
+
+	local ply = LocalPlayer()
+	if not jcms.tutorial_speedrunTime then
+		local pos = ply:GetPos()
+		if pos.y <= -1184 then
+			jcms.tutorial_speedrunTime = CurTime()
+			surface.PlaySound("buttons/blip1.wav")
+		end
+	elseif ply:GetObserverMode() ~= OBS_MODE_NONE and not jcms.tutorial_speedrunTimeEnd then
+		jcms.tutorial_speedrunTimeEnd = CurTime()
+	end
+end)
+
+hook.Add("PreDrawEffects", "jcms_TutorialSpeedrunHUD", function()
+	if jcms.tutorial_speedrunTime then
+		local elapsed = (jcms.tutorial_speedrunTimeEnd or CurTime()) - jcms.tutorial_speedrunTime
+		local time = string.FormattedTime(elapsed)
+
+		local formatted = string.format("%02i:%02i:%02i .%02i", time.h, time.m, time.s, time.ms)
+		cam.Start2D()
+			draw.SimpleText("#jcms.tutorial_speedrun", "jcms_medium", ScrW() - 84, 84, jcms.color_dark, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(formatted, "jcms_big", ScrW() - 84, 84, jcms.color_dark, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+				draw.SimpleText("#jcms.tutorial_speedrun", "jcms_medium", ScrW() - 84 - 1, 84 - 1, jcms.color_bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+				draw.SimpleText(formatted, "jcms_big", ScrW() - 84 - 2, 84 + 2, jcms.color_bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+			render.OverrideBlend( false )
+		cam.End2D()
+	end
+end)
+
 hook.Add("PostDrawTranslucentRenderables", "jcms_Tutorial", function(bDepth, bSkybox)
 	local W = 7
 	local ep = EyePos()
@@ -711,6 +744,17 @@ function jcms.offgame_paint_PostMissionTutorial(p, w, h)
 				if IsValid(p.p2) then
 					p.p2:SetPos(w/2 - p.p2:GetWide() / 2 + 32, Lerp(f2, h, h*0.32 + p.p1:GetTall() + 32))
 				end
+
+				if jcms.tutorial_speedrunTime then
+					surface.SetAlphaMultiplier(f3)
+					local elapsed = (jcms.tutorial_speedrunTimeEnd or CurTime()) - jcms.tutorial_speedrunTime
+					if elapsed >= 5 then
+						local time = string.FormattedTime(elapsed)
+						local formatted = language.GetPhrase("jcms.tutorial_speedrun") .. ": " .. string.format("%02i:%02i:%02i .%02i", time.h, time.m, time.s, time.ms)
+						draw.SimpleText(formatted, "jcms_medium", p.p1:GetX() + 16, p.p1:GetY() - 16, jcms.color_bright_alt, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+						surface.SetAlphaMultiplier(f1)
+					end
+				end
 			end
 
 			if IsValid(p.p3) then
@@ -758,10 +802,10 @@ hook.Add("Think", "jcms_Tutorial", function()
 		if IsValid(jcms.offgame) then
 			jcms.offgame:Remove()
 		end
-
+		
 		local pnl = vgui.Create("DPanel", GetHUDPanel())
 		jcms.offgame = pnl
-		
+
 		pnl:SetSize(ScrW(), ScrH())
 		pnl:Center()
 		pnl:MakePopup()
