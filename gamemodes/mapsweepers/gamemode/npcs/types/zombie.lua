@@ -565,6 +565,9 @@ jcms.npc_types.zombie_minitank = {
 		end)
 		
 		npc.lastPhraseTime = CurTime()
+		
+		npc:SetNWBool("jcms_isBoss", true)
+		--npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end,
 
 	scaleDamage = function(npc, hitGroup, dmgInfo)
@@ -610,6 +613,12 @@ jcms.npc_types.zombie_minitank = {
 
 			dmgInfo:ScaleDamage(0.25) --Heavy resistance.
 		end
+
+		timer.Simple(0, function()
+			if IsValid(npc) then
+				npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
+			end
+		end)
 	end,
 
 	damageEffect = function(npc, target, dmgInfo)

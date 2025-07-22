@@ -252,6 +252,9 @@
 
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) --Don't collide with other air units.
 		--TODO: See if the phys_bone_follower is what's causing us to still collide with each-other.
+
+		npc:SetNWBool("jcms_isBoss", true)
+		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end
 
 	function jcms.npc_Helicopter_FireBullets(npc, bulletData)
@@ -284,6 +287,12 @@
 			npc:EmitSound("jcms_rebelheli_die", 140, 100, 1, CHAN_VOICE, 0, 38) --Death line
 			hook.Call("OnNPCKilled", GAMEMODE, npc, dmg:GetAttacker(), dmg:GetInflictor())
 		end
+		
+		timer.Simple(0, function()
+			if IsValid(npc) then
+				npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
+			end
+		end)
 	end
 
 	function jcms.npc_Helicopter_Think(npc)

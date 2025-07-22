@@ -84,6 +84,9 @@
 		jcms.npc_gunship_onFire = false --VFX / half health.
 
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) --Don't collide with other air units.
+		
+		npc:SetNWBool("jcms_isBoss", true)
+		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end
 
 	function jcms.npc_Gunship_TakeDamage(npc, dmg)
@@ -127,6 +130,9 @@
 		local ed = EffectData()
 		ed:SetOrigin(dmg:GetDamagePosition()) 
 		util.Effect("RPGShotDown", ed)
+
+		
+		npc:SetNWFloat("HealthFraction", npc.jcms_gunship_hits / npc.jcms_gunship_maxHits)
 	end
 
 -- // }}}

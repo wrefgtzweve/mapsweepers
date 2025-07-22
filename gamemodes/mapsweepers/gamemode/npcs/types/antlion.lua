@@ -340,6 +340,17 @@ jcms.npc_types.antlion_guard = {
 		local hp = math.ceil(npc:GetMaxHealth()*1.5)
 		npc:SetMaxHealth(hp)
 		npc:SetHealth(hp)
+		
+		npc:SetNWBool("jcms_isBoss", true)
+		npc:SetNWBool("jcms_infoTargetLongRange", true)
+	end,
+
+	takeDamage = function(npc, dmg)
+		timer.Simple(0, function()
+			if IsValid(npc) then
+				npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
+			end
+		end)
 	end,
 
 	timerMin = 0.1,
@@ -384,6 +395,9 @@ jcms.npc_types.antlion_cyberguard = {
 		local hp = math.ceil( npc:GetMaxHealth())
 		npc:SetMaxHealth(hp)
 		npc:SetHealth(hp)
+		
+		npc:SetNWBool("jcms_isBoss", true)
+		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end,
 
 	think = function(npc, state)
@@ -415,6 +429,12 @@ jcms.npc_types.antlion_cyberguard = {
 		if dmg > 0.3 then
 			dmgInfo:SetDamage( math.max(dmg - 4, 0.3) )
 		end
+		
+		timer.Simple(0, function()
+			if IsValid(npc) then
+				npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
+			end
+		end)
 	end,
 	
 	check = function(director)
@@ -445,6 +465,9 @@ jcms.npc_types.antlion_ultracyberguard = {
 		npc.jcms_dmgMult = 0.75
 		npc.jcms_uCyberguard_nextBeam = CurTime() -- + 10
 		npc.jcms_uCyberguard_stage2 = false
+
+		npc:SetNWBool("jcms_isBoss", true)
+		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end,
 
 	think = function(npc, state)
@@ -525,6 +548,12 @@ jcms.npc_types.antlion_ultracyberguard = {
 		if dmg > 0.3 then
 			dmgInfo:SetDamage( math.max(dmg - 4, 0.3) )
 		end
+		
+		timer.Simple(0, function()
+			if IsValid(npc) then
+				npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
+			end
+		end)
 	end
 }
 

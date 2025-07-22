@@ -2002,6 +2002,33 @@
 
 -- // InfoTarget {{{
 
+	local function bossInfoTarget(ent, blend, scale)
+		if not ent:GetNWBool("jcms_isBoss", false) or ent:GetNWFloat("HealthFraction", 1) <= 0 then return end --ent-class doesn't necessarily mean they're a boss.
+		scale = scale or 1
+
+		surface.SetAlphaMultiplier(blend)
+		local x1 = Lerp(blend, -45, 0)
+		local x2 = Lerp(blend, -75, 40)
+
+		local healthFrac = ent:GetNWFloat("HealthFraction", 1)
+		local healthWidth = 1000*blend*scale 
+		x1 = x1 - healthWidth/2
+		x2 = x2 - healthWidth/2
+
+		surface.SetDrawColor(jcms.color_dark)
+		surface.DrawRect(x2, 1000*scale, healthWidth, 24*scale)
+
+		render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
+			local off = 2 * scale
+
+			surface.SetDrawColor(jcms.color_bright)
+			surface.DrawRect(x2 + off, 1000*scale - off, healthWidth*healthFrac, 24*scale)
+			jcms.hud_DrawStripedRect(x2 + healthWidth*healthFrac, 1000*scale, healthWidth*(1-healthFrac), (24-4)*scale)
+		render.OverrideBlend(false)
+
+		surface.SetAlphaMultiplier(1)
+	end
+
 	jcms.hud_infoTargetFuncs = {
 		["player"] = function(ply, blend)
 			if ply:Team() == 1 then
@@ -2271,9 +2298,21 @@
 
 			surface.SetAlphaMultiplier(1)
 		end,
+
+		["npc_poisonzombie"] = bossInfoTarget, --Minitank
+		["npc_jcms_zombiespawner"] = bossInfoTarget,
+		["npc_helicopter"] = function(ent, blend)
+			bossInfoTarget(ent, blend, 3.5)
+		end,
+		["npc_combinegunship"] = function(ent, blend)
+			bossInfoTarget(ent, blend, 2.5)
+		end,
+		["npc_antlionguard"] = function(ent, blend)
+			bossInfoTarget(ent, blend, 1.5)
+		end,
 	}
-	
 	jcms.hud_infoTargetFuncs.jcms_turret_smrls = jcms.hud_infoTargetFuncs.jcms_turret
+
 
 	function jcms.render_TargetInfo(ent)
 		local origin = ent:WorldSpaceCenter()
@@ -2311,7 +2350,7 @@
 		--local trace = jcms.util_ShortEyeTrace(locPly, 300)
 		local trace = locPly:GetEyeTrace()
 
-		if IsValid(trace.Entity) and trace.StartPos:DistToSqr(trace.HitPos) < 300^2 and jcms.hud_IsInfoTarget(trace.Entity) then
+		if IsValid(trace.Entity) and jcms.hud_IsInfoTarget(trace.Entity) and (trace.StartPos:DistToSqr(trace.HitPos) < 300^2 or trace.Entity:GetNWBool("jcms_infoTargetLongRange", false)) then
 			jcms.hud_target = trace.Entity
 			jcms.hud_targetLast = trace.Entity
 		else
