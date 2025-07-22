@@ -768,6 +768,7 @@ if SERVER then
 	end
 	
 	function ENT:Kamikaze(target) -- Final contribution to J Corp
+		--TODO: Hacked turrets should insta-explode
 		local launchVector = (isvector(target) and target or target:WorldSpaceCenter()) - self:WorldSpaceCenter()
 		launchVector.z = launchVector.z + math.random(200, 500)
 		
@@ -934,7 +935,7 @@ if SERVER then
 				end
 
 				if self:GetHackedByRebels() then
-					dmg:ScaleDamage(3)
+					dmg:ScaleDamage(5)
 				end
 				
 				local final = dmg:GetDamage()
