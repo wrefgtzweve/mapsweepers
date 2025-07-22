@@ -484,12 +484,13 @@
 
 				local rad = 32
 
-				beam.Speed = 300
+				beam.Speed = 350
 				beam.beamRadius = rad
 				beam:SetPos(pos)
 				beam:Spawn()
 				
 				beam.deathRay.DPS = 90
+				beam.deathRay.DPS_DIRECT = 160
 				beam.deathRay:SetBeamRadius(rad)
 				beam.deathRay.jcms_owner = ply
 

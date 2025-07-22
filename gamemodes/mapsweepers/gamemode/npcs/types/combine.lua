@@ -42,6 +42,7 @@
 			npc.deathRay:SetBeamLifeTime(bLife)
 
 			npc.deathRay.DPS = bDPS
+			npc.deathRay.DPS_DIRECT = bDPS
 
 			npc.jcms_gunshipMoveStart = CurTime()
 			npc.jcms_npcState = jcms.NPC_STATE_GUNSHIPPRECHARGE

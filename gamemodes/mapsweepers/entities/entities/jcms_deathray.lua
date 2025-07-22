@@ -29,6 +29,7 @@ ENT.Spawnable = false
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 ENT.DPS = 90
+ENT.DPS_DIRECT = 120
 
 jcms.deathray_npcMinDamageThresholds = {
 	["npc_strider"] = 100,
@@ -98,7 +99,7 @@ if SERVER then
 			
 			util.BlastDamageInfo(dmg, tr.HitPos + vector_up, rad * 4)
 
-			local basedmg = dmg:GetDamage()
+			local basedmg = selfTbl.DPS_DIRECT
 			for i, target in ipairs(targets) do
 				if jcms.team_GoodTarget(target) then
 					local threshold = jcms.deathray_npcMinDamageThresholds[ target:GetClass() ] or 15

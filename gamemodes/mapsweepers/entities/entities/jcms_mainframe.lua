@@ -106,6 +106,7 @@ if SERVER then
 					beam.beamLifeTime = 20
 					
 					beam.deathRay.DPS = 60
+					beam.deathRay.DPS_DIRECT = 60
 					beam.deathRay:SetBeamRadius(rad)
 					beam.deathRay:SetBeamPrepTime(prep)
 					beam.deathRay.jcms_owner = self

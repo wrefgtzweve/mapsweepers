@@ -2247,7 +2247,7 @@ end
 					price = (jcms.weapon_blacklist[class] and 0) or (jcms.weapon_HL2Prices[class] or jcms.weapon_predefinedPrices[class] or jcms.gunstats_CalcWeaponPrice( jcms.gunstats_GetExpensive(class) ))
 					jcms.printf("weapon '%s' restored to default price: %d J", class, price)
 				else
-					price = nil
+					--price = nil
 					jcms.printf("weapon '%s' has been disabled!", class)
 				end
 
@@ -2560,19 +2560,18 @@ end
 		end)
 
 		hook.Add("ShutDown", "jcms_SaveWeaponPrices", function()
-			if jcms.weapon_prices_wereModified then
-				local success, rtn = pcall(util.TableToJSON, jcms.weapon_prices, true)
-				if success and rtn then
-					success = file.Write(weaponPricesFile, rtn)
+			--jcms.weapon_prices_wereModified does not consistently exist in this hook.
+			local success, rtn = pcall(util.TableToJSON, jcms.weapon_prices, true)
+			if success and rtn then
+				success = file.Write(weaponPricesFile, rtn)
 
-					if success then
-						jcms.printf("Saving weapon prices to '%s'.", weaponPricesFile)
-					else
-						jcms.printf("Failed to save weapon prices. Error: %s", tostring(rtn))
-					end
+				if success then
+					jcms.printf("Saving weapon prices to '%s'.", weaponPricesFile)
 				else
-					jcms.printf("Failed to save weapon prices, bad data inside jcms.weapon_prices table!")
+					jcms.printf("Failed to save weapon prices. Error: %s", tostring(rtn))
 				end
+			else
+				jcms.printf("Failed to save weapon prices, bad data inside jcms.weapon_prices table!")
 			end
 		end)
 	end

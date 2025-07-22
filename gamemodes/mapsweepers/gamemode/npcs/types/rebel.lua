@@ -251,6 +251,7 @@
 		npc.jcms_npc_HeliTurretPos = vector_origin
 
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) --Don't collide with other air units.
+		--TODO: See if the phys_bone_follower is what's causing us to still collide with each-other.
 	end
 
 	function jcms.npc_Helicopter_FireBullets(npc, bulletData)
