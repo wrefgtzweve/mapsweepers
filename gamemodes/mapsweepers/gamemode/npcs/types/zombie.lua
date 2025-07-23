@@ -566,8 +566,7 @@ jcms.npc_types.zombie_minitank = {
 		
 		npc.lastPhraseTime = CurTime()
 		
-		npc:SetNWBool("jcms_isBoss", true)
-		--npc:SetNWBool("jcms_infoTargetLongRange", true)
+		npc:SetNWString("jcms_boss", "zombie_minitank")
 	end,
 
 	scaleDamage = function(npc, hitGroup, dmgInfo)
@@ -623,6 +622,10 @@ jcms.npc_types.zombie_minitank = {
 
 	damageEffect = function(npc, target, dmgInfo)
 		jcms.npc_MiniTank_Launch(npc, target)
+	end,
+
+	takeDamage = function(npc, dmg)
+		npc:SetNWFloat("HealthFraction", npc:Health() / npc:GetMaxHealth())
 	end,
 
 	--throw anim, releascrab, run, and firewalk sequences could be interesting

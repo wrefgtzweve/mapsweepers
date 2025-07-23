@@ -23,6 +23,7 @@
 
 	jcms.mat_tpeye = Material "jcms/jeyefx"
 	jcms.mat_evac = Material "jcms/landmarks/evac.png"
+	jcms.mat_boss = Material "jcms/factions/everyone.png"
 
 -- // }}}
 
@@ -2002,31 +2003,37 @@
 
 -- // InfoTarget {{{
 
-	local function bossInfoTarget(ent, blend, scale)
-		if not ent:GetNWBool("jcms_isBoss", false) or ent:GetNWFloat("HealthFraction", 1) <= 0 then return end --ent-class doesn't necessarily mean they're a boss.
-		scale = scale or 1
-
+	jcms.hud_infoTargetFuncs_boss = function(ent, blend, bossType)
+		local colDark, colBright = jcms.color_dark, jcms.color_bright
 		surface.SetAlphaMultiplier(blend)
-		local x1 = Lerp(blend, -45, 0)
-		local x2 = Lerp(blend, -75, 40)
+		if bossType then
+			local bossName = language.GetPhrase("jcms.bestiary_" .. bossType)
+			local tw = draw.SimpleText(bossName, "jcms_hud_small", 12, 64, colDark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			surface.SetMaterial(jcms.mat_boss)
+			surface.SetDrawColor(colDark)
+			surface.DrawTexturedRectRotated(-tw/2-12, 64, 32*blend, 32*blend, 0)
 
-		local healthFrac = ent:GetNWFloat("HealthFraction", 1)
-		local healthWidth = 1000*blend*scale 
-		x1 = x1 - healthWidth/2
-		x2 = x2 - healthWidth/2
+			local hpw = math.max(96, tw*2.5)*blend
+			local hph = math.max(8, hpw/32)
+			local hpFrac = ent:GetNWFloat("HealthFraction", -1)
+			if hpFrac == -1 then
+				hpFrac = ent:Health() / ent:GetMaxHealth()
+			end
+			hpFrac = math.Clamp(hpFrac, 0, 1)
 
-		surface.SetDrawColor(jcms.color_dark)
-		surface.DrawRect(x2, 1000*scale, healthWidth, 24*scale)
+			surface.DrawRect(-hpw/2, 100, hpw, hph)
 
-		render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-			local off = 2 * scale
-
-			surface.SetDrawColor(jcms.color_bright)
-			surface.DrawRect(x2 + off, 1000*scale - off, healthWidth*healthFrac, 24*scale)
-			jcms.hud_DrawStripedRect(x2 + healthWidth*healthFrac, 1000*scale, healthWidth*(1-healthFrac), (24-4)*scale)
-		render.OverrideBlend(false)
-
-		surface.SetAlphaMultiplier(1)
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+				draw.SimpleText(bossName, "jcms_hud_small", 12, 60, colBright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				surface.SetDrawColor(colBright)
+				surface.DrawTexturedRectRotated(-tw/2-12, 60, 32*blend, 32*blend, 0)
+				
+				surface.DrawRect(-hpw/2, 96, hpw*hpFrac, hph)
+				if hpFrac < 1 then
+					jcms.hud_DrawStripedRect(-hpw/2+hpw*hpFrac, 96+hph/4, hpw*(1-hpFrac), hph/2, 64, CurTime()*64)
+				end
+			render.OverrideBlend( false )
+		end
 	end
 
 	jcms.hud_infoTargetFuncs = {
@@ -2297,22 +2304,9 @@
 			render.OverrideBlend(false)
 
 			surface.SetAlphaMultiplier(1)
-		end,
-
-		["npc_poisonzombie"] = bossInfoTarget, --Minitank
-		["npc_jcms_zombiespawner"] = bossInfoTarget,
-		["npc_helicopter"] = function(ent, blend)
-			bossInfoTarget(ent, blend, 3.5)
-		end,
-		["npc_combinegunship"] = function(ent, blend)
-			bossInfoTarget(ent, blend, 2.5)
-		end,
-		["npc_antlionguard"] = function(ent, blend)
-			bossInfoTarget(ent, blend, 1.5)
-		end,
+		end
 	}
 	jcms.hud_infoTargetFuncs.jcms_turret_smrls = jcms.hud_infoTargetFuncs.jcms_turret
-
 
 	function jcms.render_TargetInfo(ent)
 		local origin = ent:WorldSpaceCenter()
@@ -2320,19 +2314,41 @@
 
 		local pos = ent:WorldSpaceCenter()
 		local angle = ent:EyeAngles()
-		angle.p = 0
 
-		angle:RotateAroundAxis(angle:Forward(), 90)
-		angle.y = ( math.Round(EyeAngles().y/45)*45 - 90 )
-		cam.Start3D2D(pos, angle, 1 / 16)
-			jcms.hud_infoTargetFuncs[ ent:GetClass() ](ent, blend)
+		local bossType = ent:GetNWString("jcms_boss", "")
+		if bossType == "" then bossType = nil end
+		
+		local eyeAngles = EyeAngles()
+		if bossType then
+			angle.p = 0
+			angle:RotateAroundAxis(angle:Forward(), 90)
+			angle.y = eyeAngles.y - 90
+	
+			local sc = EyePos():Distance(origin) / 1500
+			if sc < 0.5 then
+				sc = (sc*2 + 0.5)/3
+			end
+			cam.Start3D2D(pos, angle, sc)
+				jcms.hud_infoTargetFuncs_boss(ent, blend, bossType)
+			cam.End3D2D()
+		else
+			angle.p = 0
+			angle:RotateAroundAxis(angle:Forward(), 90)
+			angle.y = ( math.Round(eyeAngles.y/45)*45 - 90 )
+	
+			cam.Start3D2D(pos, angle, 1 / 16)
+				jcms.hud_infoTargetFuncs[ ent:GetClass() ](ent, blend)
+			cam.End3D2D()
+		end
+
 		render.OverrideBlend( false )
-		cam.End3D2D()
 		surface.SetAlphaMultiplier(1)
 	end
 
-	function jcms.hud_IsInfoTarget(ent)
-		return not not jcms.hud_infoTargetFuncs[ ent:GetClass() ]
+	function jcms.hud_GetInfoTargetData(ent)
+		local f = jcms.hud_infoTargetFuncs[ ent:GetClass() ]
+		local isBoss = ent:GetNWString("jcms_boss", "") ~= ""
+		return not not (f or isBoss), isBoss
 	end
 
 -- // }}}
@@ -2347,12 +2363,16 @@
 		render.ClearDepth()
 		cam.IgnoreZ(true)
 
-		--local trace = jcms.util_ShortEyeTrace(locPly, 300)
 		local trace = locPly:GetEyeTrace()
 
-		if IsValid(trace.Entity) and jcms.hud_IsInfoTarget(trace.Entity) and (trace.StartPos:DistToSqr(trace.HitPos) < 300^2 or trace.Entity:GetNWBool("jcms_infoTargetLongRange", false)) then
-			jcms.hud_target = trace.Entity
-			jcms.hud_targetLast = trace.Entity
+		if IsValid(trace.Entity) then
+			local isInfoTarget, longRange = jcms.hud_GetInfoTargetData(trace.Entity)
+			if isInfoTarget and trace.StartPos:DistToSqr(trace.HitPos) < (longRange and 25000000 or 90000) then -- 300 HU for short-range, 5000 HU for long range
+				jcms.hud_target = trace.Entity
+				jcms.hud_targetLast = trace.Entity
+			else
+				jcms.hud_target = nil
+			end
 		else
 			jcms.hud_target = nil
 		end

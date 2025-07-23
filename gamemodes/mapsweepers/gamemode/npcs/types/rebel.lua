@@ -252,9 +252,6 @@
 
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) --Don't collide with other air units.
 		--TODO: See if the phys_bone_follower is what's causing us to still collide with each-other.
-
-		npc:SetNWBool("jcms_isBoss", true)
-		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end
 
 	function jcms.npc_Helicopter_FireBullets(npc, bulletData)
@@ -1207,8 +1204,10 @@ jcms.npc_types.rebel_helicopter = {
 	portalScale = 5,
 	
 	postSpawn = function(npc)
-		--NOTE: Sometimes randomly instantly dies.
+		--NOTE: Sometimes randomly instantly dies. 
+			-- promoted. -MerekiDor
 		jcms.npc_Helicopter_Setup(npc, 40)
+		npc:SetNWString("jcms_boss", "rebel_helicopter")
 
 		npc:SetMaxHealth(npc:GetMaxHealth() * 0.4)
 		npc:SetHealth(npc:GetMaxHealth())
@@ -1246,6 +1245,7 @@ jcms.npc_types.rebel_megacopter = {
 	
 	postSpawn = function(npc)
 		jcms.npc_Helicopter_Setup(npc, 40)
+		npc:SetNWString("jcms_boss", "rebel_megacopter")
 
 		npc.jcms_heli_dropTypes[1] = "gatling"
 

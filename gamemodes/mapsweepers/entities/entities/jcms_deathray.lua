@@ -197,8 +197,8 @@ if CLIENT then
 				beamStartPos = Vector(beamStartPos.x, beamStartPos.y, 256000)
 			end
 
-			local scroll = -beamTime/10
-			local lenfactor = tr.HitPos:Distance(beamStartPos)/300
+			local scroll = -beamTime
+			local lenfactor = tr.HitPos:Distance(beamStartPos)/(rad*8)
 
 			local beamColor = selfTbl.BeamColor
 			local beamColorBrighter = Color(selfTbl.BeamColor:Unpack())

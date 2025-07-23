@@ -51,8 +51,7 @@ if SERVER then
 
 		self:SetAngles( Angle(math.Rand(-2, 2), math.random()*360, math.Rand(-2, 2)) )
 		
-		self:SetNWBool("jcms_isBoss", true)
-		--self:SetNWBool("jcms_infoTargetLongRange", false)
+		self:SetNWString("jcms_boss", "zombie_spawner")
 	end
 
 	function ENT:OnTakeDamage(dmgInfo)

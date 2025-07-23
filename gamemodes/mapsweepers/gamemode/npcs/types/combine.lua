@@ -84,9 +84,6 @@
 		jcms.npc_gunship_onFire = false --VFX / half health.
 
 		npc:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS) --Don't collide with other air units.
-		
-		npc:SetNWBool("jcms_isBoss", true)
-		npc:SetNWBool("jcms_infoTargetLongRange", true)
 	end
 
 	function jcms.npc_Gunship_TakeDamage(npc, dmg)
@@ -327,6 +324,7 @@ jcms.npc_types.combine_gunship = {
 
 	postSpawn = function(npc)
 		jcms.npc_Gunship_Setup(npc, 50)
+		npc:SetNWString("jcms_boss", "combine_gunship")
 
 		local healthMult = npc:GetMaxHealth() / (100 * 50) --Keep us scaling with default boss HP Scaling
 		npc.jcms_gunship_maxHits = math.floor(math.max(2 * healthMult, 2)) --2 Hits
@@ -401,6 +399,7 @@ jcms.npc_types.combine_cybergunship = {
 
 	postSpawn = function(npc)
 		jcms.npc_Gunship_Setup(npc, 20)
+		npc:SetNWString("jcms_boss", "combine_cybergunship")
 		
 		local healthMult = npc:GetMaxHealth() / (100 * 50) --Keep us scaling with default boss HP Scaling
 		npc.jcms_gunship_maxHits = math.floor(3 * healthMult) -- 3 Hits
