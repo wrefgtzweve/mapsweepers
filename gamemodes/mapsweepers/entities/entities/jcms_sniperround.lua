@@ -31,12 +31,22 @@ ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 ENT.Speed = 3000
 ENT.Damage = 27
 
+function ENT:SetupDataTables()
+	self:NetworkVar("Bool", 0, "Intercepted")
+end
+
 function ENT:Initialize()
+	self:SetModel("models/hunter/plates/plate.mdl")
+	self:DrawShadow(false)
+
 	if SERVER then
-		self:PhysicsInitSphere(2, "metal")
-		self:GetPhysicsObject():Wake()
-		self:GetPhysicsObject():EnableGravity(false)
-		util.SpriteTrail(self, 0, Color(0, 190, 255), true, 2, 0, 0.25, 1, "sprites/bluelaser1")
+		self:PhysicsInit(SOLID_VPHYSICS)
+		self:AddEFlags(EFL_DONTBLOCKLOS)
+		if IsValid(self:GetPhysicsObject()) then
+			self:GetPhysicsObject():Wake()
+			self:GetPhysicsObject():EnableGravity(false)
+		end
+		self.sniper_trail = util.SpriteTrail(self, 0, Color(0, 190, 255), true, 2, 0, 0.25, 1, "sprites/bluelaser1")
 	end
 
 	if CLIENT then
@@ -44,7 +54,6 @@ function ENT:Initialize()
 	end
 
 	self.ShotFrom = self:GetPos()
-	self:DrawShadow(false)
 end
 
 if SERVER then
@@ -95,21 +104,44 @@ if SERVER then
 		util.Effect("MetalSpark", ed)
 	end
 
+	function ENT:GravGunOnPickedUp(user)
+		self:SetIntercepted(true)
+
+		if IsValid(self.sniper_trail) then
+			self.sniper_trail:Remove()
+		end
+
+		self.sniper_trail = util.SpriteTrail(self, 0, Color(255, 0, 0), true, 4, 0, 0.5, 2, "sprites/bluelaser1")
+	end
+
 	function ENT:GravGunPunt(ply)
 		self.Attacker = ply
 		self.ShotFrom = ply:EyePos()
 		self.Damage = math.min(self.Damage + 15, self.Damage*2)
+		self:SetOwner(ply)
 		return true
 	end
 end
 
 if CLIENT then
 	ENT.mat = Material("particle/fire")
+	ENT.color_normal = Color(0, 190, 255)
+	ENT.color_red1 = Color(255, 0, 0)
+	ENT.color_red2 = Color(255, 128, 128)
+
+	function ENT:Draw()
+	end
 
 	function ENT:DrawTranslucent()
 		render.SetMaterial(self.mat)
 		render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-		render.DrawSprite(self:GetPos(), 64, 24, Color(0, 190, 255) )
+		local red = self:GetIntercepted()
+		if red then
+			render.DrawSprite(self:GetPos(), 72, 28, self.color_red1 )
+			render.DrawSprite(self:GetPos(), 32, 12, self.color_red2 )
+		else
+			render.DrawSprite(self:GetPos(), 64, 24, self.color_normal )
+		end
 		render.OverrideBlend(false)
 	end
 end
