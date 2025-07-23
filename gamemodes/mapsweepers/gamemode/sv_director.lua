@@ -1423,7 +1423,14 @@
 		end
 
 		timer.Create("jcms_Director", 1, 0, function()
-			local s, err = pcall( jcms.director_Loop )
+
+			local s, err = xpcall( jcms.director_Loop, function(err)
+				--If we error this gets called.
+				if debug.traceback then --Wiki lists traceack as deprecated, but the non-deprecated function doesn't do what I want. This is in-case they ever remove it.
+					return err .. "\n" .. debug.traceback()
+				end
+				return err
+			end)
 
 			if not s then
 				if type(err) == "string" then
