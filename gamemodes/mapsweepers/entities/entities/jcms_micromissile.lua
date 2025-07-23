@@ -189,7 +189,7 @@ if SERVER then
 	function ENT:PhysicsCollide(data, collider)
 		if self.ActivationTime > CurTime() then return end
 
-		if IsValid(self.Target) and (self.Target:GetPhysicsObjectCount() > 0) and (data.HitObject == self.Target:GetPhysicsObject()) then
+		if IsValid(self.Target) and (data.HitEntity == self.Target or data.HitEntity:GetClass() == "phys_bone_follower" and data.HitEntity:GetOwner() == self.Target) then
 			self:Detonate(self.Target)
 		elseif not(self.AntiAir and CurTime() - self.creationTime < 30) then --antiair missiles only detonate on other objects after 30s of life.
 			self:Detonate()
@@ -312,14 +312,20 @@ if SERVER then
 					end
 				end
 
-				if IsValid(hitEntity) and math.random() < 0.25 then
-					hitEntity:Ignite(math.Rand(1, 3), self.Radius * 0.75)
-					
+				if IsValid(hitEntity) then
 					local movetype = hitEntity:GetMoveType()
 					local flying = movetype == MOVETYPE_FLY or movetype == MOVETYPE_FLYGRAVITY
 
 					if flying or jcms.team_flyingEntityClasses[ hitEntity:GetClass() ] then
-						hitEntity:TakeDamage(self.Damage, IsValid(self.jcms_owner) and self.jcms_owner or self, self)
+						local di = DamageInfo()
+						di:SetDamage(self.Damage or 10)
+						di:SetAttacker( IsValid(self.jcms_owner) and self.jcms_owner or self )
+						di:SetInflictor(self)
+						di:SetReportedPosition(self:GetPos())
+						di:SetDamagePosition(self:GetPos())
+						di:SetDamageForce(self:GetVelocity())
+						di:SetDamageType( bit.bor(DMG_BLAST, DMG_AIRBOAT) )
+						hitEntity:TakeDamageInfo(di)
 					end
 				end
 			end

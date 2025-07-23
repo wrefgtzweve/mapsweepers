@@ -33,7 +33,13 @@ ENT.DPS_DIRECT = 120
 
 jcms.deathray_npcMinDamageThresholds = {
 	["npc_strider"] = 100,
-	["npc_combinegunship"] = 100
+	["npc_combinegunship"] = 75,
+	["npc_helicopter"] = 150
+}
+
+jcms.deathray_dmgMultipliers = {
+	["npc_helicopter"] = 4.5,
+	["npc_jcms_zombiespawner"] = 3
 }
 
 if SERVER then
@@ -74,10 +80,10 @@ if SERVER then
 		selfTbl:SetBeamTime(selfTbl:GetBeamTime() + iv)
 		
 		local beamTime, prepTime, lifeTime = selfTbl:GetBeamTime(), selfTbl:GetBeamPrepTime(), selfTbl:GetBeamLifeTime()
-		if beamTime <= lifeTime + prepTime then
+		if beamTime >= prepTime and beamTime <= lifeTime + prepTime then
 			local tr = self:GetBeamTrace()
 			local rad = selfTbl:GetBeamRadius()
-			local targets = ents.FindAlongRay(tr.StartPos, tr.HitPos, Vector(-rad, -rad, -4), Vector(rad, rad, 4))
+			local targets = ents.FindAlongRay(tr.StartPos, tr.HitPos, Vector(-rad/2, -rad/2, -4), Vector(rad/2, rad/2, 4))
 			table.RemoveByValue(targets, self)
 			local parent = self:GetParent()
 			if IsValid(parent) then 
@@ -95,6 +101,7 @@ if SERVER then
 			
 			dmg:SetInflictor(self)
 			dmg:SetReportedPosition(self:GetPos())
+			dmg:SetDamageForce(Vector(0, 0, 0))
 			dmg:SetDamageType( bit.bor(DMG_BLAST, DMG_DISSOLVE, DMG_DIRECT, DMG_AIRBOAT) )
 			
 			util.BlastDamageInfo(dmg, tr.HitPos + vector_up, rad * 4)
@@ -102,11 +109,13 @@ if SERVER then
 			local basedmg = selfTbl.DPS_DIRECT
 			for i, target in ipairs(targets) do
 				if jcms.team_GoodTarget(target) then
-					local threshold = jcms.deathray_npcMinDamageThresholds[ target:GetClass() ] or 15
+					local targetclass = target:GetClass()
+					local threshold = jcms.deathray_npcMinDamageThresholds[ targetclass ] or 15
 					dmg:SetDamagePosition(target:WorldSpaceCenter())
 					
 					if threshold > 1 then
-						target.jcms_beamSumDmg = (target.jcms_beamSumDmg or 0) + dmg:GetDamage()
+						local multiplier = jcms.deathray_dmgMultipliers[ targetclass ] or 1
+						target.jcms_beamSumDmg = (target.jcms_beamSumDmg or 0) + dmg:GetDamage()*multiplier
 						
 						if target.jcms_beamSumDmg >= threshold then
 							target.jcms_beamSumDmg = target.jcms_beamSumDmg - threshold
@@ -130,7 +139,7 @@ if SERVER then
 					end
 				end
 			end
-		else
+		elseif beamTime >= lifeTime + prepTime then
 			self:Remove()
 		end
 		
