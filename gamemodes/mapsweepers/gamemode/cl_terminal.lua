@@ -1282,29 +1282,39 @@ jcms.terminal_modeTypes = {
 		cam.PushModelMatrix(getGlitchMatrix(4, 0.05), true)
 		render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
 			draw.SimpleText(str1, "jcms_hud_small", w/2, 0, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-			draw.SimpleText(str2, "jcms_hud_medium", w/2, 32, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(str2, "jcms_hud_medium", w/2, 32, color_accent, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 
 			surface.SetDrawColor(color_fg)
 			surface.DrawOutlinedRect(16, 114, w-32, 48, 3)
 			draw.SimpleText(str3, "jcms_hud_small", w/2, 114+24, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-			local curBtn = -1
-			local _ = 0
+			local hovBtnIndex = -1
+			local btnIndex = 0
 			for i, row in ipairs(kb) do
 				local xbase = w/2-#row/2*48-12
 				for j, sym in ipairs(row) do
-					_ = _ + 1
+					btnIndex = btnIndex + 1
 					local bx, by = xbase+j*48 - (i==1 and 24 or 0), 168+i*42
-					if curBtn == -1 and math.DistanceSqr(bx, by, mx, my) <= 32*32 then
-						curBtn = _
+					if hovBtnIndex == -1 then
+						local hovered = false
+						if #sym == 1 then
+							hovered = math.DistanceSqr(bx, by, mx, my) <= 32*32
+						else
+							local dx, dy = mx - bx, my - by
+							hovered = dx >= -8 and dx <= #sym*11 + 8 and dy >= -12 and dy <= 12
+						end
+
+						if hovered then
+							hovBtnIndex = btnIndex
+						end
 					end
-					draw.SimpleText(sym, "jcms_hud_small", bx, by, _ == curBtn and color_white or color_fg, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+					draw.SimpleText(sym, "jcms_hud_small", bx, by, btnIndex == hovBtnIndex and color_accent or color_fg, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 				end
 			end
 		render.OverrideBlend( false )
 		cam.PopModelMatrix()
 
-		return curBtn
+		return hovBtnIndex
 	end
 }
 

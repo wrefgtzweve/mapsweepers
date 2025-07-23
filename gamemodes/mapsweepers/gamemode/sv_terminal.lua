@@ -670,7 +670,7 @@ jcms.terminal_modeTypes = {
 		generate = function(ent)
 			local str = ""
 
-			for i=1, 14 do
+			for i=1, 10 do
 				str = str .. string.char(math.random() < 0.75 and math.random(0x41, 0x5a) or math.random(0x30, 0x39))
 			end
 			
@@ -689,7 +689,7 @@ jcms.terminal_modeTypes = {
 					return #parts[2]>0, parts[1] .. " " .. newWord
 				elseif char == "+" then
 					if parts[1] == parts[2] then
-						jcms.terminal_Unlock(ent, ply, false)
+						jcms.terminal_Unlock(ent, ply, true)
 						return true, data
 					else
 						jcms.terminal_Punish(ent, ply)
