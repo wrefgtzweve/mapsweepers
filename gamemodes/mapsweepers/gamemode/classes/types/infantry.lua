@@ -81,7 +81,7 @@ function class.Think(ply)
 						if util.SharedRandom("InfantryAmmoRestore", 0, 1) >= 0.5 then
 							if self:GetMaxClip1() < 10 then --not helpful for high-capacity weapons.
 								timer.Simple(0, function()
-									if IsValid(self) then
+									if IsValid(self) and not SERVER then
 										self:EmitSound("buttons/lever6.wav", 75, 150, 1, CHAN_STATIC)
 										self:EmitSound("buttons/lever7.wav", 75, 100, 1, CHAN_STATIC)
 									end
@@ -110,7 +110,7 @@ function class.Think(ply)
 
 						if self:GetMaxClip1() < 10 then --not helpful for high-capacity weapons.
 							timer.Simple(0, function()
-								if IsValid(self) then
+								if IsValid(self) and not SERVER then
 									self:EmitSound("buttons/lever6.wav", 75, 150, 1, CHAN_STATIC)
 									self:EmitSound("buttons/lever7.wav", 75, 100, 1, CHAN_STATIC)
 								end
@@ -125,7 +125,7 @@ function class.Think(ply)
 				end
 			end
 		else
-			local originalFunction = wep.TakePrimaryAmmo
+			local originalFunction = wep.TakePrimaryAmmo or function() end --No idea how to reproduce, but TakePrimaryAmmo doesn't exist on client *sometimes*. Happened on CFC.
 			wep.TakePrimaryAmmo = function(self, count, ...)
 				local owner = self:GetOwner()
 				if owner == self.jcms_infantryOwner then
@@ -135,7 +135,7 @@ function class.Think(ply)
 
 						if self:GetMaxClip1() < 10 then --not helpful for high-capacity weapons.
 							timer.Simple(0, function()
-								if IsValid(self) then
+								if IsValid(self) and not SERVER then
 									self:EmitSound("buttons/lever6.wav", 75, 150, 1, CHAN_STATIC)
 									self:EmitSound("buttons/lever7.wav", 75, 100, 1, CHAN_STATIC)
 								end
