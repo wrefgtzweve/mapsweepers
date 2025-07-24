@@ -92,7 +92,7 @@ if SERVER then
 			if jcms.director and jcms.director.votes then
 				local mapname = net.ReadString()
 				
-				if table.HasValue(jcms.director.vote_maps, mapname) then
+				if jcms.director.vote_maps[mapname] then
 					jcms.director.votes[ply] = mapname
 				end
 
@@ -384,9 +384,15 @@ if SERVER then
 
 			net.WriteUInt(jcms.director.vote_time or 0, 32)
 			if jcms.director.vote_maps then
-				net.WriteUInt(#jcms.director.vote_maps, 4)
-				for i, map in ipairs(jcms.director.vote_maps) do
+				net.WriteUInt(table.Count(jcms.director.vote_maps), 4)
+				for map, wsid in pairs(jcms.director.vote_maps) do
 					net.WriteString(map)
+					if wsid then
+						net.WriteBool(true)
+						net.WriteString(wsid) -- Workshop ID
+					else
+						net.WriteBool(false)
+					end
 				end
 			else
 				net.WriteUInt(0, 4)
@@ -870,8 +876,9 @@ if CLIENT then
 					jcms.aftergame.voteTime = net.ReadUInt(32)
 					local voteOptionsCount = net.ReadUInt(4)
 					for i=1, voteOptionsCount do
-						local map = net.ReadString()
-						table.insert(jcms.aftergame.vote.choices, map)
+						local mapname = net.ReadString()
+						local wsid = net.ReadBool() and net.ReadString() or false -- Workshop ID
+						jcms.aftergame.vote.choices[mapname] = wsid
 					end
 
 					-- todo Skip the animations if we're late

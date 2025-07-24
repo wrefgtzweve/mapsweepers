@@ -174,13 +174,13 @@
 	end
 
 	function jcms.mission_GenerateVoteOptions()
-		local t = {}
+		local maps = {}
 
 		local excludeCurrent = jcms.cvar_map_excludecurrent:GetBool()
 		local numberOfOptions = math.Clamp(jcms.cvar_map_votecount:GetInt(), 1, 15)
 
 		if not excludeCurrent then
-			table.insert(t, game.GetMap())
+			maps[game.GetMap()] = false
 		end
 
 		local mapDict = {}
@@ -188,26 +188,41 @@
 		for i, map in ipairs(jcms.cvar_map_list:GetString():Split(",")) do
 			local trimmed = map:Trim():lower()
 			if trimmed ~= "" then
-				mapDict[ trimmed ] = true
+				mapDict[ trimmed ] = false
 			end
 		end
 		
 		table.Shuffle(jcms.validMapOptions)
 		for i, map in ipairs(jcms.validMapOptions) do
-			if #t < numberOfOptions then
+			if table.Count(maps) < numberOfOptions then
 				if isWhitelist == (not not mapDict[map]) then -- Both are true, or both are false.
-					table.insert(t, map)
+					maps[map] = false
 				end
 			else
 				break
 			end
 		end
 
-		if (#t == 0) then -- Failsafe
-			t[1] = game.GetMap()
+		if (table.Count(maps) == 0) then -- Failsafe
+			maps[game.GetMap()] = false
 		end
 
-		return t
+		-- Get WSID of the maps
+		if not game.SinglePlayer() then
+			for _, addon in ipairs( engine.GetAddons() ) do
+				if addon.wsid and addon.mounted and addon.title then
+					local files = file.Find( "maps/*.bsp", addon.title )
+					for _, fil in ipairs( files ) do
+						local mapName = string.StripExtension(fil)
+						if not maps[mapName] then
+							maps[mapName] = addon.wsid
+						end
+					end
+				end
+			end
+		end
+
+		return maps
 	end
 
 	function jcms.mission_End(victory)
