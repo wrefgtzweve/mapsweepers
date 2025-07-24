@@ -326,8 +326,8 @@ jcms.terminal_modeTypes = {
 		surface.SetDrawColor(color_bg)
 		jcms.hud_DrawStripedRect(wx, wy, ws, ws, 64, -CurTime()*24)
 
-		local str1 = [=[WEAPON LOCKER]=]
-		local str2 = [=[TM Mafia Security - R.W.S.S. Model B]=]
+		local str1 = "#jcms.terminal_gunlocker"
+		local str2 = "TM Mafia Security - R.W.S.S. Model B"
 		local str3 = empty and "X" or (gundata and gundata.name or "#jcms.unknownbase0")
 		draw.SimpleText(str1, "jcms_hud_medium", w/2, 0, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 		draw.SimpleText(str2, "jcms_hud_small", 24, 54, color_bg, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
@@ -343,8 +343,8 @@ jcms.terminal_modeTypes = {
 		surface.SetDrawColor(color_bg)
 		surface.DrawRect(wx + ws + 16, 128 + 24, w - ws - wx - 16, 64)
 
-		local str5 = [=[Take Weapon]=]
-		local str6 = [=[Unlock]=]
+		local str5 = "#jcms.terminal_gunlocker_take"
+		local str6 = "#jcms.terminal_unlock"
 
 		if locked then
 			surface.SetMaterial(jcms.mat_lock)
