@@ -24,7 +24,7 @@
 		--Game was never really designed for this many players, zombie missions in particular end up feeling very empty with 16 people. This should help.
 		local swpCountReduce = math.max(#team.GetPlayers(1) - 8, 0) * 150
 
-		if npc:GetPathDistanceToGoal() > (2250 - swpCountReduce) then
+		if npc:GetPathDistanceToGoal() > math.max(2250 - swpCountReduce, 250) then
 			local npcPos = npc:WorldSpaceCenter()
 			local npcNextPos = npc:GetCurWaypointPos()
 

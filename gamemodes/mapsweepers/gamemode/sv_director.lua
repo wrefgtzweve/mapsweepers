@@ -786,25 +786,30 @@
 
 	-- Main Methods, Thinking {{{
 		jcms.director_debrisClasses = {
-			["item_ammo_ar2_altfire"] = true,
-			["item_battery"] = true, --Leaving health-kits alone because they're more important. Suit batteries basically only matter to sentinel
 			["helicopter_chunk"] = true,
 			["gib"] = true,
 		}
 
+		jcms.director_debrisClasses_important = {
+			["item_ammo_ar2_altfire"] = true,
+			["item_battery"] = true, --Leaving health-kits alone because they're more important. Suit batteries basically only matter to sentinel
+		}	
+
 		function jcms.director_DebrisClear(d) --NOTE: This is primarily to reduce *render lag* rather than physics/anything like that. Most of this stuff is stationary.
 			for i, ent in ents.Iterator() do
 				local isWeapon = ent:IsWeapon()
-				if not (isWeapon or jcms.director_debrisClasses[ent:GetClass()]) then continue end --Only weapons
+				local entClass = ent:GetClass()
+				local isImportant = jcms.director_debrisClasses_important[entClass]
+				if not (isWeapon or jcms.director_debrisClasses[entClass] or isImportant) then continue end --Only weapons
 				if IsValid(ent:GetOwner()) or ent:CreatedByMap() then continue end  --Don't kill map-entities or ones in an inventory
 
-				local dissolveDelay = isWeapon and 120 or 10
+				local dissolveDelay = (isWeapon or isImportant) and 120 or 60
 
 				local entTbl = ent:GetTable() 
 				entTbl.jcms_weaponDieTime = entTbl.jcms_weaponDieTime or (CurTime() + dissolveDelay) --Set our timer if we don't have one
 
 				if entTbl.jcms_weaponDieTime < CurTime() or not ent:IsInWorld() then -- If our time's up, (or we're outside the map? Somehow?)
-					if isWeapon and #jcms.GetSweepersInRange(ent:GetPos(), 600) > 0 then -- Give us more if a sweeper's nearby
+					if (isWeapon or isImportant) and #jcms.GetSweepersInRange(ent:GetPos(), 600) > 0 then -- Give us more if a sweeper's nearby
 						entTbl.jcms_weaponDieTime = CurTime() + 20
 					else
 						ent:Dissolve() -- Clean us up

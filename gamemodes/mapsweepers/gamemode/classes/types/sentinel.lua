@@ -126,6 +126,7 @@ if SERVER then
 					ply.sentinel_teleportSound:Play()
 
 					timer.Simple(1.5, function() --Delay/warning before teleporting.
+						if not IsValid(ply) then return end
 						ply.sentinel_teleportSound:Stop()
 						ply.sentinel_isTeleporting = false
 
