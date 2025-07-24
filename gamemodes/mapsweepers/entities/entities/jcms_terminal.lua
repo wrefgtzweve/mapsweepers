@@ -114,6 +114,17 @@ jcms.terminal_modelInfos = {
 		fwd = 14,
 		rotateUp = 180,
 		rotateFwd = -60
+	},
+
+	["models/props/de_nuke/nuclearcontrolbox.mdl"] = {
+		theme = "antlion",
+		width = 600,
+		height = 500,
+		up = 8,
+		right = 9.8,
+		fwd = 4,
+		rotateUp = 90,
+		rotateRight = -90
 	}
 }
 

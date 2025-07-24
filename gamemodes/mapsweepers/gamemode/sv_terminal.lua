@@ -258,6 +258,47 @@ jcms.terminal_modeTypes = {
 			return locked and "0" or "1"
 		end
 	},
+
+	gunlocker = {
+		command = function(ent, cmd, data, ply)
+			local locked = ent:GetNWBool("jcms_terminal_locked")
+
+			if cmd == 1 and not locked and data ~= "" then
+				local oldValue = ply.jcms_canGetWeapons
+				ply.jcms_canGetWeapons = true
+				ply:Give(ent.jcms_weaponclass)
+				ply.jcms_canGetWeapons = oldValue
+
+				local gunstats = jcms.gunstats_GetExpensive(ent.jcms_weaponclass)
+				if gunstats then
+					jcms.net_NotifyGeneric(ply, jcms.NOTIFY_OBTAINED, gunstats.name or "#"..ent.jcms_weaponclass)
+				end
+				return true, ""
+			elseif cmd == 2 and locked then
+				jcms.terminal_ToUnlock(ent)
+				return true
+			end
+		end,
+		
+		generate = function(ent)
+			if not ent.jcms_weaponclass then
+				local weights = {}
+				for k,v in pairs(jcms.weapon_prices) do
+					weights[k] = (v <= 3200 and (v/5) or (math.min(20000, v)^1.12 + 6000)) / 100
+				end
+
+				local chosen = jcms.util_ChooseByWeight(weights)
+				
+				if not chosen then
+					chosen = "weapon_crowbar"
+				end
+
+				ent.jcms_weaponclass = chosen
+			end
+
+			return ent.jcms_weaponclass
+		end
+	},
 	
 	shop = {
 		command = function(ent, cmd, data, ply)
@@ -670,8 +711,18 @@ jcms.terminal_modeTypes = {
 		generate = function(ent)
 			local str = ""
 
-			for i=1, 10 do
-				str = str .. string.char(math.random() < 0.75 and math.random(0x41, 0x5a) or math.random(0x30, 0x39))
+			ent:StopSound("ambient/atmosphere/tone_alley.wav")
+
+			if math.random() < 0.001 then
+				str = "ILOVEJCORP"
+				if math.random() < 0.1 then
+					str = math.random() < 0.5 and "RUN" or "BEHINDYOU"
+					ent:EmitSound("ambient/atmosphere/tone_alley.wav", 75, 90, 1, CHAN_STATIC)
+				end
+			else
+				for i=1, 10 do
+					str = str .. string.char(math.random() < 0.75 and math.random(0x41, 0x5a) or math.random(0x30, 0x39))
+				end
 			end
 			
 			return str .. " "
@@ -690,6 +741,7 @@ jcms.terminal_modeTypes = {
 				elseif char == "+" then
 					if parts[1] == parts[2] then
 						jcms.terminal_Unlock(ent, ply, true)
+						ent:StopSound("ambient/atmosphere/tone_alley.wav")
 						return true, data
 					else
 						jcms.terminal_Punish(ent, ply)

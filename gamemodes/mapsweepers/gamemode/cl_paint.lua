@@ -364,8 +364,6 @@
 			col.g = (col.g + 255)/2
 			col.b = (col.b + 255)/2
 
-
-			local gunMats = p.gunMats or jcms.gunMats
 			local index = 0
 
 			local mx, my = p:LocalCursorPos()
@@ -376,13 +374,6 @@
 			for _, weapon in ipairs(weps) do
 				local class = weapon:GetClass()
 				if class == "weapon_stunstick" then continue end
-
-				if not gunMats[class] then
-					gunMats[class] = Material(p.gunStats.icon or "vgui/entities/"..class..".png")
-					if gunMats[class]:IsError() then
-						gunMats[class]  = Material("entities/"..class..".png")
-					end
-				end
 				
 				if selectionIndex ~= index then
 					local size = 32
@@ -391,7 +382,7 @@
 
 					surface.SetDrawColor(jcms.color_bright)
 					surface.DrawRect(baseX + 150 + index*34, size + 8, size - 4, 1)
-					surface.SetMaterial(gunMats[class])
+					surface.SetMaterial(jcms.gunstats_GetMat(class))
 					surface.DrawTexturedRectRotated(baseX + 150 + index*34 + 4 + 16, size/2 + 4, size, size, 0)
 					surface.SetDrawColor(col)
 					surface.DrawTexturedRectRotated(baseX + 150 + index*34 + 16, size/2, size, size, 0)
@@ -411,7 +402,7 @@
 				local class = selectionWeapon:GetClass()
 
 				local size = 48
-				surface.SetMaterial(gunMats[class])
+				surface.SetMaterial(jcms.gunstats_GetMat(class))
 				surface.SetDrawColor(jcms.color_bright)
 				surface.DrawTexturedRectRotated(baseX + 150 + selectionIndex*34 + 4 + 16, size/2 + 4, size, size, 0)
 				surface.SetDrawColor(color_white)
@@ -543,19 +534,11 @@
 			p.createdAt = CurTime()
 		end
 
-		local gunMats = p.gunMats or jcms.gunMats
-
-		if not gunMats[p.gunClass] then
-			gunMats[p.gunClass] = Material(p.gunStats.icon or "vgui/entities/"..p.gunClass..".png")
-			if gunMats[p.gunClass]:IsError() then
-				gunMats[p.gunClass]  = Material("entities/"..p.gunClass..".png")
-			end
-		end
-
-		if gunMats[p.gunClass] and gunMats[p.gunClass]:IsError() then
+		local gunMat = jcms.gunstats_GetMat(p.gunClass)
+		if gunMat and gunMat:IsError() then
 			p.matBad = true
 		else
-			p.mat = gunMats[p.gunClass]
+			p.mat = gunMat
 		end
 		
 		local clr = (p.owned and p.owned>0) and jcms.color_bright_alt or jcms.color_bright
@@ -1264,7 +1247,6 @@
 					wbtn.DoClick = wbtnClick
 					wbtn.gunSale = jcms.util_GetLobbyWeaponCostMultiplier()
 					wbtn.ammoSale = 1
-					wbtn.gunMats = p.gunMats
 					wbtn.gunClass = class 
 					wbtn.gunStats = jcms.gunstats_GetExpensive(class)
 					wbtn.cost = jcms.weapon_prices[class]
@@ -1296,21 +1278,17 @@
 				local twbase = draw.SimpleText(stats.base, "jcms_small", 28, y, jcms.color_bright)
 				y = y + (mini and 8 or 20)
 
-				if hoveredElement.gunMats then
-					local mat = hoveredElement.gunMats[ class ]
+				local mat = jcms.gunstats_GetMat(class)
 
-					if mat and not mat:IsError() then
-						surface.SetMaterial(mat)
-						surface.SetDrawColor(255, 255, 255)
-						if mini then
-							surface.DrawTexturedRect(256 - 64 - 8, y - 24, 64, 64, 0)
-							y = y + 16
-						else
-							surface.DrawTexturedRect(32, y, 96, 96, 0)
-							y = y + 112
-						end
-					else
+				if mat and not mat:IsError() then
+					surface.SetMaterial(mat)
+					surface.SetDrawColor(255, 255, 255)
+					if mini then
+						surface.DrawTexturedRect(256 - 64 - 8, y - 24, 64, 64, 0)
 						y = y + 16
+					else
+						surface.DrawTexturedRect(32, y, 96, 96, 0)
+						y = y + 112
 					end
 				else
 					y = y + 16

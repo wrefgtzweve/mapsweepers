@@ -29,7 +29,8 @@ end
 jcms.terminal_themes = {
 	jcorp = { Color(64, 0, 0, 200), Color(230, 0, 0), Color(31, 114, 147) },
 	combine = { Color(0, 242, 255, 55), Color(0, 168, 229, 210), Color(215, 38, 42) },
-	rebel = { Color(32, 20, 255, 54), Color(143, 67, 229), Color(21, 224, 21) }
+	rebel = { Color(32, 20, 255, 54), Color(143, 67, 229), Color(21, 224, 21) },
+	antlion = { Color(200, 23, 17, 55), Color(255, 255, 0), Color(255, 124, 36) }
 }
 
 jcms.terminal_modeTypes = {
@@ -304,6 +305,114 @@ jcms.terminal_modeTypes = {
 		cam.PopModelMatrix()
 
 		return buttonId
+	end,
+
+	gunlocker = function(ent, mx, my, w, h, modedata)
+		local locked = ent:GetNWInt("jcms_terminal_locked")
+		local class = modedata
+		local empty = class == ""
+		
+		local color_bg, color_fg, color_accent = jcms.terminal_GetColors(ent)
+
+		if ent.jcms_cachedGunClass ~= class then
+			ent.jcms_cachedGunClass = class
+			ent.jcms_cachedGunData = jcms.gunstats_GetExpensive(class)
+		end
+
+		local gundata = ent.jcms_cachedGunData
+		local gunmat = jcms.gunstats_GetMat(class)
+
+		local wx, wy, ws = 0, 128, h/2.5
+		surface.SetDrawColor(color_bg)
+		jcms.hud_DrawStripedRect(wx, wy, ws, ws, 64, -CurTime()*24)
+
+		local str1 = [=[WEAPON LOCKER]=]
+		local str2 = [=[TM Mafia Security - R.W.S.S. Model B]=]
+		local str3 = empty and "X" or (gundata and gundata.name or "#jcms.unknownbase0")
+		draw.SimpleText(str1, "jcms_hud_medium", w/2, 0, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		draw.SimpleText(str2, "jcms_hud_small", 24, 54, color_bg, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+		
+		local font = "jcms_hud_medium"
+		surface.SetFont(font)
+		local tw, th = surface.GetTextSize(str3)
+		if tw > w - ws - 32 then
+			font = "jcms_hud_small"
+		end
+
+		local str4 = empty and "X" or (gundata and gundata.base or "???")
+		surface.SetDrawColor(color_bg)
+		surface.DrawRect(wx + ws + 16, 128 + 24, w - ws - wx - 16, 64)
+
+		local str5 = [=[Take Weapon]=]
+		local str6 = [=[Unlock]=]
+
+		if locked then
+			surface.SetMaterial(jcms.mat_lock)
+			surface.SetDrawColor(color_bg)
+			surface.DrawTexturedRect(wx+ws+16, wy+ws-ws/2, ws/2, ws/2)
+		end
+
+		local bx, by, bw, bh = w/2 + 64, 240, w/2 - 64, 48
+		local by2 = by + bh + 12
+		if locked then
+			surface.DrawRect(bx, by2, bw, bh)
+		else
+			bx = wx + ws + 16
+			bw = w - bx
+		end
+
+		if not empty then
+			surface.DrawRect(bx, by, bw, bh)
+		end
+		
+		cam.PushModelMatrix(getGlitchMatrix(), true)
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
+			draw.SimpleText(str1, "jcms_hud_medium", w/2, 0, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(str2, "jcms_hud_small", 24, 54, color_accent, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			tw, th = draw.SimpleText(str3, font, wx + ws + 24, 128, color_fg, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			draw.SimpleText(str4, "jcms_hud_small", wx + ws + 24 + 16, 128 + th*0.84, color_accent, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			render.OverrideBlend( false )
+			
+			if gunmat and not gunmat:IsError() then
+				surface.SetMaterial(gunmat)
+				surface.SetDrawColor(color_white)
+				surface.DrawTexturedRect(wx, wy, ws, ws)
+			else
+				draw.SimpleText("?", "jcms_hud_huge", wx + ws/2, wy + ws/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
+
+			if locked then
+				surface.SetMaterial(jcms.mat_lock)
+				surface.SetDrawColor(color_fg)
+				surface.DrawTexturedRect(wx+16, wy+ws-16-ws/4, ws/4, ws/4)
+			end
+
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
+			surface.SetDrawColor(color_fg)
+			surface.DrawOutlinedRect(wx, wy, ws, ws, 4)
+
+			if not empty then
+				draw.SimpleText(str5, "jcms_hud_small", bx+bw/2, by+bh/2, locked and color_bg or color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
+
+			if locked then
+				draw.SimpleText(str6, "jcms_hud_small", bx+bw/2, by2+bh/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
+
+			local btnId
+			if (not empty and not locked) and mx >= bx and my >= by and mx <= bx + bw and my <= by + bh then
+				surface.SetDrawColor(color_fg)
+				surface.DrawOutlinedRect(bx, by, bw, bh, 4)
+				btnId = 1
+			elseif locked and mx >= bx and my >= by2 and mx <= bx + bw and my <= by2 + bh then
+				surface.SetDrawColor(color_fg)
+				surface.DrawOutlinedRect(bx, by2, bw, bh, 4)
+				btnId = 2
+			end
+			render.OverrideBlend( false )
+		cam.PopModelMatrix()
+
+		return btnId
 	end,
 
 	thumper_controls = function(ent, mx, my, w, h, modedata)
@@ -781,13 +890,7 @@ jcms.terminal_modeTypes = {
 						ent.weaponHoverAnims[wepclass] = ((ent.weaponHoverAnims[wepclass] or 0)*animWeight + (hovered and 1 or 0)) / (animWeight+1)
 					
 						local hov = ent.weaponHoverAnims[wepclass]
-						if not jcms.gunMats[wepclass] then
-							jcms.gunMats[wepclass] = Material(wepstats.icon or "vgui/entities/"..wepclass..".png")
-							if jcms.gunMats[wepclass]:IsError() then
-								jcms.gunMats[wepclass]  = Material("entities/"..wepclass..".png")
-							end
-						end
-						local mat = jcms.gunMats[wepclass]
+						local mat = jcms.gunstats_GetMat(wepclass)
 
 						local col = owned and color_accent or (canAfford and color_fg or color_bg)
 
@@ -851,7 +954,7 @@ jcms.terminal_modeTypes = {
 			local selectedWeapon = me:GetActiveWeapon()
 			if IsValid(selectedWeapon) then
 				local wepclass = selectedWeapon:GetClass()
-				local mat = jcms.gunMats[wepclass]
+				local mat = jcms.gunstats_GetMat(wepclass)
 				
 				if not ent.gunStatsCache[ wepclass ] then
 					ent.gunStatsCache[ wepclass ] = jcms.gunstats_GetExpensive(wepclass)

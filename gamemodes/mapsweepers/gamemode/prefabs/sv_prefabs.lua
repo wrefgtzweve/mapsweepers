@@ -237,6 +237,35 @@
 				return ent
 			end
 		},
+
+		gunlocker = {
+			natural = true,
+			weight = 0.09,
+
+			check = function(area)
+				local wallspots, normals = jcms.prefab_GetWallSpotsFromArea(area, 60, 32)
+				
+				if #wallspots > 0 then
+					local rng = math.random(#wallspots)
+					return true, { pos = wallspots[rng], normal = normals[rng] }
+				else
+					return false
+				end
+			end,
+
+			stamp = function(area, data)
+				local ent = ents.Create("jcms_terminal")
+				if not IsValid(ent) then return end
+
+				ent:Spawn()
+				ent:SetColor(Color(87, 83, 34))
+				ent:InitAsTerminal("models/props/de_nuke/nuclearcontrolbox.mdl", "gunlocker")
+				ent:SetPos(data.pos)
+				ent:SetAngles(data.normal:Angle())
+
+				return ent
+			end
+		},
 		
 		barricades = {
 			natural = true,

@@ -24,6 +24,7 @@
 	jcms.mat_tpeye = Material "jcms/jeyefx"
 	jcms.mat_evac = Material "jcms/landmarks/evac.png"
 	jcms.mat_boss = Material "jcms/factions/everyone.png"
+	jcms.mat_lock = Material "jcms/lock.png"
 
 -- // }}}
 

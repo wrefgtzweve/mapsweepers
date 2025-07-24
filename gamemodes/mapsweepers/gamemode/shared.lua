@@ -81,7 +81,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 	jcms.SPAWNCAT_DEFENSIVE = 7
 
 	jcms.NOTIFY_DESTROYED = 1
-	jcms.NOTIFY_CAPTURED = 2
+	jcms.NOTIFY_OBTAINED = 2
 	jcms.NOTIFY_LOCATED = 3
 	jcms.NOTIFY_LOST = 4
 	jcms.NOTIFY_MARKED = 5
@@ -683,6 +683,21 @@ jcms.vectorOne = Vector(1, 1, 1)
 			stats.slot = gunData.Slot or 5
 
 		return stats
+	end
+
+	if CLIENT then
+		function jcms.gunstats_GetMat(class)
+			if not jcms.gunMats[ class ] then
+				wepstats = jcms.gunstats_GetExpensive(class)
+
+				jcms.gunMats[class] = Material(wepstats and wepstats.icon or "vgui/entities/"..class..".png")
+				if jcms.gunMats[class]:IsError() then
+					jcms.gunMats[class]  = Material("entities/"..class..".png")
+				end
+			end
+
+			return jcms.gunMats[ class ]
+		end
 	end
 
 	function jcms.gunstats_CountGivenAmmoFromLoadoutCount(stats, count) -- How much ammo is given for a weapon bought X times.

@@ -388,7 +388,6 @@ jcms.offgame = jcms.offgame or NULL
 								elem.Paint = jcms.paint_PlayerLobby
 								elem.player = ply
 								elem.classMats = self.classMats
-								elem.gunMats = jcms.gunMats
 								elem.gunStats = self.gunStats
 								self.elementDict[ ply ] = elem
 
@@ -463,7 +462,6 @@ jcms.offgame = jcms.offgame or NULL
 								elem.Paint = jcms.paint_PlayerLobbyNPC
 								elem.player = ply
 								elem.classMats = self.classMats
-								elem.gunMats = jcms.gunMats
 								elem.gunStats = self.gunStats
 								self.elementDict[ ply ] = elem
 
@@ -716,8 +714,6 @@ jcms.offgame = jcms.offgame or NULL
 		end
 
 		function jcms.offgame_BuildMissionPrepTab(tab)
-			jcms.gunMats = jcms.gunMats or {}
-			
 			-- Class {{{
 				tab.classPnl = tab:Add("DPanel")
 				tab.classPnl:SetPos(32, 32)
@@ -796,7 +792,6 @@ jcms.offgame = jcms.offgame or NULL
 				tab.loadoutPnl:SetSize(800, tab:GetTall() - tab.loadoutPnl:GetY() - tab.loadoutPnl:GetTall())
 				tab.loadoutPnl.Paint = jcms.offgame_paint_LoadoutPanel
 				tab.loadoutPnl.gunStats = {}
-				tab.loadoutPnl.gunMats = jcms.gunMats
 				tab.loadoutPnl.weaponButtons = {}
 
 				tab.loadoutPnl.randomLoadout = tab.loadoutPnl:Add("DImageButton")
@@ -1023,7 +1018,6 @@ jcms.offgame = jcms.offgame or NULL
 							local wbtn = gunicos:Add("DButton")
 							wbtn:SetSize(bsize, bsize)
 							wbtn.Paint = jcms.paint_Gun
-							wbtn.gunMats = jcms.gunMats
 							wbtn.gunStats = tab.loadoutPnl.gunStats[class]
 							wbtn.gunClass = class 
 							wbtn.DoClick = wbtnClick
