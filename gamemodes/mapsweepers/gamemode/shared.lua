@@ -31,7 +31,9 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 	hook.Add("PlayerSwitchWeapon", "jcms_WepSwitchFOVFix", function(ply, oldWep, newWep)
 		timer.Simple(0.1, function() --*Yes, this has an actual purpose.* This might be an m9k issue but fov often gets fucked when switching. This resets it.
-			ply:SetFOV(ply:GetFOV())
+			if IsValid(ply) then
+				ply:SetFOV(ply:GetFOV())
+			end
 		end)
 	end)
 
@@ -162,6 +164,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 -- Gun Stats {{{
 
 	jcms.default_weapons_datas = {
+		--HL2
 		weapon_stunstick = {
 			Slot = 0,
 			Spawnable = false,
@@ -251,6 +254,9 @@ jcms.vectorOne = Vector(1, 1, 1)
 			WorldModel = "models/weapons/w_crossbow.mdl",
 			Primary = { Ammo = "XBowBolt", Damage = 100, RPM = 31, ClipSize = 1, Cone = 0 }
 		}
+
+		--HL1 Weapons
+		--TODO:
 	}
 
 	jcms.weapon_HL2Prices = {
@@ -262,6 +268,11 @@ jcms.vectorOne = Vector(1, 1, 1)
 		weapon_rpg = 1299,
 		weapon_frag = 199,
 		weapon_crossbow = 699
+	}
+
+
+	jcms.weapon_HL1Prices = {
+		--Halflife source yay!!!!
 	}
 
 	jcms.weapon_ammoCosts = {

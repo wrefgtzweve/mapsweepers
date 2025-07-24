@@ -910,7 +910,9 @@ end
 
 	hook.Add("OnPlayerHitGround", "jcms_playerHitGround", function( ply, inWater, onFloater, speed )
 		timer.Simple(0, function()
-			ply.noFallDamage = false
+			if IsValid(ply) then 
+				ply.noFallDamage = false
+			end
 		end)
 	end)
 	

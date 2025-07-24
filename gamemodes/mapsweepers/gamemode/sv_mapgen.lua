@@ -195,6 +195,17 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		return borderAreaWeights
 	end
 
+	function jcms.mapgen_TryReadNodeData()
+		ainReader.readNodeData()
+
+		if not ainReader.nodePositions then return end 
+		
+		md.nodeAreas = {}
+		for i, nodePos in ipairs(ainReader.nodePositions) do 
+			md.nodeAreas[nodePos] = jcms.mapgen_NearestArea(nodePos)
+		end
+	end
+
 -- // }}
 
 -- // Permanent data {{{
@@ -485,17 +496,10 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			ainReader.readNodeData()
 		end
 
-		if ainReader.nodePositions then  
-			md.nodeAreas = {}
-			for i, nodePos in ipairs(ainReader.nodePositions) do 
-				md.nodeAreas[nodePos] = jcms.mapgen_NearestArea(nodePos)
-			end
+		jcms.mapgen_TryReadNodeData()
 
-			if md.areaCount <= 1 then
-				md.valid = false
-			end
-		else
-			PrintMessage( HUD_PRINTTALK, "[Map Sweepers] WARNING! FAILED TO READ NODEGRAPH! MAP IS PROBABLY INCOMPATIBLE WITH NPCs")
+		if md.areaCount <= 1 then
+			md.valid = false
 		end
 	end
 

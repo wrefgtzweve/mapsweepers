@@ -58,6 +58,8 @@ function ENT:Initialize()
 		self.nextInteract = 0
 		self:CreatePassengerSeats()
 		self:SetUseType(SIMPLE_USE)
+	elseif CLIENT then 
+		self.jetTransition = 0
 	end
 end
 

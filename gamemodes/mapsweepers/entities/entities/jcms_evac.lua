@@ -75,7 +75,7 @@ if SERVER then
 		jcms.mission_PlayerEvac(ply)
 		
 		timer.Simple(6, function()
-			if jcms.director and not jcms.director.gameover then
+			if jcms.director and not jcms.director.gameover and IsValid(ply) then
 				jcms.playerspawn_RespawnAs(ply, "spectator")
 			end
 		end)
