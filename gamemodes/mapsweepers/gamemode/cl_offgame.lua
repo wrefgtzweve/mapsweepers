@@ -2727,13 +2727,21 @@ jcms.offgame = jcms.offgame or NULL
 					jcms.net_SendVote(btn.mapname or game.GetMap())
 				end
 
-				for i, mapChoice in ipairs(jcms.aftergame.vote.choices) do
+				for mapChoice, wsid in pairs(jcms.aftergame.vote.choices) do
 					local mapname = tostring(mapChoice)
 					local mapButton = pnl.statsPnl.voting:Add("DButton")
 
 					mapButton.mapname = mapname
 					mapButton.exists = file.Exists("maps/" .. mapname .. ".bsp", "GAME")
 					mapButton.mat = Material("maps/thumb/" .. mapname .. ".png")
+
+					if wsid and not mapButton.exists then
+						steamworks.FileInfo( wsid, function( result )
+							steamworks.Download( result.previewid, true, function( path )
+								mapButton.mat = AddonMaterial( path )
+							end)
+						end)
+					end
 
 					mapButton.colorMain = victory and jcms.color_bright_alt
 					mapButton.DoClick = voteFunc
@@ -2799,10 +2807,10 @@ jcms.offgame = jcms.offgame or NULL
 					end
 
 					local winningVoteCount, winningMap = -1, nil
-					for i, map in ipairs(jcms.aftergame.vote.choices) do
-						if (mapVotes[ map ] or 0) > winningVoteCount then
-							winningVoteCount = mapVotes[ map ] or 0
-							winningMap = map
+					for mapChoice, wsid in pairs(jcms.aftergame.vote.choices) do
+						if (mapVotes[ mapChoice ] or 0) > winningVoteCount then
+							winningVoteCount = mapVotes[ mapChoice ] or 0
+							winningMap = mapChoice
 						end
 					end
 
