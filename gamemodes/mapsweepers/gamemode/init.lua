@@ -437,7 +437,7 @@ end
 
 		timer.Simple(4.0, function()
 			if IsValid(ply) and not ply:IsBot() then
-				jcms.net_SendManyWeapons(jcms.weapon_prices, ply)
+				jcms.net_SendWeaponPrices(jcms.weapon_prices, ply)
 			end
 		end)
 	end)
