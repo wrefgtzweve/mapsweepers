@@ -282,9 +282,27 @@ jcms.terminal_modeTypes = {
 		
 		generate = function(ent)
 			if not ent.jcms_weaponclass then
+				local starterCash = jcms.cvar_cash_start:GetInt()
+				local evacCash = jcms.cvar_cash_evac:GetInt()
+				local winCash = jcms.cvar_cash_victory:GetInt()
+
+				--not accounting for clerks because I couldn't be bothered.
+				local totalCash = starterCash + (evacCash + winCash) * jcms.runprogress.winstreak
+
 				local weights = {}
 				for k,v in pairs(jcms.weapon_prices) do
-					weights[k] = (v <= 3200 and (v/5) or (math.min(20000, v)^1.12 + 6000)) / 100
+					--weights[k] = (v <= 3200 and (v/5) or (math.min(20000, v)^1.12 + 6000)) / 100
+					local cost = v * jcms.util_GetLobbyWeaponCostMultiplier()
+
+					if cost < totalCash * 0.5 then							--Not possible
+						weights[k] = nil
+					elseif cost < totalCash then							--Rapid fall off
+						weights[k] = ((cost*2 / totalCash) - 1)^3 
+					elseif cost >= totalCash and cost <= totalCash * 2 then	--Equally likely
+						weights[k] = 1 
+					else												--Fall-off but never reach 0
+						weights[k] = 1 / (cost / totalCash - 1)
+					end
 				end
 
 				local chosen = jcms.util_ChooseByWeight(weights)

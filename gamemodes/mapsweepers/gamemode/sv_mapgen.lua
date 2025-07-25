@@ -200,6 +200,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 
 		if not ainReader.nodePositions then return end 
 		
+		local md = jcms.mapdata
 		md.nodeAreas = {}
 		for i, nodePos in ipairs(ainReader.nodePositions) do 
 			md.nodeAreas[nodePos] = jcms.mapgen_NearestArea(nodePos)
