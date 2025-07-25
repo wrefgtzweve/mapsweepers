@@ -214,7 +214,7 @@
 					local files = file.Find( "maps/*.bsp", addon.title )
 					for _, fil in ipairs( files ) do
 						local mapName = string.StripExtension(fil)
-						if not maps[mapName] then
+						if maps[mapName] ~= nil then
 							maps[mapName] = addon.wsid
 						end
 					end
