@@ -617,7 +617,7 @@ end)
 		--todo: Only enable if our perf is bad.
 
 		timer.Simple(60, function()
-			if not IsValid(ragdoll) then return end
+			if not IsValid(ragdoll) or not ragdoll:GetClass() == "class C_ClientRagdoll" then return end
 			
 			local ed = EffectData()
 			ed:SetColor(jcms.util_colorIntegerJCorp) --Would be nice to be faction-coloured, but client doesn't know what faction npcs are.
