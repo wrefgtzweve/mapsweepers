@@ -72,6 +72,7 @@ if SERVER then
 		self:TakePhysicsDamage(dmg)
 		
 		timer.Simple(0, function()
+			if not IsValid(self) then return end
 			self:SetHealthFraction(self:Health() / self:GetMaxHealth())
 		end)
 

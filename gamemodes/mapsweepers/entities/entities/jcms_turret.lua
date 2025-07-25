@@ -444,7 +444,7 @@ function ENT:TurretAngleUpdate(dt)
 	local selfTbl = self:GetTable()
 
 	local target = selfTbl:GetTurretDesiredAngle()
-	local angle = selfTbl.turretAngle
+	local angle = selfTbl.turretAngle or Angle(0,0,0)
 	local speedPitch, speedYaw = selfTbl.TurretTurnSpeed(self)
 	speedPitch = speedPitch or speedYaw
 	
@@ -990,7 +990,7 @@ if CLIENT then
 		local selfTbl = self:GetTable()
 		local frameTime = FrameTime()
 		local myang = self:GetAngles()
-		local ang = selfTbl.turretAngle --self:TurretAngle()
+		local ang = selfTbl.turretAngle or Angle(0,0,0) --self:TurretAngle()
 
 		self:ManipulateBoneAngles(1, Angle(ang.y,0,0))
 		self:ManipulateBoneAngles(2, Angle(0,0,ang.p))

@@ -135,14 +135,14 @@ if CLIENT then
 		self.activationDur = activationDelay
 
 		timer.Simple( activationDelay / 2 - math.Rand(0,0.1), function() --start some small flames/burning when we're halfway activated
-			if not IsValid(self) then return end
+			if not IsValid(self) or not IsValid(self.firePart2) then return end
 
 			self.firePart2:Restart()
 			--self.firePart2:SetShouldDraw( true )
 		end)
 
 		timer.Simple( activationDelay - math.Rand(0,0.1), function() --start the fire proper
-			if not IsValid(self) then return end
+			if not IsValid(self) or not IsValid(self.firePart3) then return end
 
 			self.firePart3:Restart()
 			--self.firePart3:SetShouldDraw( true )

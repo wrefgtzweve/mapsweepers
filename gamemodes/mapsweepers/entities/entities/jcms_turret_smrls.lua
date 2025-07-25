@@ -43,9 +43,11 @@ function ENT:Initialize()
 		self.nextAttack = 0
 		self.targetingMode = "smrls"
 
-		self.startNode = jcms.pathfinder.getNearestNodePVS( self:GetTurretShootPos() )
-		if not self.startNode then 
-			jcms.pathfinder.getNearestNode( self:GetTurretShootPos() )
+		if jcms.npc_airCheck() then
+			self.startNode = jcms.pathfinder.getNearestNodePVS( self:GetTurretShootPos() )
+			if not self.startNode then 
+				jcms.pathfinder.getNearestNode( self:GetTurretShootPos() )
+			end
 		end
 	end
 	
