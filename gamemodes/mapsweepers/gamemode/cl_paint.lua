@@ -1684,14 +1684,24 @@
 				if mat then
 					surface.SetMaterial(mat)
 					surface.SetDrawColor(jcms.color_bright)
-					surface.DrawTexturedRect(x + w + 24, y, 96, 96)
+					surface.DrawTexturedRect(x + w + 8, y, 96, 96)
 				end
 
-				draw.SimpleText("#jcms.bestiaryhealth", "jcms_small_bolder", x + w + 72, 128, jcms.color_bright, TEXT_ALIGN_CENTER)
-				draw.SimpleText(jcms.util_CashFormat(entry.health), "jcms_hud_small", x + w + 72, 128 + 12, jcms.color_bright, TEXT_ALIGN_CENTER)
+				local str1 = jcms.util_CashFormat(entry.health)
+				local font1 = "jcms_hud_small"
+				surface.SetFont(font1)
+				local tw1 = surface.GetTextSize(str1)
+				if tw1 > 72 then font1 = "jcms_medium" end
+				draw.SimpleText("#jcms.bestiaryhealth", "jcms_small_bolder", x + w + 60, 128, jcms.color_bright, TEXT_ALIGN_CENTER)
+				draw.SimpleText(str1, font1, x + w + 60, 128 + 12, jcms.color_bright, TEXT_ALIGN_CENTER)
 
-				draw.SimpleText("#jcms.bestiarybounty", "jcms_small_bolder", x + w + 72, 128 + 72, jcms.color_bright, TEXT_ALIGN_CENTER)
-				draw.SimpleText(jcms.util_CashFormat(entry.bounty) .. " J", "jcms_hud_small", x + w + 72, 128 + 72 + 12, jcms.color_bright, TEXT_ALIGN_CENTER)
+				local str2 = jcms.util_CashFormat(entry.bounty) .. " J"
+				local font2 = "jcms_hud_small"
+				surface.SetFont(font2)
+				local tw2 = surface.GetTextSize(str2)
+				if tw2 > 72 then font2 = "jcms_medium" end
+				draw.SimpleText("#jcms.bestiarybounty", "jcms_small_bolder", x + w + 60, 128 + 72, jcms.color_bright, TEXT_ALIGN_CENTER)
+				draw.SimpleText(str2, font2, x + w + 60, 128 + 72 + 12, jcms.color_bright, TEXT_ALIGN_CENTER)
 			end
 		end
 
