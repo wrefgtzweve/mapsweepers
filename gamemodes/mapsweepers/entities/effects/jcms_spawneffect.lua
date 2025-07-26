@@ -42,6 +42,9 @@ function EFFECT:Init( data )
 		self.fadeinSpeed = math.random(5, 23)
 		
 		self:EmitSound("ambient/fire/ignite.wav", 75, 200)
+		if self.scale > 0.5 then
+			self.emitter = ParticleEmitter(self.entpos)
+		end
 	elseif data:GetFlags() == 0 or data:GetFlags() == 2 or data:GetFlags() == 3 then -- 0: appear, 2: disappear 3: disappear (ragdoll)
 		self.isPortal = false
 		self.ent = data:GetEntity()
@@ -113,6 +116,11 @@ function EFFECT:Think()
 		if not selfTbl.isPortal and IsValid(selfTbl.ent) then
 			selfTbl.ent.RenderOverride = selfTbl.entRenderOverride
 		end
+
+		if selfTbl.emitter then
+			selfTbl.emitter:Finish()
+		end
+
 		return false
 	end
 end
@@ -124,8 +132,41 @@ function EFFECT:Render()
 
 		local clr = selfTbl.colorCached
 
-		local lodLevel = dist < 1000^2 and 0 or dist < 2500^2 and 1 or 2
+		local lodLevel = dist < (1000*selfTbl.scale)^2 and 0 or dist < (2500*selfTbl.scale)^2 and 1 or 2
 		if selfTbl.points then
+
+			if lodLevel == 0 then
+				if selfTbl.emitter and math.random() < selfTbl.alphaout and FrameTime() > 0 then
+					local p = selfTbl.emitter:Add("effects/whiteflare", selfTbl.entpos)
+					if p then
+						local vec = VectorRand()
+						vec:Normalize()
+						vec:Mul( math.Rand(16, 32) )
+						vec:Mul(selfTbl.scale)
+						p:SetVelocity(vec)
+						
+						vec:SetUnpacked(math.random()-0.5, math.random()-0.5, math.random()-0.5)
+						vec:Normalize()
+						vec:Mul( math.Rand(64, 128) )
+						vec:Mul(selfTbl.scale)
+						p:SetGravity(VectorRand(-32, 32))
+		
+						local size = math.Rand(0.2, math.max(4, selfTbl.scale*2))
+						p:SetStartSize(size*size)
+						p:SetEndSize(0)
+						p:SetStartLength(size*size) 
+						p:SetEndLength(size*size*1.25)
+						p:SetDieTime(0.5 + math.random()*selfTbl.scale)
+		
+						local r,g,b = selfTbl.color:Unpack()
+						local whiteFactor = math.Clamp( (2 + selfTbl.t)/2, 0, 1)
+						r = Lerp(whiteFactor, r, 255)
+						g = Lerp(whiteFactor, g, 255)
+						b = Lerp(whiteFactor, b, 255)
+						p:SetColor(r,g,b)
+					end
+				end
+			end
 
 			render.SetMaterial(selfTbl.MatBeam)
 			
