@@ -263,12 +263,16 @@ if SERVER then
 			forceVector:Mul(-1)
 			forceVector:Mul(self.PushOwnerForce)
 			
-			if weldedTo:GetMoveType() == MOVETYPE_VPHYSICS then
-				weldedTo:GetPhysicsObject():ApplyForceOffset(forceVector, self:GetPos())
-			elseif weldedTo:GetMoveType() == MOVETYPE_WALK then
+			local mt = weldedTo:GetMoveType()
+			if mt == MOVETYPE_VPHYSICS then
+				local phys = weldedTo:GetPhysicsObject()
+				if IsValid(phys) then
+					phys:ApplyForceOffset(forceVector, self:GetPos())
+				end
+			elseif mt == MOVETYPE_WALK then
 				-- Player
 				weldedTo:SetVelocity(forceVector)
-			else
+			elseif mt ~= MOVETYPE_PUSH then
 				-- NPCs presumably
 				forceVector:Mul(0.01)
 				weldedTo:SetVelocity(forceVector)

@@ -225,13 +225,14 @@ if SERVER then
 
 				diff:Mul(falloff*self.BurstForce)
 
-				if ent:GetMoveType() == MOVETYPE_VPHYSICS then
+				local mt = ent:GetMoveType()
+				if mt == MOVETYPE_VPHYSICS then
 					diff:Mul(phys:GetMass())
 					phys:ApplyForceOffset(diff, self:GetPos())
-				elseif ent:GetMoveType() == MOVETYPE_WALK then
+				elseif mt == MOVETYPE_WALK then
 					diff:Mul(0.6)
 					ent:SetVelocity(diff)
-				else
+				elseif mt ~= MOVETYPE_PUSH then
 					local vel = ent:GetVelocity()
 					vel:Add(diff)
 					ent:SetVelocity(vel)
