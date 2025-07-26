@@ -94,6 +94,8 @@ function ENT:Initialize()
 			self:SetHealth(2000)
 			
 			timer.Simple(0.1, function()
+				if not IsValid(self) then return end 
+
 				self:SetPos(self:GetPos() + Vector(0, 0, 64))
 				local tower = ents.Create("jcms_tank")
 				tower:SetTankOtherPart(self)
@@ -557,10 +559,12 @@ if SERVER then
 				self.altBarrel = not self.altBarrel
 				
 				timer.Simple(0.5, function()
+					if not IsValid(tower) then return end
 					--tower:EmitSound("npc/sniper/reload1.wav", 100, 100, 0.5)
 					tower:EmitSound("buttons/button6.wav", 100, 100, 1)
 				end)
 				timer.Simple(0.7, function()
+					if not IsValid(tower) then return end
 					tower:EmitSound("npc/dog/dog_pneumatic1.wav", 100, 100, 1)
 				end)
 

@@ -362,6 +362,7 @@ hook.Add("InitPostEntity", "jcms_addonCompatibility", function()
 			oldF(len, ply)
 			ply.noFallDamage = true
 			timer.Simple(0.25, function() --First one isn't super reliable.
+				if not IsValid(ply) then return end
 				ply.noFallDamage = true
 			end)
 		end)

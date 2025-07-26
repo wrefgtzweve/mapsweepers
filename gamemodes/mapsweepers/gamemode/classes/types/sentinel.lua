@@ -118,7 +118,7 @@ if SERVER then
 
 			if armour > 0 and ply.sentinel_canTeleport and not ply.sentinel_isTeleporting then
 				timer.Simple(0, function() --Just checking if dmg > armour doesn't account for all of the modifiers we apply, so this guarantees accurate behaviour.
-					if ply:Armor() > 0 then return end 
+					if not IsValid(ply) or ply:Armor() > 0 then return end 
 
 					ply.sentinel_isTeleporting = true
 
