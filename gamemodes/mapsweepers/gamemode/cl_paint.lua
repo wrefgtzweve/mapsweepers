@@ -1422,10 +1422,11 @@
 
 		function jcms.offgame_paint_CreditsPanelDevs(p, w, h)
 			surface.SetDrawColor(jcms.color_pulsing)
-			drawHollowPolyButton(0, -1, w, h+2)
+			drawHollowPolyButton(0, -1, w, 212)
+			drawHollowPolyButton(0, 212-1+4, w, h-212-4+2)
 
 			local _, th = draw.SimpleText("MAP SWEEPERS", "jcms_big", w/2, 0, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-			draw.SimpleText("by Octantis Addons", "jcms_medium", w/2, th - 4, jcms.color_pulsing, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText("by Octantis Addons", "jcms_medium", w/2, th - 4, jcms.color_pulsing, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)			
 			local devs = {
 				{ "MerekiDor", "#jcms.credits_lead", "#jcms.credits_coregameplay", "#jcms.credits_ui", "#jcms.credits_vfx", "#jcms.credits_models" },
 				{ "JonahSoldier", "#jcms.credits_gamedesign", "#jcms.credits_missiondesign", "#jcms.credits_classdesign", "#jcms.credits_ai", "#jcms.credits_va" },
@@ -1433,7 +1434,7 @@
 			
 			for i, dev in ipairs(devs) do
 				local x = w/4 + (w/2) * (i-1)
-				local y = 72
+				local y = 66
 				draw.SimpleText(dev[1], "jcms_medium", x, y, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 				y = y + 28
 				for j=2, #dev do
@@ -1441,6 +1442,13 @@
 					y = y + 18
 				end
 			end
+
+			draw.SimpleText("★ " .. language.GetPhrase("jcms.credits_github"), "jcms_medium", 24, 218, jcms.color_bright, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			local contributors = {
+				"Redox", "thecraftianman"
+			}
+
+			draw.SimpleText(table.concat(contributors, ", "), "jcms_small_bolder", 28, 248, jcms.color_pulsing)
 		end
 
 		function jcms.offgame_paint_CreditsPanelPeopleList(p, w, h)
