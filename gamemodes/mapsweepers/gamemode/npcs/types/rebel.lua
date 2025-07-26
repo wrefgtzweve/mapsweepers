@@ -1174,7 +1174,7 @@ jcms.npc_types.rebel_vortigaunt = {
 							local ed = EffectData()
 							ed:SetEntity(ent)
 							ed:SetFlags(2)
-							ed:SetColor(jcms.util_colorIntegerJCorp)
+							ed:SetColor(jcms.util_ColorIntegerFast(0, 255, 0))
 							util.Effect("jcms_shieldeffect", ed)
 							ent:EmitSound("items/suitchargeok1.wav", 50, 130, 0.5)
 						elseif ent:IsNPC() and not(ent:GetNWInt("jcms_sweeperShield_max") == -1) and ent:GetMaxHealth() < 100 then
