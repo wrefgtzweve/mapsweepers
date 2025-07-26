@@ -886,7 +886,7 @@
 				end)
 
 				local ct = CurTime()
-				local respawnDelay = game.SinglePlayer() and 5 or 30
+				local respawnDelay = (game.SinglePlayer() or #jcms.GetAliveSweepers() == 0) and 5 or 30
 				local respawnInterval = 5
 				for i, ply in ipairs(deadPlayers) do
 					local timeSinceDeath = ct - (ply.jcms_lastDeathTime or 0)
