@@ -27,6 +27,7 @@ EFFECT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 function EFFECT:Init( data )
 	self.color = jcms.util_ColorFromInteger(data:GetColor())
+	self.colorCached = Color(self.color:Unpack())
 	self.alphaout = 1
 
 	if data:GetFlags() == 1 then -- originates from a portal
@@ -121,33 +122,46 @@ function EFFECT:Render()
 	if selfTbl.isPortal and selfTbl.t <= 1 then
 		local dist = jcms.EyePos_lowAccuracy:DistToSqr(self:WorldSpaceCenter())
 
+		local clr = selfTbl.colorCached
+
+		local lodLevel = dist < 1000^2 and 0 or dist < 2500^2 and 1 or 2
 		if selfTbl.points then
-			local f = selfTbl.fadein * selfTbl.scale
-			local color_white_alpha = ColorAlpha(color_white, selfTbl.alphaout*255)
+
 			render.SetMaterial(selfTbl.MatBeam)
-	
-			local n = #selfTbl.points
-			render.StartBeam(n)
-			for i, point in ipairs(selfTbl.points) do
-				render.AddBeam(point, math.Remap(i, 1, n, 7, 8*selfTbl.scale), math.Remap(i, 1, n, 0, 1), ColorAlpha(selfTbl.color, selfTbl.alphaout*255/n*i))
+			
+			if lodLevel == 0 or (lodLevel == 1 and selfTbl.alphaout > 0.5) then
+				local n = #selfTbl.points
+				render.StartBeam(n)
+				for i, point in ipairs(selfTbl.points) do
+					clr:SetUnpacked(selfTbl.color:Unpack())
+					clr.a = selfTbl.alphaout * 255 / n*i
+					render.AddBeam(point, math.Remap(i, 1, n, 7, 8*selfTbl.scale), math.Remap(i, 1, n, 0, 1), clr)
+				end
+				render.EndBeam()
+			else
+				clr:SetUnpacked(selfTbl.color:Unpack())
 			end
-			render.EndBeam()
 
 			local center = selfTbl.entpos
-			render.SetMaterial(selfTbl.MatGlow)
-			local color_alpha = ColorAlpha(selfTbl.color, selfTbl.alphaout*255)
-
+			
 			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-				if dist < 1000^2 then
-					render.DrawSprite(center, f*(128 + math.random()*16), f*(48 + math.random()*4), color_alpha)
-					render.DrawSprite(center, f*(64 + math.random()*6), f*(72 + math.random()*18), color_alpha)
-					render.DrawSprite(center, f*(32 + math.random()*8), f*(32 + math.random()*8), color_white_alpha)
+				render.SetMaterial(selfTbl.MatGlow)
+				local f = selfTbl.fadein * selfTbl.scale
+
+				if lodLevel <= 1 then
+					clr.a = selfTbl.alphaout*255
 				end
 
-				if selfTbl.alphaout > 0.5 and dist < 2000^2 then
-					render.SetMaterial(selfTbl.MatLight)
-					render.DrawSprite(center, 72 + math.random()*32, 72 + math.random()*32, color_white_alpha)
+				if lodLevel == 0 then
+					render.DrawSprite(center, f*(128 + math.random()*16), f*(48 + math.random()*4), clr)
 				end
+
+				if lodLevel <= 1 then
+					render.DrawSprite(center, f*(64 + math.random()*6), f*(72 + math.random()*18), clr)
+				end
+
+				clr:SetUnpacked(255, 255, 255, selfTbl.alphaout*255)
+				render.DrawSprite(center, f*(32 + math.random()*8), f*(32 + math.random()*8), clr)
 			render.OverrideBlend(false)
 			render.SetBlend(1)
 		end

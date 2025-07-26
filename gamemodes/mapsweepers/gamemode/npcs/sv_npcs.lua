@@ -254,7 +254,7 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 			local ed = EffectData()
 			ed:SetColor(colorInteger)
 			ed:SetFlags(1)
-			ed:SetOrigin(pos + Vector(0, 0, 256))
+			ed:SetOrigin(pos + Vector(0, 0, -40))
 			ed:SetStart(pos + Vector(0, 0, 40))
 			ed:SetMagnitude(delay)
 			ed:SetScale(enemyData.portalScale or 1)
