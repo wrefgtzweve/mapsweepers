@@ -98,7 +98,7 @@ function EFFECT:GenPoints()
 			local entTbl = ent:GetTable()
 
 			selfTbl.points = { selfTbl.origin }
-			selfTbl.targetpos = entTbl.jcms_GetChargeBeamPos and entTbl:jcms_GetChargeBeamPos() or ent:WorldSpaceCenter()
+			selfTbl.targetpos = entTbl.jcms_GetChargeBeamPos and entTbl.jcms_GetChargeBeamPos(self) or ent:WorldSpaceCenter()
 
 			local n = math.random(25, 30)
 			for i=1, n do
