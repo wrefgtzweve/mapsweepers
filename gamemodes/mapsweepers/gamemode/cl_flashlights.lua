@@ -24,6 +24,7 @@ jcms.flashlights_anims = jcms.flashlights_anims or {}
 jcms.flashlights_sides = jcms.flashlights_sides or {}
 jcms.flashlights_sidesTo = jcms.flashlights_sidesTo or {}
 jcms.flashlights_angles = jcms.flashlights_angles or {}
+jcms.flashlights_cachedColor = Color(0,0,0)
 
 hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have this switch to something simple like parenting when <60FPS
 	local thres = 0.0001
@@ -115,13 +116,17 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 				ply.__s64hash = util.SHA256( ply:SteamID64() )
 			end
 			
-			--TODO: Don't create new colour objects here every frame.
-			if jcms.playerfactions_players[ ply.__s64hash ] == "rgg" then
-				f:SetColor( Color(180*a*a, 64*a*a, 255*a) )
-			elseif jcms.playerfactions_players[ ply.__s64hash ] == "mafia" then
-				f:SetColor( Color(250*a*a, 207*a*a, 121*a) )
-			else
-				f:SetColor( Color(255*a, 128*a*a, 128*a*a) )
+			do -- Setting the colour
+				local r,g,b = 255*a, 128*a*a, 128*a*a
+
+				if jcms.playerfactions_players[ ply.__s64hash ] == "rgg" then
+					r,g,b = 180*a*a, 64*a*a, 255*a
+				elseif jcms.playerfactions_players[ ply.__s64hash ] == "mafia" then
+					r,g,b = 250*a*a, 207*a*a, 121*a
+				end
+
+				jcms.flashlights_cachedColor:SetUnpacked(r,g,b)
+				f:SetColor(jcms.flashlights_cachedColor)
 			end
 
 			if anim > thres then

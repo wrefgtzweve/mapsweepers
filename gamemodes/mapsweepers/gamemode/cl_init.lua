@@ -780,6 +780,9 @@ end)
 		
 		render.SetMaterial(jcms.render_rebelHackBeamMat)
 		local mins, maxs = ent:OBBMins(), ent:OBBMaxs()
+		local minsX, minsY, minsZ = mins:Unpack()
+		local maxsX, maxsY, maxsZ = maxs:Unpack()
+
 		local norm = VectorRand(-1, 1)
 		norm:Normalize()
 		local right = norm:Cross(jcms.vectorUp)
@@ -788,7 +791,7 @@ end)
 		local cols = jcms.render_rebelHackBeamColors
 		local beamReduction = math.floor(math.min(3, eyeDist/1500)) --LOD
 		for i=1, math.random(0, 3 - beamReduction ) do
-			v = Vector(math.Rand(mins.x, maxs.x), math.Rand(mins.y, maxs.y), math.Rand(mins.z, maxs.z)) --TODO: Could avoid indexing here
+			v = Vector(math.Rand(minsX, maxsX), math.Rand(minsY, maxsY), math.Rand(minsZ, maxsZ))
 			v:Add(entPos)
 		
 			local n = math.random(4, 6)

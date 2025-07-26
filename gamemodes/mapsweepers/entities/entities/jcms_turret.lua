@@ -768,7 +768,6 @@ if SERVER then
 	end
 	
 	function ENT:Kamikaze(target) -- Final contribution to J Corp
-		--TODO: Hacked turrets should insta-explode
 		local launchVector = (isvector(target) and target or target:WorldSpaceCenter()) - self:WorldSpaceCenter()
 		launchVector.z = launchVector.z + math.random(200, 500)
 		
@@ -953,15 +952,19 @@ if SERVER then
 					ed:SetScale(2)
 					util.Effect("Sparks", ed)
 					
-					local selfPos = self:GetPos()
-					local sweeperDelay = ((#jcms.GetSweepersInRange(selfPos, 250) > 0 and 2) or 0)--Give us more time if there's a player nearby.
-					self.kamikazeTime = CurTime() + 0.5 + sweeperDelay
+					if self:GetHackedByRebels() then
+						self:Kamikaze( self:GetPos() )
+					else
+						local selfPos = self:GetPos()
+						local sweeperDelay = ((#jcms.GetSweepersInRange(selfPos, 250) > 0 and 2) or 0)--Give us more time if there's a player nearby.
+						self.kamikazeTime = CurTime() + 0.5 + sweeperDelay
 
-					timer.Simple(4 + sweeperDelay, function()
-						if IsValid(self) and not self.kamikazeJumped then
-							self:Kamikaze( self:GetPos() + VectorRand(-256, 256) )
-						end
-					end)
+						timer.Simple(4 + sweeperDelay, function()
+							if IsValid(self) and not self.kamikazeJumped then
+								self:Kamikaze( self:GetPos() + VectorRand(-256, 256) )
+							end
+						end)
+					end
 				end
 				
 				self:UpdateTurretHealthFraction()
