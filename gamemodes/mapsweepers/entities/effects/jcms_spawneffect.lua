@@ -137,7 +137,7 @@ function EFFECT:Render()
 
 			if lodLevel == 0 then
 				if IsValid(selfTbl.emitter) and math.random() < selfTbl.alphaout and FrameTime() > 0 then
-					local p = selfTbl.emitter:Add("effects/whiteflare", selfTbl.entpos)
+					local p = selfTbl.emitter:Add("Effects/blueflare1", selfTbl.entpos)
 					if p then
 						local vec = VectorRand()
 						vec:Normalize()
