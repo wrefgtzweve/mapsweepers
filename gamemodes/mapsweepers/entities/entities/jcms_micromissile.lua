@@ -379,7 +379,7 @@ if CLIENT then
 		if frac > 0 then
 			local a = self:GetAngles()
 			local inormal = a:Forward()
-			frac = frac * math.Clamp(EyeAngles():Forward():Dot(inormal), 0.2, 1)
+			frac = frac * math.Clamp(jcms.EyeFwd_lowAccuracy:Dot(inormal), 0.2, 1)
 			local col = Color(math.random(250, 255), math.random(150, 200), 32)
 			render.SetMaterial(self.mat_glow)
 			render.DrawSprite(mypos, frac*400, frac*128, col)

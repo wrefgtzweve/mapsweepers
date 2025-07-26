@@ -136,7 +136,7 @@ function EFFECT:Render()
 		if selfTbl.points then
 
 			if lodLevel == 0 then
-				if selfTbl.emitter and math.random() < selfTbl.alphaout and FrameTime() > 0 then
+				if IsValid(selfTbl.emitter) and math.random() < selfTbl.alphaout and FrameTime() > 0 then
 					local p = selfTbl.emitter:Add("effects/whiteflare", selfTbl.entpos)
 					if p then
 						local vec = VectorRand()

@@ -148,8 +148,6 @@ local mat_light = Material "sprites/light_glow02_add"
 
 hook.Add("PostDrawTranslucentRenderables", "jcms_FlashlightOrbs", function(bDepth, bSkybox, is3DSkyBox)
 	if bSkybox or bDepth or is3DSkyBox or jcms.performanceEstimate < 30 then return end
-	
-	local myfwd = EyeAngles():Forward()
 
 	for i, ply in player.Iterator() do
 		local f = jcms.flashlights[ply]
@@ -164,7 +162,7 @@ hook.Add("PostDrawTranslucentRenderables", "jcms_FlashlightOrbs", function(bDept
 			
 			if a > 0.02 then
 				local v = f:GetPos()
-				local yeah = -myfwd:Dot(f:GetAngles():Forward())*a
+				local yeah = -jcms.EyeFwd_lowAccuracy:Dot(f:GetAngles():Forward())*a
 
 				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
 					render.SetColorMaterial()

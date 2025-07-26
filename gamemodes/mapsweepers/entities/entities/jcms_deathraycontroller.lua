@@ -162,8 +162,9 @@ if SERVER then
 
 			local x,y,z = selfTbl.beamVelocity:Unpack()
 			selfTbl.beamMultipliedVelocity:SetUnpacked( x*iv, y*iv, z*iv )
+			selfTbl.beamMultipliedVelocity:Add(selfPos)
 
-			self:SetPos(selfPos + selfTbl.beamVelocity*iv)
+			self:SetPos(selfTbl.beamMultipliedVelocity)
 		else
 			self:Remove()
 		end
