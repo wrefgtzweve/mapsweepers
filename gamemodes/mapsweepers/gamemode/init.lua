@@ -423,7 +423,6 @@ end
 	end)
 
 	hook.Add("PlayerDisconnected", "jcms_OnDisconnect", function(ply)
-		net.inited_players[ply] = false
 		jcms.net_NotifySquadChange(ply, false)
 		
 		if jcms.director then
