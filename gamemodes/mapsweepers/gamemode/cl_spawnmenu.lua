@@ -265,7 +265,7 @@ end
 			
 			local myCash = LocalPlayer():GetNWInt("jcms_cash", 0)
 			
-			local classData = jcms.class_GetData(LocalPlayer())
+			local classData = jcms.class_GetLocPlyData()
 			
 			for i=1, 8 do
 				local clr = jcms.color_bright

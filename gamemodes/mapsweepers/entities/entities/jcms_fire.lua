@@ -177,22 +177,28 @@ if CLIENT then
 			end
 		end
 
-		local mult = math.Clamp(math.Remap(dist, 1250*1250, 300^2, 1, 0), 0.75, 1.25)	--Scale
-		local mult2 = math.Clamp(math.Remap(dist, 1250*1250, 300^2, 1, 0), 0.35, 0.5)	--Alpha/Brightness
+		local from, to = 1250^2, 300^2 --Has a little bit of cost albeit not much
+		local mult = math.Clamp(math.Remap(dist, from, to, 1, 0), 0.75, 1.25)	--Scale
+		local mult2 = math.Clamp(math.Remap(dist, from, to, 1, 0), 0.35, 0.5)	--Alpha/Brightness
 
 		mult = mult * activationMult
 		--mult2 = mult2 * activationMult
 
-		selfTbl.fire_col_obj:SetUnpacked(math.random(250, 255) * mult2, math.random(100, 150) * mult2, 32 * mult2)
+		local cr, cb, cg = math.random(250, 255) * mult2, math.random(100, 150) * mult2, 32 * mult2
+		selfTbl.fire_col_obj:SetUnpacked(cr, cb, cg)
 		render.SetMaterial(selfTbl.mat_glow)
 
-		local offsPos = mypos + selfTbl.normal
-		render.DrawQuadEasy(offsPos, selfTbl.normal, 6*rad*mult, 6*rad*mult, selfTbl.fire_col_obj, 0)
+		local offsPos = mypos
+		offsPos:Add(selfTbl.normal) 
+		local scale1 = 6 * rad * mult 
+		render.DrawQuadEasy(offsPos, selfTbl.normal, scale1, scale1, selfTbl.fire_col_obj, 0)
 
 		if dist > 200^2 then 
-			local col = selfTbl.fire_col_obj
-			col.r, col.g, col.b = col.r * mult2, col.g * mult2, col.b * mult2
-			render.DrawSprite(offsPos * 10, mult*14*rad, mult*14*rad, col)
+			selfTbl.fire_col_obj:SetUnpacked(cr * mult2, cg * mult2, cb * mult2)
+
+			local scale2 = mult*14*rad
+			offsPos:Mul(10)
+			render.DrawSprite(offsPos, scale2, scale2, selfTbl.fire_col_obj)
 		end
 	end
 end

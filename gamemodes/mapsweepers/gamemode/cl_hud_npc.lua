@@ -442,7 +442,7 @@
 	end
 
 	hook.Add("PreDrawHalos", "jcms_sweeperHalos", function()
-		local classData = jcms.class_GetData(jcms.locPly)
+		local classData = jcms.class_GetLocPlyData()
 
 		if classData and classData.faction then
 			local sweepers = team.GetPlayers(1)

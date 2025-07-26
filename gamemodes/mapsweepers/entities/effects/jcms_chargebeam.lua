@@ -94,8 +94,11 @@ function EFFECT:GenPoints()
 
 	if not selfTbl.points then
 		if IsValid(selfTbl.ent) then
+			local ent = selfTbl.ent
+			local entTbl = ent:GetTable()
+
 			selfTbl.points = { selfTbl.origin }
-			selfTbl.targetpos = selfTbl.ent.jcms_GetChargeBeamPos and selfTbl.ent:jcms_GetChargeBeamPos() or selfTbl.ent:WorldSpaceCenter()
+			selfTbl.targetpos = entTbl.jcms_GetChargeBeamPos and entTbl:jcms_GetChargeBeamPos() or ent:WorldSpaceCenter()
 
 			local n = math.random(25, 30)
 			for i=1, n do
@@ -109,17 +112,18 @@ function EFFECT:GenPoints()
 	else
 		local n = #selfTbl.points
 		local delta = FrameTime()*70
+		local tSeed = selfTbl.t + selfTbl.seed
+
 		for i, nv in ipairs(selfTbl.points) do
 			local f = math.TimeFraction(1, n, i)
 			local parabolic = math.max(0,-4*(f*f)+4*f)*delta
 			
-			local rx = math.sin(selfTbl.t + selfTbl.seed + i/n)
-			local ry = math.sin(selfTbl.t + selfTbl.seed + i/n + 62)
-			local rz = math.sin(selfTbl.t + selfTbl.seed + i/n + 523)
+			local rx = math.sin(tSeed + i/n)
+			local ry = math.sin(tSeed + i/n + 62)
+			local rz = math.sin(tSeed + i/n + 523) --so true merekidor - j
 			
-			nv.x = nv.x + rx*parabolic
-			nv.y = nv.y + ry*parabolic
-			nv.z = nv.z + rz*parabolic
+			local nvx, nvy, nvz = nv:Unpack()
+			nv:SetUnpacked(nvx + rx*parabolic, nvy + ry*parabolic, nvz + rz*parabolic)
 		end
 	end
 end
@@ -174,13 +178,9 @@ function EFFECT:Render()
 			local pinch = 3
 
 			if selfTbl.type == 4 then
-				selfTbl.color.r = 255
-				selfTbl.color.g = 32
-				selfTbl.color.b = 37
+				selfTbl.color:SetUnpacked(255, 32, 37)
 			else
-				selfTbl.color.r = 128
-				selfTbl.color.g = 255
-				selfTbl.color.b = 64
+				selfTbl.color:SetUnpacked(128, 255, 64)
 			end
 
 			local start = selfTbl.origin

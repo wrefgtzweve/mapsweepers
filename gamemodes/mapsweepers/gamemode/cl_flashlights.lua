@@ -33,30 +33,31 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 			if not jcms.flashlights[ply] then
 				local f = ProjectedTexture()
 				jcms.flashlights_anims[ply] = 0
-				f:SetColor( Color(0, 0, 0) )
+				f:SetColor( color_black )
 				f:SetTexture("effects/flashlight/soft")
 				f:Update()
 				jcms.flashlights[ply] = f
 			end
 
 			local f = jcms.flashlights[ply]
-			local ep = ply:EyePos()
+			local ep
 			if ply ~= jcms.locPly then
 				local bm = ply:GetBoneMatrix(6)
 				if bm then
 					ep = bm:GetTranslation()
+				else
+					ep = ply:EyePos()
 				end
+			else
+				ep = ply:EyePos()
 			end
 			
-			ep.x = ep.x + math.Rand(-1, 1) * 0.06
-			ep.y = ep.y + math.Rand(-1, 1) * 0.06
-			ep.z = ep.z + math.Rand(-1, 1) * 0.06
 			local ea = ply:EyeAngles()
 			local span = 14
 
 			local right = ea:Right()
 			right:Mul(span)
-			local leftShoulder, rightShoulder = ep - right, ep + right
+			local leftShoulder = ep - right
 			
 			local fwd = ea:Forward()
 			fwd:Mul(32)
@@ -87,7 +88,7 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 			end
 
 			if jcms.flashlights_sides[ply] then
-				f:SetPos(rightShoulder)
+				f:SetPos(ep + right) --Right Shoulder
 			else
 				f:SetPos(leftShoulder)
 			end
@@ -95,7 +96,7 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 			local anim = jcms.flashlights_anims[ply]
 
 			--local targetAngle = (jcms.util_ShortEyeTrace(ply, 300, MASK_VISIBLE).HitPos - f:GetPos()):GetNormalized():Angle()
-			local targetAngle = (ply:GetEyeTraceNoCursor().HitPos - f:GetPos()):GetNormalized():Angle()
+			local targetAngle = (ply:GetEyeTraceNoCursor().HitPos - f:GetPos()):Angle()
 
 			if jcms.flashlights_angles[ply] then
 				jcms.flashlights_angles[ply] = LerpAngle(Lerp(anim, 0.8, 0.5), jcms.flashlights_angles[ply], targetAngle)
@@ -114,6 +115,7 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 				ply.__s64hash = util.SHA256( ply:SteamID64() )
 			end
 			
+			--TODO: Don't create new colour objects here every frame.
 			if jcms.playerfactions_players[ ply.__s64hash ] == "rgg" then
 				f:SetColor( Color(180*a*a, 64*a*a, 255*a) )
 			elseif jcms.playerfactions_players[ ply.__s64hash ] == "mafia" then
@@ -143,7 +145,6 @@ hook.Add("PostDrawTranslucentRenderables", "jcms_FlashlightOrbs", function(bDept
 	if bSkybox or bDepth or is3DSkyBox or jcms.performanceEstimate < 30 then return end
 	
 	local myfwd = EyeAngles():Forward()
-	local myPos = EyePos()
 
 	for i, ply in player.Iterator() do
 		local f = jcms.flashlights[ply]
@@ -164,7 +165,7 @@ hook.Add("PostDrawTranslucentRenderables", "jcms_FlashlightOrbs", function(bDept
 					render.SetColorMaterial()
 					render.DrawSphere(v, 1*a, 7, 7, color)
 
-					if myPos:DistToSqr(v) < 570*570 then
+					if jcms.EyePos_lowAccuracy:DistToSqr(v) < 570*570 then
 						render.SetColorModulation(color.r/255, color.g/255, color.b/255)
 						render.DrawSphere(v, TimedCos(3, 1.5, 2, -1)*a, 5, 5, color)
 						render.DrawSphere(v, TimedCos(2, 1.5, 2, 1)*a, 7, 7, color)
@@ -175,7 +176,7 @@ hook.Add("PostDrawTranslucentRenderables", "jcms_FlashlightOrbs", function(bDept
 					
 					render.DrawSprite(v, math.random(50, 64), math.random(32, 36), color)
 					
-					if myPos:DistToSqr(v) < 900*900 then
+					if jcms.EyePos_lowAccuracy:DistToSqr(v) < 900*900 then
 						render.DrawSprite(v, math.random(35, 62), math.random(26, 32), color)
 					end
 

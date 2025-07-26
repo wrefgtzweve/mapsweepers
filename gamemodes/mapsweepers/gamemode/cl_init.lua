@@ -313,6 +313,7 @@ end)
 	
 	-- // Defaults {{{
 		jcms.EyePos_lowAccuracy = EyePos()
+		jcms.EyeFwd_lowAccuracy = EyeAngles():Forward() 
 		jcms.cachedValues.playerClass = "infantry"
 
 		jcms.cachedValues.crosshair_gap = jcms.cvar_crosshair_gap:GetInt()
@@ -336,6 +337,7 @@ end)
 
 		jcms.cachedValues.playerClass = locPly:GetNWString("jcms_class", "infantry")
 		jcms.EyePos_lowAccuracy = EyePos() --This doesn't work for things like the 3D2D HUD elements, but is suitable for LOD systems.
+		jcms.EyeFwd_lowAccuracy = EyeAngles():Forward() 
 	end)
 	
 	hook.Add("Think", "jcms_cachevalues_slow", function() --Stuff that doesn't change often/that we don't need accuracy for.
@@ -378,7 +380,7 @@ end)
 			jcms.vm_evacd = 0
 			local ragdoll = ply:GetRagdollEntity()
 			local jVehicle = ply:GetNWEntity("jcms_vehicle")
-			local classData = jcms.class_GetData(ply)
+			local classData = jcms.class_GetLocPlyData()
 			
 			if IsValid(ragdoll) then
 				local boneId = ragdoll:LookupBone("ValveBiped.Bip01_Head1")
@@ -614,9 +616,7 @@ end)
 	end)
 
 	hook.Add( "CreateClientsideRagdoll", "jcms_ragdoll_fastclear", function(ent, ragdoll)
-		--todo: Only enable if our perf is bad.
-
-		timer.Simple(60, function()
+		timer.Simple(50, function()
 			if not IsValid(ragdoll) or not ragdoll:GetClass() == "class C_ClientRagdoll" then return end
 			
 			local ed = EffectData()
@@ -774,23 +774,22 @@ end)
 	} )
 
 	function jcms.render_HackedByRebels(ent)
-		local eyeDist = EyePos():Distance(ent:WorldSpaceCenter())
+		local entPos = ent:GetPos()
+		local eyeDist = jcms.EyePos_lowAccuracy:Distance(entPos)
 		if eyeDist > 4500 then return end
 		
 		render.SetMaterial(jcms.render_rebelHackBeamMat)
 		local mins, maxs = ent:OBBMins(), ent:OBBMaxs()
 		local norm = VectorRand(-1, 1)
 		norm:Normalize()
-		local up = Vector(0, 0, 1)
-		local right = norm:Cross(up)
-		local entpos = ent:GetPos()
+		local right = norm:Cross(jcms.vectorUp)
 		
 		local gi = 0
 		local cols = jcms.render_rebelHackBeamColors
-		local beamReduction = math.floor(math.min(3, eyeDist/1500))
+		local beamReduction = math.floor(math.min(3, eyeDist/1500)) --LOD
 		for i=1, math.random(0, 3 - beamReduction ) do
-			v = Vector(math.Rand(mins.x, maxs.x), math.Rand(mins.y, maxs.y), math.Rand(mins.z, maxs.z))
-			v:Add(entpos)
+			v = Vector(math.Rand(mins.x, maxs.x), math.Rand(mins.y, maxs.y), math.Rand(mins.z, maxs.z)) --TODO: Could avoid indexing here
+			v:Add(entPos)
 		
 			local n = math.random(4, 6)
 			render.StartBeam(n)
@@ -814,7 +813,7 @@ end)
 
 			norm:SetUnpacked(math.Rand(-1, 1), math.Rand(-1, 1), math.Rand(-1, 1))
 			norm:Normalize()
-			right = norm:Cross(up)
+			right = norm:Cross(jcms.vectorUp)
 		end
 	end
 	
@@ -873,7 +872,7 @@ end)
 		local deathmod = not jcms.cvar_hud_noneardeathfilter:GetBool()
 
 		local me = jcms.locPly
-		local classData = jcms.class_GetData(me)
+		local classData = jcms.class_GetLocPlyData()
 
 		local cTime = CurTime()
 		

@@ -26,16 +26,19 @@ EFFECT.mat_shield = Material "models/shiny"
 EFFECT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 local function drawShieldModel(self, ent, sc, color)
+	local selfTbl = self:GetTable()
+
+	local scVec = Vector(sc, sc, sc) 
 	for i=1, ent:GetBoneCount() do
-		ent:ManipulateBoneScale(i, Vector(sc, sc, sc))
+		ent:ManipulateBoneScale(i, scVec)
 	end
 
 	ent:RemoveAllDecals()
 	
 	local oldMat = ent:GetMaterial()
 	render.SetColorModulation(color.r/32, color.g/32, color.b/32)
-	render.ModelMaterialOverride(self.mat_shield)
-	render.MaterialOverride(self.mat_shield)
+	render.ModelMaterialOverride(selfTbl.mat_shield)
+	render.MaterialOverride(selfTbl.mat_shield)
 	render.OverrideBlend(true, BLEND_SRC_COLOR, BLEND_ONE, BLENDFUNC_ADD)
 		ent:SetupBones()
 		ent:DrawModel()
@@ -87,13 +90,15 @@ function EFFECT:Init( data )
 	self.color3 = Color( self.color1:Unpack() )
 end
 
+local vec4 = Vector(4,4,4)
 function EFFECT:Think()
-	if (self.t < self.tout) and (self.mode) and (not self.ent or IsValid(self.ent)) then
-		if self.ent then
-			local pos = self.ent:GetPos()
-			self:SetRenderBoundsWS(pos - self.ent:OBBMins(), pos + self.ent:OBBMaxs(), Vector(4, 4, 4))
+	local selfTbl = self:GetTable()
+	if (selfTbl.t < selfTbl.tout) and (selfTbl.mode) and (not selfTbl.ent or IsValid(selfTbl.ent)) then
+		if selfTbl.ent then
+			local pos = selfTbl.ent:GetPos()
+			self:SetRenderBoundsWS(pos - selfTbl.ent:OBBMins(), pos + selfTbl.ent:OBBMaxs(), vec4)
 		end
-		self.t = math.min(self.tout, self.t + FrameTime())
+		selfTbl.t = math.min(selfTbl.tout, selfTbl.t + FrameTime())
 		return true
 	else
 		return false
@@ -101,38 +106,40 @@ function EFFECT:Think()
 end
 
 function EFFECT:Render()
-	if self.mode == 0 then
-		local f = self.t/self.tout
+	local selfTbl = self:GetTable()
+
+	if selfTbl.mode == 0 then
+		local f = selfTbl.t/selfTbl.tout
 		
-		local col1 = self.color1
-		local col2 = self.color2
+		local col1 = selfTbl.color1
+		local col2 = selfTbl.color2
 		col2:SetUnpacked( col1:Unpack() )
 		col2.a = 64
-		local col3 = self.color3
+		local col3 = selfTbl.color3
 		col3.r = col1.r * f
 		col3.g = col1.g * f
 		col3.b = col1.b * f
 
-		render.SetMaterial(self.mat_glow)
-		local size = Lerp(f, 32, 0)*self.scale
-		render.DrawQuadEasy(self.pos, self.normal, size/2, size/2, col1, math.random()*360)
+		render.SetMaterial(selfTbl.mat_glow)
+		local size = Lerp(f, 32, 0)*selfTbl.scale
+		render.DrawQuadEasy(selfTbl.pos, selfTbl.normal, size/2, size/2, col1, math.random()*360)
 
-		render.DrawSprite(self.pos, size*2, size, col2)
-		render.SetMaterial(self.mat_ring)
-		size = Lerp(math.ease.InQuart(f), 0, 16)*self.scale
-		render.DrawQuadEasy(self.pos, self.normal, size, size, col3, math.random()*360)
-	elseif self.mode == 1 then
-		if IsValid(self.ent) then
-			local boneId = self.ent:LookupBone("ValveBiped.Bip01_Spine1")
-			local matrix = boneId and self.ent:GetBoneMatrix(boneId)
-			local mypos = matrix and matrix:GetTranslation() or self.ent:WorldSpaceCenter()
-			local color = self.color1
+		render.DrawSprite(selfTbl.pos, size*2, size, col2)
+		render.SetMaterial(selfTbl.mat_ring)
+		size = Lerp(math.ease.InQuart(f), 0, 16)*selfTbl.scale
+		render.DrawQuadEasy(selfTbl.pos, selfTbl.normal, size, size, col3, math.random()*360)
+	elseif selfTbl.mode == 1 then
+		if IsValid(selfTbl.ent) then
+			local boneId = selfTbl.ent:LookupBone("ValveBiped.Bip01_Spine1")
+			local matrix = boneId and selfTbl.ent:GetBoneMatrix(boneId)
+			local mypos = matrix and matrix:GetTranslation() or selfTbl.ent:WorldSpaceCenter()
+			local color = selfTbl.color1
 			
-			render.SetMaterial(self.mat_spark)
+			render.SetMaterial(selfTbl.mat_spark)
 			local sparkStart = Vector(mypos)
 			local sparkEnd = Vector(mypos)
-			for i, spark in ipairs(self.sparks) do
-				local f = math.Clamp((self.t-spark.off)/(self.tout-spark.off*2), 0, 1)
+			for i, spark in ipairs(selfTbl.sparks) do
+				local f = math.Clamp((selfTbl.t-spark.off)/(selfTbl.tout-spark.off*2), 0, 1)
 				local anim = Lerp(f, -0.5, 0.7)
 				local parabolic = 1-f^2
 				sparkStart:Add(spark.start)
@@ -144,40 +151,40 @@ function EFFECT:Render()
 				sparkStart:Sub(spark.start)
 			end
 			
-			local parabolic = self.t*2/self.tout
+			local parabolic = selfTbl.t*2/selfTbl.tout
 			if parabolic < 1 then
 				local sc = Lerp(parabolic, 1, 3)
-				drawShieldModel(self, self.ent, sc, color)
+				drawShieldModel(self, selfTbl.ent, sc, color)
 			end
 		end
-	elseif self.mode == 2 then
-		if self.t < 0 or not IsValid(self.ent) then
+	elseif selfTbl.mode == 2 then
+		if selfTbl.t < 0 or not IsValid(selfTbl.ent) then
 			return
 		end
 		
 		local rings = 6
 		local vUp = jcms.vectorUp
-		local radius = self.ent:BoundingRadius()
-		local color = self.color1
+		local radius = selfTbl.ent:BoundingRadius()
+		local color = selfTbl.color1
 		
-		local boneId = self.ent:LookupBone("ValveBiped.Bip01_Head1")
-		local matrix = boneId and self.ent:GetBoneMatrix(boneId)
-		local ringpos = matrix and matrix:GetTranslation() or self.ent:WorldSpaceCenter()
-		ringpos.z = self.ent:GetPos().z
+		local boneId = selfTbl.ent:LookupBone("ValveBiped.Bip01_Head1")
+		local matrix = boneId and selfTbl.ent:GetBoneMatrix(boneId)
+		local ringpos = matrix and matrix:GetTranslation() or selfTbl.ent:WorldSpaceCenter()
+		ringpos.z = selfTbl.ent:GetPos().z
 		
 		local baseRingZ = ringpos.z
 		for i=1, rings do
-			local f = math.ease.InOutQuart(math.Clamp((self.t - (i*2/rings)/rings) / (self.tout - 2/rings), 0, 1))
+			local f = math.ease.InOutQuart(math.Clamp((selfTbl.t - (i*2/rings)/rings) / (selfTbl.tout - 2/rings), 0, 1))
 			local parabolic = math.max(0,-4*(f*f)+4*f)
 			local size = Lerp(parabolic^0.5, 24, 48)
-			render.SetMaterial(self.mat_ring)
+			render.SetMaterial(selfTbl.mat_ring)
 			ringpos.z = baseRingZ + Lerp(f, radius*0.1, radius*1.6)
 			render.DrawQuadEasy(ringpos, vUp, size, size, color, 0)
 		end
 		
-		local f = math.ease.InOutQuart(self.t/self.tout, 0, 1)
+		local f = math.ease.InOutQuart(selfTbl.t/selfTbl.tout, 0, 1)
 		local parabolic = math.max(0,-4*(f*f)+4*f)^0.3
 		local sc = Lerp(parabolic, 1, 1.5)
-		drawShieldModel(self, self.ent, sc, color)
+		drawShieldModel(self, selfTbl.ent, sc, color)
 	end
 end

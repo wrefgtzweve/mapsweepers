@@ -430,22 +430,24 @@ if CLIENT then
 	end
 
 	function ENT:Think()
+		local selfTbl = self:GetTable()
+
 		-- // FX {{{
 			if FrameTime() > 0 then
-				self.chargeEffectX = (self.chargeEffectX + 1) % 3
+				selfTbl.chargeEffectX = (selfTbl.chargeEffectX + 1) % 3
 
-				if self.chargeEffectX == 0 then
-					self.isCharging = false
+				if selfTbl.chargeEffectX == 0 then
+					selfTbl.isCharging = false
 
 					local foundEnts = {}
 					if self:GetShieldJCorp() then 
 						for i, ply in ipairs(jcms.GetAliveSweepers()) do
-							if ply:Health() > 0 and (ply:Armor() < ply:GetMaxArmor()) and (ply:WorldSpaceCenter():DistToSqr(self:WorldSpaceCenter()) <= self.Radius^2) then
+							if ply:Health() > 0 and (ply:Armor() < ply:GetMaxArmor()) and (ply:WorldSpaceCenter():DistToSqr(self:WorldSpaceCenter()) <= selfTbl.Radius^2) then
 								table.insert(foundEnts, ply)
 							end
 						end
 					else
-						for i, ent in ipairs(ents.FindInSphere(self:WorldSpaceCenter(), self.Radius)) do 
+						for i, ent in ipairs(ents.FindInSphere(self:WorldSpaceCenter(), selfTbl.Radius)) do 
 							if ent:IsNPC() then 
 								local maxShield = ent:GetNWInt("jcms_sweeperShield_max", -1)
 								if not(maxShield == -1) and (ent:GetNWInt("jcms_sweeperShield", -1) < maxShield) then
@@ -456,7 +458,7 @@ if CLIENT then
 					end
 
 					for i, ent in ipairs(foundEnts) do 
-						self.isCharging = true
+						selfTbl.isCharging = true
 						local ed = EffectData()
 						ed:SetFlags(0)
 						ed:SetOrigin(self:WorldSpaceCenter())
@@ -468,30 +470,30 @@ if CLIENT then
 		-- // }}}
 		
 		-- // Audio {{{
-			if self.soundCharge and not self.soundCharge:IsPlaying() then
-				self.soundCharge:Stop()
-				self.soundCharge = nil
+			if selfTbl.soundCharge and not selfTbl.soundCharge:IsPlaying() then
+				selfTbl.soundCharge:Stop()
+				selfTbl.soundCharge = nil
 			end
 
-			if not self.soundCharge and self.isCharging then
-				self.soundCharge = CreateSound(self, "ambient/machines/combine_shield_touch_loop1.wav")
+			if not selfTbl.soundCharge and selfTbl.isCharging then
+				selfTbl.soundCharge = CreateSound(self, "ambient/machines/combine_shield_touch_loop1.wav")
 			end
 
-			if self.soundCharge then
-				if self.isCharging then
+			if selfTbl.soundCharge then
+				if selfTbl.isCharging then
 					local chargePitch = 84
 					
-					if not self.soundCharge:IsPlaying() then
-						self.soundCharge:PlayEx(1, chargePitch)
+					if not selfTbl.soundCharge:IsPlaying() then
+						selfTbl.soundCharge:PlayEx(1, chargePitch)
 					else
-						self.soundCharge:ChangePitch(chargePitch)
+						selfTbl.soundCharge:ChangePitch(chargePitch)
 					end
 				else
-					if self.soundCharge:IsPlaying() and self.soundCharge:GetVolume() <= 0 then
-						self.soundCharge:Stop()
+					if selfTbl.soundCharge:IsPlaying() and selfTbl.soundCharge:GetVolume() <= 0 then
+						selfTbl.soundCharge:Stop()
 					else
-						self.soundCharge:ChangeVolume(0, 0.25)
-						self.soundCharge:ChangePitch(1, 0.25)
+						selfTbl.soundCharge:ChangeVolume(0, 0.25)
+						selfTbl.soundCharge:ChangePitch(1, 0.25)
 					end
 				end
 			end

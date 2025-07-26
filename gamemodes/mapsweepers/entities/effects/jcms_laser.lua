@@ -37,8 +37,9 @@ function EFFECT:Init( data )
 end
 
 function EFFECT:Think()
-	if self.t < self.tout then
-		self.t = math.min(self.tout, self.t + FrameTime())
+	local selfTbl = self:GetTable()
+	if selfTbl.t < selfTbl.tout then
+		selfTbl.t = math.min(selfTbl.tout, selfTbl.t + FrameTime())
 		return true
 	else
 		return false
@@ -46,26 +47,22 @@ function EFFECT:Think()
 end
 
 function EFFECT:Render()
-	local f = self.t / self.tout
+	local selfTbl = self:GetTable()
+
+	local f = selfTbl.t / selfTbl.tout
 	local ff = math.ease.InCirc(1 - f)
 	
-	self.color.r = 255
-	self.color.g = 200*ff
-	self.color.b = 200*ff
-	self.color.a = 256*ff
+	selfTbl.color:SetUnpacked(255, 200*ff, 200*ff, 256*ff)
 	
-	render.SetMaterial(self.mat)
-	render.DrawBeam(self.start, self.endpos, (self.isIncendiary and 32 or 16)*ff, 0, 0.8, self.color)
-	render.SetMaterial(self.mat_light)
-	render.DrawSprite(self.endpos, 64 * ff, 48 * ff, self.color)
+	render.SetMaterial(selfTbl.mat)
+	render.DrawBeam(selfTbl.start, selfTbl.endpos, (selfTbl.isIncendiary and 32 or 16)*ff, 0, 0.8, selfTbl.color)
+	render.SetMaterial(selfTbl.mat_light)
+	render.DrawSprite(selfTbl.endpos, 64 * ff, 48 * ff, selfTbl.color)
 	
-	if self.isIncendiary then
-		self.color.r = 255
-		self.color.g = 255
-		self.color.b = 255
-		self.color.a = 255
-		render.SetMaterial(self.mat_fire)
-		render.DrawBeam(self.start, self.endpos, Lerp(f, 16, 32), 0, ff, self.color)
-		render.DrawSprite(self.endpos, 127 * ff, 120 * ff, self.color)
+	if selfTbl.isIncendiary then
+		selfTbl.color:SetUnpacked(255, 255, 255, 255)
+		render.SetMaterial(selfTbl.mat_fire)
+		render.DrawBeam(selfTbl.start, selfTbl.endpos, Lerp(f, 16, 32), 0, ff, selfTbl.color)
+		render.DrawSprite(selfTbl.endpos, 127 * ff, 120 * ff, selfTbl.color)
 	end
 end

@@ -565,7 +565,7 @@
 			local offsetArmor = 6
 			local offsetIcon = 4
 
-			local data = jcms.class_GetData(me)
+			local data = jcms.class_GetLocPlyData()
 			local shieldDamageElapsed = CurTime() - jcms.hud_damageTimeLast
 			local shieldDamageDelay = data and data.shieldDelay or 0
 
@@ -1083,7 +1083,7 @@
 			cam.Start3D2D( tr.HitPos, ang, math.max( trLen / 3000, 0.03 ) )
 		end
 
-		local classData = jcms.class_GetData(me)
+		local classData = jcms.class_GetLocPlyData()
 
 		if classData and classData.disallowSprintAttacking and classData.boostedRunSpeed and me:IsSprinting() then
 			local frac = math.TimeFraction(classData.runSpeed, classData.boostedRunSpeed, me:GetRunSpeed())
@@ -1794,7 +1794,7 @@
 			jcms.hud_BeginningSequenceDraw()
 		else
 			if obs == OBS_MODE_NONE then
-				local classData = jcms.class_GetData(ply)
+				local classData = jcms.class_GetLocPlyData()
 				
 				if classData and classData.HUDOverride then
 					classData.HUDOverride(ply, classData)
@@ -1808,7 +1808,7 @@
 					jcms.offgame_ShowPreMission()
 				end
 			elseif obs == OBS_MODE_CHASE then
-				local classData = jcms.class_GetData(ply)
+				local classData = jcms.class_GetLocPlyData()
 
 				if classData and classData.faction then
 					cam.Start2D()
