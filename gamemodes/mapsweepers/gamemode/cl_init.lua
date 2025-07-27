@@ -571,7 +571,7 @@ end)
 	end)
 
 	local function drawLiabilityText(ffKills)
-		local liabilityTxt = string.format([=[LIABILITY: x%d]=], ffKills)
+		local liabilityTxt = string.format("%s: x%d", language.GetPhrase("jcms.liability"), ffKills)
 		draw.SimpleText(liabilityTxt, "jcms_hud_big", 0, 0, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		draw.SimpleText("↓", "jcms_hud_big", 0, 15, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 
