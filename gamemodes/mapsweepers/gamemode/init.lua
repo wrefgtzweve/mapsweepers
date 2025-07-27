@@ -2298,7 +2298,6 @@ end
 				
 				if oldPrice ~= price then
 					jcms.net_SendWeapon(class, price or 0, "all")
-					jcms.weapon_prices_wereModified = true
 				end
 			else
 				print("weapon class '" .. class .. "' does not exist")
@@ -2603,7 +2602,6 @@ end
 		end)
 
 		hook.Add("ShutDown", "jcms_SaveWeaponPrices", function()
-			--jcms.weapon_prices_wereModified does not consistently exist in this hook.
 			local success, rtn = pcall(util.TableToJSON, jcms.weapon_prices, true)
 			if success and rtn then
 				success = file.Write(weaponPricesFile, rtn)

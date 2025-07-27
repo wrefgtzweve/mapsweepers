@@ -291,6 +291,7 @@ jcms.terminal_modeTypes = {
 
 				local weights = {}
 				for k,v in pairs(jcms.weapon_prices) do
+					if v <= 0 then continue end
 					--weights[k] = (v <= 3200 and (v/5) or (math.min(20000, v)^1.12 + 6000)) / 100
 					local cost = v * jcms.util_GetLobbyWeaponCostMultiplier()
 

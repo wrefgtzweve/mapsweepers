@@ -934,6 +934,8 @@ jcms.offgame = jcms.offgame or NULL
 					end
 
 					for weapon, cost in pairs(jcms.weapon_prices) do
+						if cost <= 0 then continue end
+						
 						local category = self:CategorizeGun(weapon)
 						if not categorizedGuns[ category ] then
 							categorizedGuns[ category ] = { weapon }
