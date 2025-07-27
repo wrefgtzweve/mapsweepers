@@ -2738,7 +2738,9 @@ jcms.offgame = jcms.offgame or NULL
 					if wsid and not mapButton.exists then
 						steamworks.FileInfo( wsid, function( result )
 							steamworks.Download( result.previewid, true, function( path )
-								mapButton.mat = AddonMaterial( path )
+								if type(path) == "string" then
+									mapButton.mat = AddonMaterial( path )
+								end
 							end)
 						end)
 					end
