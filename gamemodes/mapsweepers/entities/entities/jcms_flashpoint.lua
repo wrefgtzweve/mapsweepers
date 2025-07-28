@@ -65,7 +65,7 @@ if SERVER then
 		end
 
 		if addedCharge > 0 then
-			local mult = 1 / #team.GetPlayers(1)^(2/3) 
+			local mult = 1 / (#team.GetPlayers(1))^(2/3) 
 			addedCharge = math.ceil( addedCharge * mult )
 			self:SetCharge( math.min(self:GetCharge() + addedCharge, self:GetMaxCharge()) )
 
