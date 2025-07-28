@@ -25,6 +25,7 @@ bspReader.readLeafData()
 bspReader.readNodeData()
 bspReader.readPlaneData()
 bspReader.readPVSData()
+bspReader.readBrushData(CONTENTS_PLAYERCLIP)
 
 include "sh_ainReader.lua" --i like eating binrary numbrs- j
 ainReader.readNodeData()
@@ -854,17 +855,23 @@ end
 
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
-			--TODO: Put us on airgraph nodes if possible.
-			local spawn = ents.FindByClass("info_player_start")[1]
-			
-			local pos
-			if not IsValid(spawn) then 
-				pos = Vector(0,0,0)
-			else
-				pos = spawn:GetPos()
-			end
 
-			pos.z = pos.z + ply:EntIndex()*72
+			local eIndex = ply:EntIndex()
+			local pos
+			if #jcms.pathfinder.airNodes > 0 then --Airgraph is our best bet for reliability. I should make a better solution later.
+				local node = jcms.pathfinder.airNodes[eIndex]
+				pos = node.pos
+			else
+				local spawn = ents.FindByClass("info_player_start")[1]
+			
+				if IsValid(spawn) then 
+					pos = spawn:GetPos()
+				else
+					pos = Vector(0,0,0)
+				end
+
+				pos.z = pos.z + eIndex*72
+			end
 			
 			ply:SetPos(pos)
 
