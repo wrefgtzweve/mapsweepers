@@ -120,14 +120,21 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		if area:IsDamaging() or area:IsUnderwater() then return false end
 
 		--Are we somehow inside a solid fucking block (conflux has this issue)
-		local areaContents = bit.band(util.PointContents( area:GetCenter() ) )
+		local areaContents = util.PointContents( area:GetCenter() )
+		local areaContentsAll = areaContents
 		for i=1, 4, 1 do 
-			areaContents = bit.band( util.PointContents( area:GetCorner(i-1) ), areaContents )
+			local contents = util.PointContents( area:GetCorner(i-1) )
+			areaContents = bit.band( contents, areaContents )
+			areaContentsAll = bit.bor(contents, areaContentsAll)
 		end
 
 		--if ALL corners, and our centre are solid. Normal sane maps like construct have slanted navareas on small ledges, so we have to deal with that.
 		if bit.band(areaContents, CONTENTS_SOLID) ~= 0 then 
 			return false 
+		end
+		--If any of our points are touching a playerclip don't use it. Not reliable at all, but hopefully I'll fix that in the future.
+		if bit.band(areaContentsAll, CONTENTS_PLAYERCLIP) ~= 0 then 
+			return false
 		end
 
 		--Make sure we aren't on nodraw, because we can't reliably check if we're under a displacement due to static props.

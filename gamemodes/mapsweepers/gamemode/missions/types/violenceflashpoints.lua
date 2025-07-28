@@ -29,7 +29,7 @@
 			local fpCount = math.min(math.floor((math.random(4, 5) + jcms.mapgen_AdjustCountForMapSize( math.random(4, 6) ))/2), 8) 
 			local flashpoints = jcms.mapgen_SpreadPrefabs("flashpoint", fpCount, 75, true)
 
-			local chargePerPoint = math.ceil( 0.9 * (1000 + (3000 * #jcms.GetLobbySweepers()) * jcms.runprogress_GetDifficulty() ^ (2/3) ) /  #flashpoints ) + 100
+			local chargePerPoint = math.ceil( (0.9 * 4000 * jcms.runprogress_GetDifficulty() ^ (2/3) ) /  #flashpoints ) + 100
 
 			for i, flashpoint in ipairs(flashpoints) do 
 				flashpoint.faction = jcms.util_GetMissionFaction()
