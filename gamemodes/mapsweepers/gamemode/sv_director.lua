@@ -886,12 +886,12 @@
 				end)
 
 				local ct = CurTime()
-				local respawnDelay = game.SinglePlayer() and 5 or 30
+				local respawnDelay = (game.SinglePlayer() or #jcms.GetAliveSweepers() == 0) and 5 or 30
 				local respawnInterval = 5
 				for i, ply in ipairs(deadPlayers) do
 					local timeSinceDeath = ct - (ply.jcms_lastDeathTime or 0)
 					local timeSinceRespawnAttempt = ply.jcms_lastRespawnTime and ct - ply.jcms_lastRespawnTime or respawnInterval + 1
-					local timeTabbedOut = CurTime() - ((jcms.playerAfkPings and jcms.playerAfkPings[ply]) or 0)
+					local timeTabbedOut = ply:IsBot() and 0 or (CurTime() - ((jcms.playerAfkPings and jcms.playerAfkPings[ply]) or 0))
 
 					if (timeSinceDeath >= respawnDelay) and (timeSinceRespawnAttempt >= respawnInterval) and timeTabbedOut < 20 then
 						local beacon = jcms.director_FindRespawnBeacon(false)

@@ -189,6 +189,41 @@ bspReader = bspReader or {} --Likely to use this in other addons, don't want to 
 		bspReader.pvsDataRead = true
 	end
 
+	--TODO: Verify that I've read everything correctly. Entity:GetBrushPlane( number id ) might be useful for this?
+	--Otherwise would be kinda difficult to check since this is just a bunch of planes.
+	function bspReader.readBrushData(brush_contents) --Probably more memory intensive due to subtables, so only read what we need.
+		if bspReader.brushDataRead and bspReader.brushDataRead[brush_contents] then return end
+
+		local mapFile = file.Open("maps/" .. game.GetMap() .. ".bsp", "rb" , "GAME")
+		bspReader.brushes = {}
+		bspReader.brushContents = {}
+
+		local brushOffs, brushLen = bspReader.getOffset(mapFile, 18)
+		local brushSideOffs, brushSideLen = bspReader.getOffset(mapFile, 19)
+
+		for i = 1, brushLen/16, 1 do 
+			mapFile:Seek(brushOffs + ((i-1) * 12))
+			local firstSide = mapFile:ReadLong()
+			local numSides = mapFile:ReadLong()
+			local contents = mapFile:ReadLong()
+
+			if bit.band(contents, brush_contents) == 0 then continue end
+
+			local br = {}
+			bspReader.brushes[i] = br
+			bspReader.brushContents[i] = contents
+			for j=1, numSides, 1 do 
+				mapFile:Seek(brushOffs + firstSide + ((j-1) * 8))
+				br.planeNum = mapFile:ReadUShort()
+			end
+		end
+
+		mapFile:Close()
+		print("[BSPReader] Read Brush Data")
+		bspReader.brushDataRead = bspReader.brushDataRead or {}
+		bspReader.brushDataRead[brush_contents] = true
+	end
+
 	--[[ --idk if we actually need this. I don't read any cluster data (directly) in advSound.
 	function bspReader.readClusterData() 
 		if bspReader.clusterDataRead then return end

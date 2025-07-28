@@ -63,6 +63,7 @@ if SERVER then
 
 		self.jcms_flinchProgress = 0
 		timer.Simple(0, function()
+			if not IsValid(self) then return end
 			self:SetSequence("chew_humanoid")
 		end)
 
@@ -111,7 +112,9 @@ if SERVER then
 			hook.Call("OnNPCKilled", GAMEMODE, self, dmgInfo:GetAttacker(), dmgInfo:GetInflictor())
 			
 			timer.Simple(0.15, function()
-				self:Remove()
+				if IsValid(self) then
+					self:Remove()
+				end
 			end)
 		end
 	end

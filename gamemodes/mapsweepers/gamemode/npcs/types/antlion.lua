@@ -118,7 +118,7 @@
 				end
 
 				timer.Simple(30, function()
-					if soundPatch then
+					if IsValid(soundPatch) then
 						soundPatch:Stop()
 					end
 					

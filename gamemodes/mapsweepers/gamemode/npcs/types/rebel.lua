@@ -162,6 +162,7 @@
 
 		npc:SetVelocity(Vector(0,0,vertVel))
 		timer.Simple(0.1, function() 
+			if not IsValid(npc) then return end
 			npc:SetVelocity(dir * groundVel)
 		end)
 	end

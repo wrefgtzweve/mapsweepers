@@ -816,6 +816,7 @@ jcms.terminal_modeTypes = {
 				end
 
 				for weapon, cost in pairs(jcms.weapon_prices) do
+					if cost <= 0 then continue end
 					if not ent.gunStatsCache[ weapon ] then
 						ent.gunStatsCache[ weapon ] = jcms.gunstats_GetExpensive(weapon)
 					end

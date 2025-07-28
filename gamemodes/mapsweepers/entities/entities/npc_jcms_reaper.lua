@@ -92,8 +92,8 @@ if SERVER then
 			self:EmitSound("NPC_Vortigaunt.Explode")
 			self:EmitSound("NPC_Antlion.RunOverByVehicle")
 
+			local epos = self:WorldSpaceCenter()
 			for i=1, math.random(5, 8) do
-				local epos = self:WorldSpaceCenter()
 				timer.Simple( (math.random()^2)*0.15, function()
 					local ed = EffectData()
 					local gibpos = epos + VectorRand(-16, 16)

@@ -185,6 +185,7 @@ if SERVER then
 				end
 
 				timer.Simple(0, function() 
+					if not IsValid(self) then return end
 					local world = game.GetWorld()
 					util.BlastDamage(world, world, self:WorldSpaceCenter(), 1500, 100)
 				end)

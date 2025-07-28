@@ -934,6 +934,8 @@ jcms.offgame = jcms.offgame or NULL
 					end
 
 					for weapon, cost in pairs(jcms.weapon_prices) do
+						if cost <= 0 then continue end
+						
 						local category = self:CategorizeGun(weapon)
 						if not categorizedGuns[ category ] then
 							categorizedGuns[ category ] = { weapon }
@@ -2738,7 +2740,9 @@ jcms.offgame = jcms.offgame or NULL
 					if wsid and not mapButton.exists then
 						steamworks.FileInfo( wsid, function( result )
 							steamworks.Download( result.previewid, true, function( path )
-								mapButton.mat = AddonMaterial( path )
+								if type(path) == "string" then
+									mapButton.mat = AddonMaterial( path )
+								end
 							end)
 						end)
 					end

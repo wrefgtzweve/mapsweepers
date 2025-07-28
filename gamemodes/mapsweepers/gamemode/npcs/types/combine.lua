@@ -26,6 +26,7 @@
 			npc:EmitSound("npc/combine_gunship/see_enemy.wav", 140, 80, 1, CHAN_AUTO, 0, 38) --Roar / Announce
 			npc:EmitSound("npc/strider/striderx_pain8.wav", 140, 80, 1, CHAN_AUTO, 0, 38)
 			timer.Simple(bPrep - 1.4, function()
+				if not IsValid(npc) then return end
 				npc:EmitSound("npc/strider/charging.wav", 140, 80, 0.75, CHAN_AUTO, 0, 0)
 			end)
 

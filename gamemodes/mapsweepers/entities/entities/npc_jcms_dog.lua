@@ -314,7 +314,7 @@ if SERVER then
 							if mul >= 1 then
 								ent:EmitSound("Player.FallDamage")
 							end
-						else
+						elseif mt == MOVETYPE_VPHYSICS then
 							phys:Wake()
 							phys:AddVelocity(force*power)
 							phys:AddAngleVelocity(VectorRand(-100*power, 100*power))

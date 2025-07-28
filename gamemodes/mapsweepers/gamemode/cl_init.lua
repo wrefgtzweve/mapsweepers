@@ -22,6 +22,7 @@
 include "sh_bspReader.lua" --Not sure if we even need this data on client. Will include data read-ins if/when necessary. - J
 
 include "shared.lua"
+include "sh_debugtools.lua"
 include "sh_net.lua"
 include "cl_hud.lua"
 include "cl_hud_npc.lua"
@@ -567,6 +568,44 @@ end)
 			if IsValid(ent) and not emt.IsDormant(ent) then
 				drawSweeperShield(ent)
 			end
+		end
+	end)
+
+	local function drawLiabilityText(ffKills)
+		local liabilityTxt = string.format("%s: x%d", language.GetPhrase("jcms.liability"), ffKills)
+		draw.SimpleText(liabilityTxt, "jcms_hud_big", 0, 0, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText("↓", "jcms_hud_big", 0, 15, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
+		render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+			draw.SimpleText(liabilityTxt, "jcms_hud_big", -ffKills*math.random()/4 -2, -ffKills*math.random()/4 -2, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)	
+			draw.SimpleText("↓", "jcms_hud_big", -ffKills*math.random()/4 -2, 15 -ffKills*math.random()/4 -2, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		render.OverrideBlend(false)
+
+		--TODO: Friendly-fire icon
+	end
+
+	hook.Add("PostDrawOpaqueRenderables", "jcms_friendlyfire_counter", function(bDrawingDepth, bDrawingSkybox, isDraw3DSkybox)
+		if bDrawingDepth or bDrawingSkybox or isDraw3DSkybox or render.GetRenderTarget() then return end
+
+		local cTime = CurTime()
+		local addVec = Vector(0,0,105)
+		for i, ply in player.Iterator() do
+			if not IsValid(ply) or ply:IsDormant() or ply:GetNoDraw() or not(ply:GetObserverMode() == OBS_MODE_NONE) then continue end
+
+			local ffKills = ply:GetNWInt("jcms_friendlyfire_counter", 0)
+			if ffKills < 5 then continue end
+
+
+			local pos = ply:GetPos()
+			addVec.z = 105 + math.sin(cTime*2 + ply:EntIndex() * 2) * 10
+			pos:Add(addVec)
+			cam.Start3D2D( pos, Angle(0,cTime * 75,90), 0.25 )
+				drawLiabilityText(ffKills)
+			cam.End3D2D()
+			
+			cam.Start3D2D( pos, Angle(0,cTime * 75 - 180,90), 0.25 )
+				drawLiabilityText(ffKills)
+			cam.End3D2D()
 		end
 	end)
 	
@@ -1178,6 +1217,7 @@ end)
 
 				jcms.statistics = dataTbl or jcms.statistics --fallback for if our file's fucked.
 				if not dataTbl then
+					jcms.debug_fileLog("Failed to read stats file. Stats reset.")
 					Error("[Map Sweepers] Failed to read stats file. Stats reset.")
 				end
 			end

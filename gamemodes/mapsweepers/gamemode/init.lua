@@ -25,11 +25,13 @@ bspReader.readLeafData()
 bspReader.readNodeData()
 bspReader.readPlaneData()
 bspReader.readPVSData()
+bspReader.readBrushData(CONTENTS_PLAYERCLIP)
 
 include "sh_ainReader.lua" --i like eating binrary numbrs- j
 ainReader.readNodeData()
 
 include "shared.lua"
+include "sh_debugtools.lua"
 include "sh_net.lua"
 include "sh_hints.lua"
 include "sv_director.lua"
@@ -184,7 +186,6 @@ end
 		team.SetColor(0, Color(180, 180, 180))
 		team.SetColor(1, Color(255, 16, 16))
 		team.SetColor(2, Color(16, 183, 255))
-
 	end)
 
 	hook.Add("PlayerSwitchFlashlight", "jcms_Flashlight", function(ply, enabled)
@@ -399,7 +400,7 @@ end
 		end
 
 		local count = 0
-		for i, ent in ipairs(ents.GetAll()) do
+		for i, ent in ents.Iterator() do
 			if ent.jcms_owner_sid64 == sid64 then
 				ent.jcms_owner = ply
 				ent.jcms_owner_sid64 = nil
@@ -577,6 +578,65 @@ end
 		game.GetWorld():SetNWInt("jcms_winstreak", rp.winstreak)
 	end
 
+-- // }}}
+
+-- // Friendly-Fire Tracking / other player data {{{
+	jcms.playerData = jcms.playerData or {
+		playerFFKills = {},
+		playerLastFFKill = {}
+	}
+
+
+	hook.Add("PlayerSpawn", "jcms_restorePlayerData", function(ply) 
+		local lastFFKill = jcms.playerData_lastFriendlyKill(ply)
+
+		if os.time() - lastFFKill > 60 * 60 * 4 then --If our last kill was 4h ago reset
+			jcms.playerData_SetFriendlyKills(ply, 0)
+			return
+		end
+
+		ply:SetNWInt("jcms_friendlyfire_counter", jcms.playerData_GetFriendlyKills(ply))
+	end)
+
+	function jcms.playerData_SetFriendlyKills(ply, amount)
+		local sid64 = ply:SteamID64()
+		sid64 = "_" .. sid64 --Stop JSONToTable from obliterating us.
+
+		jcms.playerData.playerFFKills[sid64] = amount
+		ply:SetNWInt("jcms_friendlyfire_counter", amount)
+	end
+
+	function jcms.playerData_GetFriendlyKills(ply_or_sid64)
+		local sid64 = tostring(ply_or_sid64)
+		if type(ply_or_sid64) == "Player" then
+			sid64 = ply_or_sid64:SteamID64()
+		end
+		sid64 = "_" .. sid64 --Stop JSONToTable from obliterating us.
+
+		return jcms.playerData.playerFFKills[sid64] or 0
+	end
+
+	function jcms.playerData_AddFriendlyKill(ply)
+		local sid64 = ply:SteamID64()
+		sid64 = "_" .. sid64 --Stop JSONToTable from obliterating us.
+
+		local newKills = (jcms.playerData.playerFFKills[sid64] or 0) + 1
+		jcms.playerData.playerFFKills[sid64] = newKills
+		jcms.playerData.playerLastFFKill[sid64] = os.time()
+
+		ply:SetNWInt("jcms_friendlyfire_counter", newKills)
+	end
+
+	function jcms.playerData_lastFriendlyKill(ply)
+		local sid64 = ply:SteamID64()
+		sid64 = "_" .. sid64 --Stop JSONToTable from obliterating us.
+		return jcms.playerData.playerLastFFKill[sid64] or 0
+	end
+
+	--TODO: Shared/use the NW int instead.
+	function jcms.playerData_IsPlayerLiability(ply_or_sid64)
+		return jcms.playerData_GetFriendlyKills(ply_or_sid64) > 5
+	end
 -- // }}}
 
 -- // Cash {{{
@@ -795,16 +855,23 @@ end
 
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
-			local spawn = ents.FindByClass("info_player_start")[1]
-			
-			local pos
-			if not IsValid(spawn) then 
-				pos = Vector(0,0,0)
-			else
-				pos = spawn:GetPos()
-			end
 
-			pos.z = pos.z + ply:EntIndex()*72
+			local eIndex = ply:EntIndex()
+			local pos
+			if #jcms.pathfinder.airNodes > 0 then --Airgraph is our best bet for reliability. I should make a better solution later.
+				local node = jcms.pathfinder.airNodes[eIndex]
+				pos = node.pos
+			else
+				local spawn = ents.FindByClass("info_player_start")[1]
+			
+				if IsValid(spawn) then 
+					pos = spawn:GetPos()
+				else
+					pos = Vector(0,0,0)
+				end
+
+				pos.z = pos.z + eIndex*72
+			end
 			
 			ply:SetPos(pos)
 
@@ -1256,6 +1323,9 @@ end
 					if jcms.team_JCorp_player(attacker) and attacker ~= ply then
 						jcms.statistics_AddOther(attacker, "ffire", 1)
 						jcms.director_stats_AddKillForSweeper(attacker, 3)
+						if not jcms.playerData_IsPlayerLiability(ply) then
+							jcms.playerData_AddFriendlyKill(attacker)
+						end
 						jcms.announcer_Speak(jcms.ANNOUNCER_FRIENDLYFIRE_KILL)
 					elseif jcms.team_NPC(attacker) then
 						jcms.director_stats_AddKillForNPC(attacker, 0)
@@ -2236,7 +2306,6 @@ end
 				
 				if oldPrice ~= price then
 					jcms.net_SendWeapon(class, price or 0, "all")
-					jcms.weapon_prices_wereModified = true
 				end
 			else
 				print("weapon class '" .. class .. "' does not exist")
@@ -2541,7 +2610,6 @@ end
 		end)
 
 		hook.Add("ShutDown", "jcms_SaveWeaponPrices", function()
-			--jcms.weapon_prices_wereModified does not consistently exist in this hook.
 			local success, rtn = pcall(util.TableToJSON, jcms.weapon_prices, true)
 			if success and rtn then
 				success = file.Write(weaponPricesFile, rtn)
@@ -2629,6 +2697,23 @@ end
 
 			local dataStr = util.Compress(util.TableToJSON(jcms.runprogress))
 			file.Write(runProgFile, dataStr)
+		end)
+	end
+
+	do
+		local playerDataFile = "mapsweepers/server/playerData.dat"
+		hook.Add("InitPostEntity", "jcms_RestorePlayerData", function()
+			if file.Exists(playerDataFile, "DATA") then
+				local dataTxt = file.Read(playerDataFile, "DATA")
+				local dataTbl = util.JSONToTable(util.Decompress(dataTxt))
+
+				table.Merge(jcms.playerData, dataTbl, true)
+			end
+		end)
+
+		hook.Add("ShutDown", "jcms_SavePlayerData", function()
+			local dataStr = util.Compress(util.TableToJSON(jcms.playerData))
+			file.Write(playerDataFile, dataStr)
 		end)
 	end
 
