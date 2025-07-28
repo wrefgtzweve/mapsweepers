@@ -30,6 +30,7 @@ include "sh_ainReader.lua" --i like eating binrary numbrs- j
 ainReader.readNodeData()
 
 include "shared.lua"
+include "sh_debugtools.lua"
 include "sh_net.lua"
 include "sh_hints.lua"
 include "sv_director.lua"
@@ -184,7 +185,6 @@ end
 		team.SetColor(0, Color(180, 180, 180))
 		team.SetColor(1, Color(255, 16, 16))
 		team.SetColor(2, Color(16, 183, 255))
-
 	end)
 
 	hook.Add("PlayerSwitchFlashlight", "jcms_Flashlight", function(ply, enabled)
@@ -854,6 +854,7 @@ end
 
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
+			--TODO: Put us on airgraph nodes if possible.
 			local spawn = ents.FindByClass("info_player_start")[1]
 			
 			local pos

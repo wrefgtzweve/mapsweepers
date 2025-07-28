@@ -22,6 +22,7 @@
 include "sh_bspReader.lua" --Not sure if we even need this data on client. Will include data read-ins if/when necessary. - J
 
 include "shared.lua"
+include "sh_debugtools.lua"
 include "sh_net.lua"
 include "cl_hud.lua"
 include "cl_hud_npc.lua"
