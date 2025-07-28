@@ -1217,6 +1217,7 @@ end)
 
 				jcms.statistics = dataTbl or jcms.statistics --fallback for if our file's fucked.
 				if not dataTbl then
+					jcms.debug_fileLog("Failed to read stats file. Stats reset.")
 					Error("[Map Sweepers] Failed to read stats file. Stats reset.")
 				end
 			end

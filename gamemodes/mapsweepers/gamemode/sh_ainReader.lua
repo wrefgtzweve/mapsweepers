@@ -13,7 +13,10 @@ ainReader = ainReader or {} --Likely to use this in other addons, don't want to 
 		local fileName = "maps/graphs/" .. game.GetMap() .. ".ain"
 		local path = "GAME"
 		if not file.Exists(fileName, path) then path = "BSP" end
-		if not file.Exists(fileName, path) then return end --not gonna be good if this happens.
+		if not file.Exists(fileName, path) then 
+			jcms.debug_fileLog("Failed to read map .ain: " .. game.GetMap())
+			return 
+		end --not gonna be good if this happens.
 
 		local ainFile = file.Open(fileName, "rb", path)
 		ainFile:Seek(8)
