@@ -2191,6 +2191,17 @@ end
 					if not jcms.director.evacuated[ ply ] then
 						jcms.director_stats_SetLockedState(jcms.director, ply, "npc")
 					end
+
+					local sid64 = ply:SteamID64()
+					for i, ent in ipairs(ents.GetAll()) do
+						if ent.jcms_owner == ply then
+							ent.jcms_owner = nil
+						end
+
+						if ent.jcms_owner_sid64 == sid64 then
+							ent.jcms_owner_sid64 = nil
+						end
+					end
 				end
 			end
 
