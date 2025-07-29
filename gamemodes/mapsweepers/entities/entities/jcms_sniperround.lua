@@ -67,6 +67,9 @@ if SERVER then
 	end
 	
 	function ENT:InflictDamage(hitEntity)
+		if self.hasHit then return end
+		self.hasHit = true --We can take damage multiple times in one frame due to physics collide.
+
 		local from, to = self.ShotFrom, self:GetPos()
 		local norm = to - from
 		norm:Normalize()

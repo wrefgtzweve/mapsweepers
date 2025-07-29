@@ -282,6 +282,7 @@ jcms.npc_types.zombie_explodingcrab = {
 	portalScale = 0.5,
 	postSpawn = function(npc)
 		npc.jcms_dmgMult = 15
+		npc.jcms_maxScaledDmg = 65
 		npc:SetMaterial("models/jcms/explosiveheadcrab/body")
 
 		local scale = Vector(1.5,1.5,1.5)
@@ -526,6 +527,7 @@ jcms.npc_types.zombie_minitank = {
 		npc:SetHealth(hp)
 
 		npc.jcms_dmgMult = 10
+		npc.jcms_maxScaledDmg = 90
 
 		npc:SetSaveValue("m_nCrabCount", 0)
 		npc:SetBloodColor(DONT_BLEED)
@@ -825,6 +827,8 @@ jcms.npc_types.zombie_charple = {
 		npc:CallOnRemove( "jcms_charple_stopsound", function()
 			npc.jcms_charpleGurgle:Stop()
 		end)
+
+		npc.jcms_maxScaledDmg = 65
 
 		npc.jcms_charpleDeathTime = CurTime() + 50
 	end,

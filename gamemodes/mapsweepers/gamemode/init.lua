@@ -295,7 +295,12 @@ end
 				end
 			else
 				dmg:ScaleDamage(attacker.jcms_dmgMult or 1)
-				dmg:ScaleDamage(jcms.npc_GetScaledDamage(jcms.director and jcms.director.livingPlayers))
+				if not attacker.jcms_dontScaleDmg then
+					dmg:ScaleDamage(jcms.npc_GetScaledDamage(jcms.director and jcms.director.livingPlayers))
+				end
+				if attacker.jcms_maxScaledDmg then 
+					dmg:SetDamage( math.min(attacker.jcms_maxScaledDmg, dmg:GetDamage()) )
+				end
 			end
 			
 			if jcms.team_JCorp(ent) then

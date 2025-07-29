@@ -34,7 +34,7 @@ SWEP.Primary.Ammo = "SniperRound"
 SWEP.Primary.Damage = 35
 SWEP.Primary.NumBullets = 1
 SWEP.Primary.Spread = 0.02
-SWEP.Primary.Delay = 1.5
+SWEP.Primary.Delay = 2.5
 
 SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1

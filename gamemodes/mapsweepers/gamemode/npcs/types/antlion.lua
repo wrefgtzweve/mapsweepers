@@ -568,5 +568,7 @@ jcms.npc_types.antlion_reaper = {
 
 	postSpawn = function(npc)
 		npc:SetMaxLookDistance(3000)
+		
+		npc.jcms_maxScaledDmg = 65
 	end
 }

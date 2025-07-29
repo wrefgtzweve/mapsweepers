@@ -76,6 +76,8 @@ if SERVER then
 		self:SetCloudRange(1250 * sizeMult * densityMult)
 		self:SetBloodColor(BLOOD_COLOR_RED)
 
+		self.jcms_dontScaleDmg = true
+
 		self.nextThink = CurTime() + 6.5 -- Don't immediately start damaging on spawn, give our cloud time to form.
 	end
 

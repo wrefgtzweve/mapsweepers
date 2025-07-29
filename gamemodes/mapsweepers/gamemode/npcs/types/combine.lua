@@ -262,6 +262,8 @@ jcms.npc_types.combine_sniper = {
 		npc:GetActiveWeapon():SetSaveValue("m_fMinRange1", 256)
 		npc:GetActiveWeapon():SetSaveValue("m_fMaxRange1", 5000)
 		npc:SetSaveValue("m_flDistTooFar", 5000)
+		
+		npc.jcms_maxScaledDmg = 65
 	end,
 
 	proficiency = WEAPON_PROFICIENCY_VERY_GOOD
