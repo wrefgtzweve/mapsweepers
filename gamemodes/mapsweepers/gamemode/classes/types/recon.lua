@@ -141,16 +141,10 @@ if CLIENT then
 		local dt = cTime - plyTbl.lastCalcView
 		local finalFov = Lerp( dt * 10, plyTbl.lastFov, desiredFov )
 
-		local view = {
-			origin = origin,
-			angles = angles,
-			fov = finalFov
-		}
-
 		plyTbl.lastCalcView = cTime
 		plyTbl.lastFov = finalFov
 	
-		return view
+		return finalFov
 	end
 
 	class.highlightEnts = {

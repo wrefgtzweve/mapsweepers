@@ -430,7 +430,13 @@ end)
 			elseif IsValid(jVehicle) and jVehicle.CalcViewDriver then
 				return jVehicle:CalcViewDriver(ply, origin, angles, fov, znear, zfar)
 			elseif classData and classData.CalcView then
-				return classData.CalcView(ply, origin, angles, fov, znear, zfar)
+				local rtn = classData.CalcView(ply, origin, angles, fov, znear, zfar)
+
+				if type(rtn) == "table" then
+					return rtn
+				elseif type(rtn) == "number" then
+					fov = rtn
+				end
 			end
 			
 			local wep = ply:GetActiveWeapon()
