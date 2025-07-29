@@ -139,12 +139,16 @@ if SERVER then
 				local entPos = ent:GetPos()
 				local dist = selfPos:Distance(entPos)
 				
+				if ent:IsPlayer() then
+					jcms.director_TryShowTip(ent, jcms.HINT_POLYP)
+					if IsValid(ent:GetNWEntity("jcms_vehicle", NULL)) then 
+						continue --Stop us from damaging people in vehicles, because that breaks things.
+					end
+				end
+				
 				dmg:SetDamage( math.ceil(Lerp( dist/cloudRange , 10, 1)) )
 				dmg:SetDamagePosition(entPos)
 				ent:TakeDamageInfo(dmg)
-				if ent:IsPlayer() then
-					jcms.director_TryShowTip(ent, jcms.HINT_POLYP)
-				end
 			end
 		end
 	end
