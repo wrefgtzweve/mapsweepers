@@ -700,6 +700,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 			end
 
 			stats.slot = gunData.Slot or 5
+			stats.icon = gunData.IconOverride
 
 		return stats
 	end
