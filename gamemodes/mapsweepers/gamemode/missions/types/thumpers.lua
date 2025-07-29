@@ -27,7 +27,7 @@
 		generate = function(data, missionData)
 			local difficulty = jcms.runprogress_GetDifficulty()
 			local count = math.ceil(difficulty * 3)
-			local thumpers = jcms.mapgen_SpreadPrefabs("thumper", count, 125, true)
+			local thumpers = jcms.mapgen_SpreadPrefabs("thumper", count, 200, true)
 
 			if #thumpers == 0 then
 				error("Couldn't place enough thumpers. This map sucks, find a bigger one.")

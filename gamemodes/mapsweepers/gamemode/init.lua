@@ -1252,7 +1252,7 @@ end
 								ply:SetNWInt("jcms_desiredteam", 1)
 								jcms.playerspawn_RespawnAs(ply, "spectator")
 								ply.jcms_lastDeathTime = CurTime()
-							elseif state == "evacuated" or d.missionData.evacuating then
+							elseif state == "evacuated" or (d.missionData and d.missionData.evacuating) then
 								-- We've evacuated before. Now we're just spectating with the option to be an NPC.
 								ply:SetNWInt("jcms_desiredteam", 1)
 								ply:SetNWBool("jcms_evacuated", true)
