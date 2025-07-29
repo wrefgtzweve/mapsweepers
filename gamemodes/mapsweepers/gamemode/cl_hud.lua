@@ -2519,12 +2519,12 @@
 					local str = language.GetPhrase(jcms.vm_evacd > 0.5 and "#jcms.switchsides_evac" or "#jcms.switchsides")
 
 					surface.SetDrawColor(jcms.color_dark)
-					jcms.draw_Circle(0, -200, 38, 38, 5, 12)
-					draw.SimpleText(binding, "jcms_hud_medium", 0, -200, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					jcms.draw_Circle(0, -200, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
+					draw.SimpleText(binding, "jcms_hud_big", 0, -200, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 					
 					surface.SetDrawColor(jcms.color_bright)
-					jcms.draw_Circle(0, -200-off, 38, 38, 5, 12)
-					draw.SimpleText(binding, "jcms_hud_medium", x, -200-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					jcms.draw_Circle(0, -200-off, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
+					draw.SimpleText(binding, "jcms_hud_big", x, -200-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 					
 					local angleoff = math.pi/3 - anim*0.3
 					surface.SetDrawColor(jcms.color_dark_alt)
@@ -2533,12 +2533,12 @@
 					surface.SetDrawColor(jcms.color_bright_alt)
 					jcms.draw_Circle(0, -200-off, 48, 48, 8, 16, -angleoff, math.pi*2*anim-angleoff)
 
-					draw.SimpleText(str, "jcms_hud_small", 64, -200, jcms.color_dark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-					draw.SimpleText(str, "jcms_hud_small", 64, -200-off, jcms.color_bright, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+					draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200, jcms.color_dark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+					draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200-off, jcms.color_bright, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
 					if anim <= 0 then
-						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_small", 0, -200+48, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_small", 0, -200+48		-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 					end
 				end
 				cam.End3D2D()
@@ -2565,7 +2565,7 @@
 					draw.SimpleText(binding, font, 0, -200-off, jcms.color_bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 					draw.SimpleText(str, "jcms_hud_small", -24, -172-off, jcms.color_bright, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 					
-					if jcms.locPly:KeyPressed(IN_JUMP) then
+					if jcms.locPly:KeyPressed(IN_JUMP) or jcms.locPly:KeyDown(IN_JUMP) then
 						jcms.offgame_ModalChangeClass()
 					end
 				end
