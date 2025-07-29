@@ -220,7 +220,7 @@
 			payload.MaxSpeed = missionData.trackLength / ((60 * 3.5) * jcms.runprogress_GetDifficulty()) -- 3.5 minutes to reach the end (difficulty scaled)
 			missionData.payload = payload
 
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 
 			jcms.mapgen_PlaceNaturals( jcms.mapgen_AdjustCountForMapSize(11) )
 			jcms.mapgen_PlaceEncounters()
