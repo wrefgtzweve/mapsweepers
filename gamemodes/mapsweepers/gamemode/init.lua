@@ -903,7 +903,8 @@ end
 
 				if winningMap == game.GetMap() then
 					jcms.mission_Clear()
-				else
+				elseif not jcms.mapChanging then
+					jcms.mapChanging = true
 					RunConsoleCommand("changelevel", winningMap)
 				end
 			end

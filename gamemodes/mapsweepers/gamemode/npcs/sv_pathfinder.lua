@@ -26,6 +26,9 @@ jcms.pathfinder = jcms.pathfinder or {}
 		jcms.pathfinder.airNodes = {} --air nodes
 		jcms.pathfinder.leafAirNodes = {} --Nodes for each leaf
 
+		--If something broke while reading don't generate any nodes, as that'll cause more issues down the line.
+		if not bspReader.pvsDataRead or not bspReader.leafDataRead or not bspReader.nodeDataRead or not bspReader.planeDataRead then return end
+
 		do --Detect skybox
 			local skyCam = ents.FindByClass("sky_camera")[1] --Should only be one of these.
 			

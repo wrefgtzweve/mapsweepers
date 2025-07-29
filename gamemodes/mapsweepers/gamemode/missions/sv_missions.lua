@@ -68,67 +68,81 @@
 -- // Logic {{{
 
 	function jcms.mission_Start(missionType, factionType)
-		math.randomseed( os.time() - CurTime() * ( math.pi / 4 ) )
+		local co = coroutine.create( function()
+			math.randomseed( os.time() - CurTime() * ( math.pi / 4 ) )
 
-		local data = assert(jcms.missions[ missionType ], "invalid mission type: " .. tostring(missionType))
-		
-		if data.faction == "any" then
-			assert(jcms.factions[ factionType ], "invalid faction: " .. tostring(factionType))
-		else
-			factionType = data.faction
-		end
-
-		if data.orders and table.Count(data.orders) > 0 then
-			timer.Simple(10, function()
-				for i, ply in ipairs(jcms.GetLobbySweepers()) do
-					jcms.director_TryShowTip(ply, jcms.HINT_UNIQUEORDERS)
-				end
-			end)
-		end
-
-		game.CleanUpMap()
-		jcms.recolorAllDollies()
-		
-		game.GetWorld():SetNWString("jcms_missiontype", missionType)
-		game.GetWorld():SetNWString("jcms_missionfaction", factionType)
-
-		jcms.director_Prepare( factionType )
-		jcms.director.missionType = missionType
-		jcms.director.encounterTriggerLast = jcms.director.missionStartTime + 10
-		jcms.director.phrasesOverride = data.phrasesOverride
-		
-		local success, genRtn = pcall(jcms.mapgen_FromMission, data)
-		if success then
-			-- // Mission-Specific Orders {{{
-				for k, order in pairs(jcms.orders) do 
-					if order.missionSpecific then 
-						jcms.orders[k] = nil
-						jcms.net_RemoveOrder(k)
-					end
-				end
-
-				if data.orders then
-					for k, order in pairs(data.orders) do 
-						jcms.orders[k] = order
-						jcms.net_SendOrder(k, order)
-					end
-				end
-			-- // }}}
-
-			if jcms.director.commander and jcms.director.commander.placePrefabs then 
-				jcms.director.commander:placePrefabs(data)
-			end
+			local data = assert(jcms.missions[ missionType ], "invalid mission type: " .. tostring(missionType))
 			
-			jcms.orders_ClearAllCooldowns()
-			jcms.net_SendMissionBeginning()
-			
-			if not jcms.validMapOptions then
-				jcms.validMapOptions = jcms.generateValidMapOptions()
+			if data.faction == "any" then
+				assert(jcms.factions[ factionType ], "invalid faction: " .. tostring(factionType))
+			else
+				factionType = data.faction
 			end
-		else
-			jcms.director = nil
-			ErrorNoHalt("Mission generation failed!\n"..tostring(genRtn))
-		end
+
+			game.CleanUpMap()
+			jcms.recolorAllDollies()
+			
+			game.GetWorld():SetNWString("jcms_missiontype", missionType)
+			game.GetWorld():SetNWString("jcms_missionfaction", factionType)
+
+			jcms.director_Prepare( factionType )
+			jcms.director.missionType = missionType
+			jcms.director.encounterTriggerLast = jcms.director.missionStartTime + 10
+			jcms.director.phrasesOverride = data.phrasesOverride
+		
+			local success, genRtn = pcall(jcms.mapgen_FromMission, data)
+			if success then
+				jcms.director.fullyInited = true
+
+				-- // Mission-Specific Orders {{{
+					for k, order in pairs(jcms.orders) do 
+						if order.missionSpecific then 
+							jcms.orders[k] = nil
+							jcms.net_RemoveOrder(k)
+						end
+					end
+
+					if data.orders then
+						for k, order in pairs(data.orders) do 
+							jcms.orders[k] = order
+							jcms.net_SendOrder(k, order)
+						end
+					end
+				-- // }}}
+
+				if jcms.director.commander and jcms.director.commander.placePrefabs then 
+					jcms.director.commander:placePrefabs(data)
+				end
+				
+				jcms.orders_ClearAllCooldowns()
+				jcms.net_SendMissionBeginning()
+				
+				if not jcms.validMapOptions then
+					jcms.validMapOptions = jcms.generateValidMapOptions()
+				end
+				
+				if data.orders and table.Count(data.orders) > 0 then
+					timer.Simple(10, function()
+						for i, ply in ipairs(jcms.GetLobbySweepers()) do
+							jcms.director_TryShowTip(ply, jcms.HINT_UNIQUEORDERS)
+						end
+					end)
+				end
+			else
+				jcms.director = nil
+				ErrorNoHalt("Mission generation failed!\n"..tostring(genRtn))
+				PrintMessage(HUD_PRINTTALK, "[Map Sweepers] Mission failed to generate, switching mission as a fall-back.")
+				jcms.mission_Randomize()
+			end
+			return true
+		end)
+
+		timer.Create( "jcms_mission_run", 0, 0, function()
+			local success, shouldEnd = coroutine.resume(co)
+			if shouldEnd then 
+				timer.Remove("jcms_mission_run")
+			end
+		end)
 	end
 
 	function jcms.mission_StartFromCVar() -- Artifact name of the function.
@@ -332,7 +346,7 @@
 	end
 
 	hook.Add("Think", "jcms_PreGameLogic", function()
-		local isOngoing = not not jcms.director
+		local isOngoing = (jcms.director and jcms.director.fullyInited) or false
 
 		if game.GetWorld():GetNWBool("jcms_ongoing", false) ~= isOngoing then
 			game.GetWorld():SetNWBool("jcms_ongoing", isOngoing)

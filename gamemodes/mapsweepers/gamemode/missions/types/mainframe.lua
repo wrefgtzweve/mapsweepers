@@ -94,7 +94,7 @@
 			local targetArea 
 			local path -- Actual vectors (payload-style) path.
 			-- Generating the path {{{
-			for i=1, 20 do 
+			for i=1, 10 do 
 				--[[todo: for loop is a Suboptmial/Bandaid solution so we can release sooner.
 					The payload-style navigation function doesn't reliably connect valid navarea paths.
 					This should be fixable, but doing so will take a while.
@@ -131,6 +131,8 @@
 
 					from, to = closestA, closestB -- We found closest-matching vectors.
 					path = jcms.pathfinder.navigateVectorGrid(connections, costs, from, to)
+
+					if coroutine.isyieldable() then coroutine.yield() end
 
 					if not path then continue end
 
@@ -178,6 +180,8 @@
 			end
 			prevTerminal = terminal
 			--tracks[terminal] = nodes
+			
+			if coroutine.isyieldable() then coroutine.yield() end
 		end
 
 		return terminals
@@ -241,6 +245,8 @@
 				end
 			-- // }}}
 
+			if coroutine.isyieldable() then coroutine.yield() end
+
 			local sectorDebugAreaCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 			-- // Sectors {{{
 				local xMin, yMin, xMax, yMax = jcms.mapgen_GetNavmeshSpan(unrestricted)
@@ -282,6 +288,8 @@
 				sectorWeights[sector] = math.sqrt(weight)
 			end
 
+			if coroutine.isyieldable() then coroutine.yield() end
+
 			missionData.completedTracks = {}
 			-- // Track Generation {{{
 				local trackCount = 3 
@@ -321,7 +329,6 @@
 						
 						terminal:InitAsTerminal("models/jcms/rgg_node.mdl", "mainframe_terminal")
 					end
-					
 				end
 			-- // }}}
 

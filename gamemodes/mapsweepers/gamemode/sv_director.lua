@@ -1382,7 +1382,7 @@
 		function jcms.director_Loop()
 			local d = jcms.director
 
-			if d then
+			if d and d.fullyInited then
 				if d.gameover then return end
 				local livingPlayers, deadPlayers, evacCount = jcms.director_PlayersAnalyze(d)
 				jcms.director.livingPlayers = livingPlayers
