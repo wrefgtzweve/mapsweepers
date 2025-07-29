@@ -120,7 +120,7 @@ if SERVER then
 	function ENT:GravGunPunt(ply)
 		self.Attacker = ply
 		self.ShotFrom = ply:EyePos()
-		self.Damage = math.min(self.Damage + 15, self.Damage*2)
+		self.Damage = math.max(self.Damage, 300)
 		self:SetOwner(ply)
 		return true
 	end
