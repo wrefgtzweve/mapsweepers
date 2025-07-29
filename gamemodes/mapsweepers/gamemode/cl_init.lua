@@ -716,7 +716,23 @@ end)
 			})
 		end
 		
-		EmitSound(songs[math.random(1, #songs)], EyePos(), -2, CHAN_AUTO, 1, 75)
+		EmitSound( "#" .. songs[math.random(1, #songs)], EyePos(), -2, CHAN_AUTO, 1, 0)
+	end
+
+	function jcms.playRandomCombatSong()
+		local songs = {
+			"music/hl1_song10.mp3",
+			"music/hl2_song12_long.mp3",
+			"music/hl2_song16.mp3",
+			"music/hl2_song20_submix0.mp3",
+			"music/hl2_song20_submix4.mp3",
+			--"music/hl2_song29.mp3",
+			--"music/hl2_song3.mp3",
+			"music/hl2_song4.mp3"
+		}
+		--todo: episodic sounds
+		
+		EmitSound( "#" .. songs[math.random(1, #songs)], EyePos(), -2, CHAN_AUTO, 1, 0)
 	end
 
 -- // }}}

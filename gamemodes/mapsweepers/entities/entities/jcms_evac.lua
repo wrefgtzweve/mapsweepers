@@ -201,6 +201,11 @@ if CLIENT then
 			end
 		else
 			if self:IsBeamActive() then
+				if not self.hasPlayedMusic and not NOMBAT and not MUSIC_SYSTEM then 
+					jcms.playRandomCombatSong()
+					self.hasPlayedMusic = true 
+				end
+
 				if not self.soundAlarm or not self.soundAlarm:IsPlaying() then
 					if self.soundAlarm then self.soundAlarm:Stop() end
 					self.soundAlarm = CreateSound(self, "ambient/alarms/combine_bank_alarm_loop4.wav")
