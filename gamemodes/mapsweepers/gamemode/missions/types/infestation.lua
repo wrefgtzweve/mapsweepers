@@ -47,6 +47,13 @@
 
 			jcms.mapgen_PlaceNaturals( jcms.mapgen_AdjustCountForMapSize(10) )
 			jcms.mapgen_PlaceEncounters()
+
+			--Shorter storms if the map is really open. This gets boring way faster on maps like DIPRIP than it does on ones like jcorpdistrict.
+			local areaMult, volMult, densityMult, avgSizeMult = jcms.mapgen_GetMapSizeMultiplier()
+			local sizeMult = math.min(areaMult, volMult)
+			local densityMult = avgSizeMult / densityMult
+
+			missionData.stormMult = math.min(1, 1 / math.sqrt(densityMult * sizeMult))
 		end,
 
 		tagEntities = function(director, missionData, tags)
@@ -118,7 +125,7 @@
 				EmitSound( "ambient/levels/labs/teleport_mechanism_windup3.wav", vector_origin, 0, CHAN_STATIC, 1, 140, 0, 100, 0, filter )
 
 				md.storming = true
-				md.stormEnd = CurTime() + 90
+				md.stormEnd = CurTime() + (90 * missionData.stormMult)
 				md.nextStorm = md.stormEnd + 180
 				
 				md.stormController:SetEnabled(true)
