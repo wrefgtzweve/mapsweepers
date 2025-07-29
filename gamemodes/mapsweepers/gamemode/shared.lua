@@ -329,6 +329,10 @@ jcms.vectorOne = Vector(1, 1, 1)
 		["nuclear_warhead"] = 975,
 		["proxmine"] = 45.65,
 
+		["m202_rocket"] = 80,
+		["matador_rocket"] = 80,
+		["rpg_rocket"] = 80,
+
 		-- Hunt Down The Freeman Weapon Pack
 		["hdtf_ammo_9mm"] = 1.2,
 		["hdtf_ammo_buckshot"] = 6.3,
@@ -399,6 +403,10 @@ jcms.vectorOne = Vector(1, 1, 1)
 		["c4explosive"] = true,
 		["nuclear_warhead"] = true,
 		["proxmine"] = true,
+		
+		["m202_rocket"] = true,
+		["matador_rocket"] = true,
+		["rpg_rocket"] = true,
 
 		--HDTF
 		["hdtf_ammo_claymore"] = true,
@@ -745,7 +753,6 @@ jcms.vectorOne = Vector(1, 1, 1)
 		--Fallback to 100 if we have no damage stat. Avoids anything *too* broken becoming cheap.
 		local dmgShot = (stats.damage == 0 and 100) or stats.damage
 		local damagePer = dmgShot * math.max(stats.numshots, 1) --damage per shot / ammo spent
-
 		local ammoCost = jcms.weapon_ammoCosts[stats.ammotype] or jcms.weapon_ammoCosts._DEFAULT
 
 		damagePer = math.max(damagePer, ammoCost) --Not ideal. Used to keep things with projectile weapons in-check. Vaguely.
