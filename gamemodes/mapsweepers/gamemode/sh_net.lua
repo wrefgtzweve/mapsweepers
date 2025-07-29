@@ -821,7 +821,7 @@ if CLIENT then
 				jcms.aftergame = nil
 				jcms.aftergame_bonuses = nil
 
-				if isNewMission and not (NOMBAT or MUSIC_SYSTEM or jcms.cvar_nomusic:GetBool()) then -- Disable music if we have Nombat or DOOM music addons
+				if isNewMission and jcms.shouldPlayMusic() then -- Disable music if we have Nombat or DOOM music addons
 					jcms.playRandomSong()
 				end
 				

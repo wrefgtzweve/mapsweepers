@@ -201,7 +201,7 @@ if CLIENT then
 			end
 		else
 			if self:IsBeamActive() then
-				if not self.hasPlayedMusic and not NOMBAT and not MUSIC_SYSTEM then 
+				if not self.hasPlayedMusic and jcms.shouldPlayMusic() then 
 					jcms.playRandomCombatSong()
 					self.hasPlayedMusic = true 
 				end

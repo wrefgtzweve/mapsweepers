@@ -735,6 +735,10 @@ end)
 		EmitSound( "#" .. songs[math.random(1, #songs)], EyePos(), -2, CHAN_AUTO, 1, 0)
 	end
 
+	function jcms.shouldPlayMusic()
+		return not ( NOMBAT or MUSIC_SYSTEM or jcms.cvar_nomusic:GetBool() )
+	end
+
 -- // }}}
 
 -- // Drawing {{{
