@@ -1320,7 +1320,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			area_vectors[area] = area:GetCenter()
 			area_raisedVectors[area] = area:GetCenter() + upVec
 		end
-		if coroutine.isyieldable() then coroutine.yield() end
+		if coroutine.running() then coroutine.yield() end
 
 		for i=1, count, 1 do
 			local weightedAreas = {}
@@ -1351,7 +1351,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			table.insert(prefabAreas, chosenArea) 
 			table.insert(prefabs, pref)
 			
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 		end
 
 		return prefabs

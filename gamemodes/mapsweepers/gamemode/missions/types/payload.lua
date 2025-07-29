@@ -39,7 +39,7 @@
 			end
 		end
 
-		if coroutine.isyieldable() then coroutine.yield() end
+		if coroutine.running() then coroutine.yield() end
 
 		for attempt = 1, 20 do
 			local area = jcms.util_ChooseByWeight(midAreaWeights)
@@ -58,7 +58,7 @@
 				end
 			end
 
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 		end
 		
 		if not accepted then
@@ -125,7 +125,7 @@
 			missionData.track = track
 			missionData.trackLength = 0
 
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 			
 			for i,n in ipairs(track) do
 				missionData.trackLength = missionData.trackLength + n.distance

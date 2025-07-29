@@ -132,7 +132,7 @@
 					from, to = closestA, closestB -- We found closest-matching vectors.
 					path = jcms.pathfinder.navigateVectorGrid(connections, costs, from, to)
 
-					if coroutine.isyieldable() then coroutine.yield() end
+					if coroutine.running() then coroutine.yield() end
 
 					if not path then continue end
 
@@ -181,7 +181,7 @@
 			prevTerminal = terminal
 			--tracks[terminal] = nodes
 			
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 		end
 
 		return terminals
@@ -245,7 +245,7 @@
 				end
 			-- // }}}
 
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 
 			local sectorDebugAreaCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 			-- // Sectors {{{
@@ -288,7 +288,7 @@
 				sectorWeights[sector] = math.sqrt(weight)
 			end
 
-			if coroutine.isyieldable() then coroutine.yield() end
+			if coroutine.running() then coroutine.yield() end
 
 			missionData.completedTracks = {}
 			-- // Track Generation {{{
