@@ -20,6 +20,8 @@
 --]]
 DEFINE_BASECLASS("gamemode_base")
 
+include "sh_debugtools.lua"
+
 include "sh_bspReader.lua" --Data from the BSP. We probably(?) want to use this in mapgen and missions, so I put it at the top. - J
 bspReader.readLeafData()
 bspReader.readNodeData()
@@ -31,7 +33,6 @@ include "sh_ainReader.lua" --i like eating binrary numbrs- j
 ainReader.readNodeData()
 
 include "shared.lua"
-include "sh_debugtools.lua"
 include "sh_net.lua"
 include "sh_hints.lua"
 include "sv_director.lua"
@@ -348,7 +349,7 @@ end
 			--Their default behaviour seems to be hardcoded in hl2, and messing with the damageinfo breaks it (causes them to instakill).
 			--This is a bandaid solution to that. 
 			local hp = ent:Health()
-			dmg:SetDamage( math.min(hp-1, dmg:GetDamage()) )
+			dmg:SetDamage( math.min(hp-5, dmg:GetDamage()) )
 		end
 	end)
 	

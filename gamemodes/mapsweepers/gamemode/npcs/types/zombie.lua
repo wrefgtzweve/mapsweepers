@@ -429,6 +429,17 @@ jcms.npc_types.zombie_polyp = {
 				end
 			end
 		end
+
+		local centre = npc:WorldSpaceCenter()
+		local upTr = util.TraceLine({
+			start = centre,
+			endpos = centre + Vector(0,0,32768),
+			mask = MASK_NPCSOLID_BRUSHONLY
+		})
+
+		if not upTr.HitSky then 
+			npc:SetCloudRange(npc:GetCloudRange() * 0.60)
+		end
 	end,
 
 	check = function(director)

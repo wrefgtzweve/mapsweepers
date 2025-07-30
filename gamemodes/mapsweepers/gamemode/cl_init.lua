@@ -19,10 +19,11 @@
 	Contact E-Mail: merekidorian@gmail.com
 --]]
 
+include "sh_debugtools.lua"
+
 include "sh_bspReader.lua" --Not sure if we even need this data on client. Will include data read-ins if/when necessary. - J
 
 include "shared.lua"
-include "sh_debugtools.lua"
 include "sh_net.lua"
 include "cl_hud.lua"
 include "cl_hud_npc.lua"
@@ -1243,7 +1244,7 @@ end)
 
 				jcms.statistics = dataTbl or jcms.statistics --fallback for if our file's fucked.
 				if not dataTbl then
-					jcms.debug_fileLog("Failed to read stats file. Stats reset.")
+					jcms_debug_fileLog("Failed to read stats file. Stats reset.")
 					Error("[Map Sweepers] Failed to read stats file. Stats reset.")
 				end
 			end

@@ -14,7 +14,7 @@ ainReader = ainReader or {} --Likely to use this in other addons, don't want to 
 		local path = "GAME"
 		if not file.Exists(fileName, path) then path = "BSP" end
 		if not file.Exists(fileName, path) then 
-			jcms.debug_fileLog("Failed to read map .ain: " .. game.GetMap())
+			jcms_debug_fileLog("Failed to read map .ain: " .. game.GetMap())
 			return 
 		end --not gonna be good if this happens.
 
