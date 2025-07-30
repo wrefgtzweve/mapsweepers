@@ -3213,12 +3213,14 @@ jcms.offgame = jcms.offgame or NULL
 			close:SetPos(frame:GetWide() - close:GetWide() - 8, 8)
 			function close:DoClick()
 				frame:Remove()
+				jcms.modal_classChange_open = false
 			end
 			close.Paint = jcms.paint_ButtonFilled
 
 			function frame:Think()
 				if jcms.locPly:GetObserverMode() ~= OBS_MODE_CHASE then
 					self:Remove()
+					jcms.modal_classChange_open = false
 				end
 			end
 		end
