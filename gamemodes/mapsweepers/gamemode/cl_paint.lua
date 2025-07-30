@@ -265,7 +265,7 @@
 		return true
 	end
 	
-	function jcms.paint_ModalChangeMission(p, w, h)
+	local function jcms_Modal(p, w, h)
 		local t = (CurTime()%1) * 16
 		surface.SetDrawColor(jcms.color_dark)
 		surface.DrawRect(0, 4, w, h-8)
@@ -274,21 +274,29 @@
 		surface.DrawRect(w-1, 0, 1, h)
 		jcms.hud_DrawStripedRect(0, 0, w, 4, 32, t)
 		jcms.hud_DrawStripedRect(0, h-6, w, 4, 32, t)
+	end
+
+	function jcms.paint_ModalJoinNPC(p, w, h)
+		jcms_Modal(p, w, h)
+		draw.SimpleText("#jcms.joinas_npc", "jcms_big", 16, 8, jcms.color_bright)
+		draw.SimpleText("#jcms.modal_joinasnpc_description1", "jcms_medium", 24, 48, jcms.color_bright)
+		draw.SimpleText("#jcms.modal_joinasnpc_description2", "jcms_medium", 24, 70, jcms.color_bright)
+		
+		local w, h = p:GetSize()
+		draw.SimpleText("#jcms.modal_joinasnpc_warning", "jcms_small_bolder", w/2, 116, jcms.color_bright, TEXT_ALIGN_CENTER)
+
+		return true
+	end
+
+	function jcms.paint_ModalChangeMission(p, w, h)
+		jcms_Modal(p, w, h)
 		draw.SimpleText("#jcms.changemission_sp", "jcms_big", 16, 8, jcms.color_bright)
 
 		return true
 	end
 
 	function jcms.paint_ModalChangeClass(p, w, h)
-		local t = (CurTime()%1) * 16
-		surface.SetDrawColor(jcms.color_dark)
-		surface.DrawRect(0, 4, w, h-8)
-		surface.SetDrawColor(jcms.color_bright)
-		surface.DrawRect(0, 0, 1, h)
-		surface.DrawRect(w-1, 0, 1, h)
-		jcms.hud_DrawStripedRect(0, 0, w, 4, 32, t)
-		jcms.hud_DrawStripedRect(0, h-6, w, 4, 32, t)
-
+		jcms_Modal(p, w, h)
 		draw.SimpleText("#jcms.changeclass", "jcms_big", 16, 8, jcms.color_bright)
 
 		return true

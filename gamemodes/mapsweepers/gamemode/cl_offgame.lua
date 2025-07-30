@@ -594,6 +594,7 @@ jcms.offgame = jcms.offgame or NULL
 				bChangeMission.jFont = "jcms_medium"
 				function bChangeMission:DoClick()
 					jcms.offgame_ModalChangeMission()
+					surface.PlaySound("buttons/button14.wav")
 				end
 			else
 				y = 128
@@ -624,15 +625,8 @@ jcms.offgame = jcms.offgame or NULL
 				bJoinNPC.Paint = jcms.paint_ButtonFilled
 				bJoinNPC.jFont = "jcms_medium"
 				function bJoinNPC:DoClick()
-					tab.Paint = jcms.offgame_paint_MissionPrepTab
-
-					for i, child in ipairs( tab:GetChildren() ) do
-						child:Remove()
-					end
-
 					surface.PlaySound("buttons/button14.wav")
-					--jcms.offgame_BuildMissionPrepTab(tab) -- TODO
-					RunConsoleCommand("jcms_jointeam", "2")
+					jcms.offgame_ModalJoinNPC(tab)
 				end
 				y = y + 64 + 8
 
@@ -645,6 +639,7 @@ jcms.offgame = jcms.offgame or NULL
 					bChangeMission.jFont = "jcms_medium"
 					function bChangeMission:DoClick()
 						jcms.offgame_ModalChangeMission()
+						surface.PlaySound("buttons/button14.wav")
 					end
 				end
 
@@ -2655,6 +2650,50 @@ jcms.offgame = jcms.offgame or NULL
 				else
 					surface.PlaySound("buttons/button16.wav")
 				end
+			end
+		end
+
+		function jcms.offgame_ModalJoinNPC(tab)
+			local frame = jcms.offgame:Add("DFrame")
+			
+			surface.SetFont("jcms_medium")
+			local tw, th = surface.GetTextSize("#jcms.modal_joinasnpc_description1")
+
+			frame:SetSize(math.max(500, tw + 24 *2), 172)
+			frame:Center()
+			frame:SetDraggable(false)
+			frame:SetBackgroundBlur(true)
+			frame:SetDrawOnTop(true)
+			frame:ShowCloseButton(false)
+			frame:SetTitle("")
+			frame.Paint = jcms.paint_ModalJoinNPC
+
+			local close = frame:Add("DButton")
+			close:SetText("x")
+			close:SetSize(64, 24)
+			close:SetPos(frame:GetWide() - close:GetWide() - 8, 8)
+			function close:DoClick()
+				frame:Remove()
+			end
+			close.Paint = jcms.paint_ButtonFilled
+
+			local confirm = frame:Add("DButton")
+			confirm:SetText("#jcms.confirm")
+			confirm:SetSize(200, 24)
+			confirm:SetY( frame:GetTall() - confirm:GetTall() - 12 )
+			confirm:CenterHorizontal(0.5)
+			confirm.Paint = jcms.paint_Button
+			function confirm:DoClick()
+				tab.Paint = jcms.offgame_paint_MissionPrepTab
+
+				for i, child in ipairs( tab:GetChildren() ) do
+					child:Remove()
+				end
+
+				RunConsoleCommand("jcms_jointeam", "2")
+				surface.PlaySound("buttons/button14.wav")
+
+				frame:Remove()
 			end
 		end
 	-- }}}
