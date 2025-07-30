@@ -108,7 +108,37 @@
 				missionData.evacuating = true 
 
 				if not IsValid(missionData.evacEnt) then
-					missionData.evacEnt = jcms.mission_DropEvac(jcms.mission_PickEvacLocation(), 45)
+					local areaWeights = {}
+					local areaCentres = {}
+					local mainZone = jcms.mapgen_ZoneList()[jcms.mapdata.largestZone]
+					for i, area in ipairs(mainZone) do 
+						local sizeX, sizeY = area:GetSizeX(), area:GetSizeY()
+						areaWeights[area] = math.sqrt(jcms.mapdata.areaAreas[area] or (sizeX * sizeY))
+						areaCentres[area] = area:GetCenter()
+
+						if sizeX < 250 or sizeY < 250 then
+							areaWeights[area] = nil 
+							continue
+						end
+						
+						local ply, dist = jcms.director_PickClosestPlayer(areaCentres[area])
+						if dist < 500 then 
+							areaWeights[area] = nil 
+						end
+					end
+
+					for i, ent in ipairs(ents.FindByClass("jcms_radsphere")) do
+						local entPos = ent:GetPos()
+						local entRadius = ent:GetCloudRange()^2
+						for i, area in ipairs(mainZone) do 
+							if areaWeights[area] and areaCentres[area]:DistToSqr(entPos) < entRadius then 
+								areaWeights[area] = areaWeights[area] * 0.01
+							end
+						end
+					end
+
+					local chosenArea = jcms.util_ChooseByWeight(areaWeights)
+					missionData.evacEnt = jcms.mission_DropEvac(areaCentres[chosenArea], 45)
 				end
 				
 				return jcms.mission_GenerateEvacObjective()
