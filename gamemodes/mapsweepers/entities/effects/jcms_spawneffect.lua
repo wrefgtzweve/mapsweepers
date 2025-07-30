@@ -48,7 +48,7 @@ function EFFECT:Init( data )
 	elseif data:GetFlags() == 0 or data:GetFlags() == 2 or data:GetFlags() == 3 then -- 0: appear, 2: disappear 3: disappear (ragdoll)
 		self.isPortal = false
 		self.ent = data:GetEntity()
-		self.entpos = IsValid(self.ent) and self.ent:WorldSpaceCenter()
+		self.entpos = IsValid(self.ent) and self.ent:WorldSpaceCenter() or jcms.vectorOrigin
 		self.t = 0
 		
 		self.tout = 3
@@ -64,6 +64,18 @@ function EFFECT:Init( data )
 		end
 		
 		self:EmitSound("ambient/fire/mtov_flame2.wav", 75, 160)
+	end
+	
+	local ourPos = (self.origin or self.entpos) + Vector(0,0,5)
+	if jcms.EyePos_lowAccuracy:DistToSqr(ourPos) > 400^2 then
+		local tr = util.TraceLine({
+			start = ourPos,
+			endpos = jcms.EyePos_lowAccuracy,
+			mask = MASK_VISIBLE
+		})
+		self.visibleAtStart = not tr.Hit
+	else
+		self.visibleAtStart = true
 	end
 end
 
@@ -135,7 +147,7 @@ function EFFECT:Render()
 		local lodLevel = dist < (1000*selfTbl.scale)^2 and 0 or dist < (2500*selfTbl.scale)^2 and 1 or 2
 		if selfTbl.points then
 
-			if lodLevel == 0 then
+			if lodLevel == 0 and selfTbl.visibleAtStart then
 				if IsValid(selfTbl.emitter) and math.random() < selfTbl.alphaout and FrameTime() > 0 then
 					local p = selfTbl.emitter:Add("Effects/blueflare1", selfTbl.entpos)
 					if p then
@@ -209,11 +221,12 @@ function EFFECT:Render()
 	end
 end
 
+local dn = -jcms.vectorUp
 function EFFECT:RenderEntity()
 	if not IsValid(self) then
 		return
 	end
-
+	
 	local effect = self.jcms_spawneffect
 	if not IsValid(effect) then 
 		self.RenderOverride = nil 
@@ -221,10 +234,6 @@ function EFFECT:RenderEntity()
 		self:DrawModel()
 		return 
 	end
-
-
-	local up = Vector(0,0,1)
-	local dn = Vector(0,0,-1)
 
 	local mins, maxs
 	if effect.useCollisionBounds then --needed to work with ragdolls
@@ -234,6 +243,7 @@ function EFFECT:RenderEntity()
 	else
 		mins, maxs = self:GetModelRenderBounds()
 	end
+	
 	local mypos = self:GetPos()
 	mins:Add(mypos)
 	maxs:Add(mypos)
@@ -242,11 +252,13 @@ function EFFECT:RenderEntity()
 
 	local time = effect.reverse and math.max(0, 2-effect.t) or effect.t
 
-	local vbound = LerpVector(time-1 < 1 and math.ease.InOutCubic(math.Clamp(time-1, 0, 1)) or time-1, mins, maxs)
-	local vbound2 = LerpVector(time < 1 and math.ease.InOutCubic(math.Clamp(math.sqrt(time), 0, 1)) or time, mins, maxs)
+	local modelIn = time-1 < 1 and math.ease.InOutCubic(math.Clamp(time-1, 0, 1)) or time-1
+	local wireIn = time < 1 and math.ease.InOutCubic(math.Clamp(math.sqrt(time), 0, 1)) or time
+	local vbound = LerpVector(modelIn, mins, maxs)
+	local vbound2 = LerpVector(wireIn, mins, maxs)
 	local old = render.EnableClipping(true)
 
-	if eyeDist < 4000^2 then
+	if eyeDist < 3000^2 then
 		if time < 2 and eyeDist < 1500^2 then
 			local centered = Vector(mypos)
 			centered.z = (time>1 and vbound or vbound2).z
@@ -255,32 +267,36 @@ function EFFECT:RenderEntity()
 			local parabolic = math.max(0,-4*(f*f)+4*f)
 			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
 				render.SetMaterial(effect.MatGlow)
-				render.DrawQuadEasy(centered, up, math.Rand(48,72)*parabolic, math.Rand(48,72)*parabolic, effect.color)
+				render.DrawQuadEasy(centered, jcms.vectorUp, math.Rand(48,72)*parabolic, math.Rand(48,72)*parabolic, effect.color)
 				render.SetMaterial(effect.MatLight)
 				render.DrawSprite(centered, 96*parabolic, 12*parabolic, effect.color)
 			render.OverrideBlend(false)
 		end
 
-		-- Model
-		render.PushCustomClipPlane(dn, dn:Dot(vbound2))
-			render.PushCustomClipPlane(up, up:Dot(vbound))
-				render.MaterialOverride(effect.MatColor)
-					local mr,mg,mb = render.GetColorModulation()
-					local mod = Lerp(time-1,128,48)
+		if effect.visibleAtStart or modelIn == 0 then
+			-- Model
+			render.PushCustomClipPlane(dn, dn:Dot(vbound2))
+				render.PushCustomClipPlane(jcms.vectorUp, jcms.vectorUp:Dot(vbound))
+					render.MaterialOverride(effect.MatColor)
+						local mr,mg,mb = render.GetColorModulation()
+						local mod = Lerp(time-1,128,48)
 
-					local cr, cg, cb = effect.color:Unpack()
-					render.SetColorModulation(cr/mod, cg/mod, cb/mod)
-					self:DrawModel()
-					render.SetColorModulation(mr,mg,mb)
-				render.MaterialOverride()
+						local cr, cg, cb = effect.color:Unpack()
+						render.SetColorModulation(cr/mod, cg/mod, cb/mod)
+						self:DrawModel()
+						render.SetColorModulation(mr,mg,mb)
+					render.MaterialOverride()
+				render.PopCustomClipPlane()
 			render.PopCustomClipPlane()
-		render.PopCustomClipPlane()
+		end
 	end
 
-	-- Overlay
-	render.PushCustomClipPlane(dn, dn:Dot(vbound))
-		self:DrawModel()
-	render.PopCustomClipPlane()
+	if modelIn > 0 then 
+		-- Overlay
+		render.PushCustomClipPlane(dn, dn:Dot(vbound))
+			self:DrawModel()
+		render.PopCustomClipPlane()
+	end
 
 	render.EnableClipping(old)
 end

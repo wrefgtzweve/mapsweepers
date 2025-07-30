@@ -480,7 +480,7 @@
 				spawnBoss(jcms.NPC_DANGER_RAREBOSS)
 			end
 			
-			for i=1, 100 do
+			for i=1, 75 do
 				local shuffled = jcms.util_GetShuffledByWeight(validTypes)
 				
 				local spawned = false
@@ -785,9 +785,18 @@
 	-- }}}
 
 	-- Main Methods, Thinking {{{
+		jcms.director_propNames = { --TODO: There should be a way to fade these out with internal variables instead of disintegrating them.
+			["models/gibs/manhack_gib01.mdl"] = 7.5,
+			["models/gibs/manhack_gib02.mdl"] = 7.5,
+			["models/gibs/manhack_gib03.mdl"] = 7.5,
+			["models/gibs/manhack_gib04.mdl"] = 7.5,
+			["models/gibs/manhack_gib05.mdl"] = 7.5,
+			["models/gibs/manhack_gib06.mdl"] = 7.5
+		}
+
 		jcms.director_debrisClasses = {
-			["helicopter_chunk"] = true,
-			["gib"] = true,
+			["helicopter_chunk"] = 60,
+			["gib"] = 7.5,
 		}
 
 		jcms.director_debrisClasses_important = {
@@ -796,20 +805,30 @@
 		}	
 
 		function jcms.director_DebrisClear(d) --NOTE: This is primarily to reduce *render lag* rather than physics/anything like that. Most of this stuff is stationary.
+			local npcCount = #jcms.director.npcs
+			local reduce = math.max(npcCount - 60, 0) --Don't do anything until >60, then clear more aggressively with each npc after.
+
+			local impDelay = math.min(reduce, 90)
+			local impNearbyDist = math.max(600 - reduce * 5, 150)
+
 			for i, ent in ents.Iterator() do
 				local isWeapon = ent:IsWeapon()
 				local entClass = ent:GetClass()
 				local isImportant = jcms.director_debrisClasses_important[entClass]
-				if not (isWeapon or jcms.director_debrisClasses[entClass] or isImportant) then continue end --Only weapons
-				if IsValid(ent:GetOwner()) or ent:CreatedByMap() then continue end  --Don't kill map-entities or ones in an inventory
+				local isProp = entClass == "prop_physics"
 
-				local dissolveDelay = (isWeapon or isImportant) and 120 or 60
+				if not (isWeapon or jcms.director_debrisClasses[entClass] or isImportant or isProp) then continue end --Only our entities
+				if IsValid(ent:GetOwner()) or ent:CreatedByMap() then continue end  --Don't kill map-entities or ones in an inventory
+				local model = ent:GetModel() 
+				if isProp and not jcms.director_propNames[model] then continue end
+
+				local dissolveDelay = (isWeapon or isImportant) and (110 - impDelay) or jcms.director_debrisClasses[entClass] or jcms.director_propNames[model]
 
 				local entTbl = ent:GetTable() 
 				entTbl.jcms_weaponDieTime = entTbl.jcms_weaponDieTime or (CurTime() + dissolveDelay) --Set our timer if we don't have one
 
 				if entTbl.jcms_weaponDieTime < CurTime() or not ent:IsInWorld() then -- If our time's up, (or we're outside the map? Somehow?)
-					if (isWeapon or isImportant) and #jcms.GetSweepersInRange(ent:GetPos(), 600) > 0 then -- Give us more if a sweeper's nearby
+					if (isWeapon or isImportant) and #jcms.GetSweepersInRange(ent:GetPos(), impNearbyDist) > 0 then -- Give us more if a sweeper's nearby
 						entTbl.jcms_weaponDieTime = CurTime() + 20
 					else
 						ent:Dissolve() -- Clean us up

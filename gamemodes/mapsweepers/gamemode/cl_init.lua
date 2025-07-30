@@ -660,9 +660,15 @@ end)
 		end
 	end)
 
+	jcms.ragdollCount = 0
 	hook.Add( "CreateClientsideRagdoll", "jcms_ragdoll_fastclear", function(ent, ragdoll)
-		timer.Simple(50, function()
-			if not IsValid(ragdoll) or not ragdoll:GetClass() == "class C_ClientRagdoll" then return end
+		jcms.ragdollCount = jcms.ragdollCount + 1 --Tracking so we can clear faster if there are too many.
+
+		timer.Simple(50 - math.max(jcms.ragdollCount - 20, 0), function()
+			if not IsValid(ragdoll) or not ragdoll:GetClass() == "class C_ClientRagdoll" then
+				jcms.ragdollCount = jcms.ragdollCount - 1
+				return
+			end
 			
 			local ed = EffectData()
 			ed:SetColor(jcms.util_colorIntegerJCorp) --Would be nice to be faction-coloured, but client doesn't know what faction npcs are.
@@ -671,6 +677,7 @@ end)
 			util.Effect("jcms_spawneffect", ed)
 
 			timer.Simple(2, function()
+				jcms.ragdollCount = jcms.ragdollCount - 1
 				if not IsValid(ragdoll) then return end 
 
 				ragdoll:Remove()
