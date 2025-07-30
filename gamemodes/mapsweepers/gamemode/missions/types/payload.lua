@@ -39,7 +39,7 @@
 			end
 		end
 
-		if coroutine.running() then coroutine.yield() end
+		jcms.mapgen_Wait( 0.1 )
 
 		for attempt = 1, 20 do
 			local area = jcms.util_ChooseByWeight(midAreaWeights)
@@ -58,7 +58,7 @@
 				end
 			end
 
-			if coroutine.running() then coroutine.yield() end
+			jcms.mapgen_Wait( 0.1 + (attempt/20) * 0.8 )
 		end
 		
 		if not accepted then
@@ -125,7 +125,7 @@
 			missionData.track = track
 			missionData.trackLength = 0
 
-			if coroutine.running() then coroutine.yield() end
+			jcms.mapgen_Wait( 0.95 )
 			
 			for i,n in ipairs(track) do
 				missionData.trackLength = missionData.trackLength + n.distance
@@ -220,7 +220,7 @@
 			payload.MaxSpeed = missionData.trackLength / ((60 * 3.5) * jcms.runprogress_GetDifficulty()) -- 3.5 minutes to reach the end (difficulty scaled)
 			missionData.payload = payload
 
-			if coroutine.running() then coroutine.yield() end
+			jcms.mapgen_Wait( 1 )
 
 			jcms.mapgen_PlaceNaturals( jcms.mapgen_AdjustCountForMapSize(11) )
 			jcms.mapgen_PlaceEncounters()

@@ -214,6 +214,11 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		end
 	end
 
+	function jcms.mapgen_Wait( progress )
+		game.GetWorld():SetNWFloat( "jcms_mapgen_progress", progress )
+		if coroutine.running() then coroutine.yield() end
+	end
+
 -- // }}
 
 -- // Permanent data {{{
@@ -1320,7 +1325,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			area_vectors[area] = area:GetCenter()
 			area_raisedVectors[area] = area:GetCenter() + upVec
 		end
-		if coroutine.running() then coroutine.yield() end
+		jcms.mapgen_Wait( 0.05 )
 
 		for i=1, count, 1 do
 			local weightedAreas = {}
@@ -1350,8 +1355,8 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			local worked, pref = jcms.prefab_TryStamp(type, chosenArea) --We've already checked if our target area is valid, no need to check again
 			table.insert(prefabAreas, chosenArea) 
 			table.insert(prefabs, pref)
-			
-			if coroutine.running() then coroutine.yield() end
+
+			jcms.mapgen_Wait( 0.05 + (i/count)*0.95 )
 		end
 
 		return prefabs
