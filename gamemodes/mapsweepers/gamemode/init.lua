@@ -864,7 +864,7 @@ end
 
 			local eIndex = ply:EntIndex()
 			local pos
-			if #jcms.pathfinder.airNodes > 0 then --Airgraph is our best bet for reliability. I should make a better solution later.
+			if #jcms.pathfinder.airNodes >= player.GetCount() then --Airgraph is our best bet for reliability. I should make a better solution later.
 				local node = jcms.pathfinder.airNodes[eIndex]
 				pos = node.pos
 			else

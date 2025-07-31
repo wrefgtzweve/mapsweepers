@@ -112,11 +112,12 @@ jcms.npc_commanders["zombie"] = {
 	end,
 
 	think = function(c)
-		if jcms.director_GetMissionTime() < 7.5 then return end
+		local mTime = jcms.director_GetMissionTime()
+		if mTime < 7.5 then return end
 
 		local d = jcms.director
 		if d and #d.npcs < 40 then
-			d.swarmNext = d.swarmNext - 1 -- Speeding up hordes
+			d.swarmNext = (d.swarmNext or mTime) - 1 -- Speeding up hordes
 		end
 
 		local cTime = CurTime()

@@ -665,7 +665,7 @@ end)
 		jcms.ragdollCount = jcms.ragdollCount + 1 --Tracking so we can clear faster if there are too many.
 
 		timer.Simple(50 - math.max(jcms.ragdollCount - 20, 0), function()
-			if not IsValid(ragdoll) or not ragdoll:GetClass() == "class C_ClientRagdoll" then
+			if not IsValid(ragdoll) or not(ragdoll:GetClass() == "class C_ClientRagdoll") then
 				jcms.ragdollCount = jcms.ragdollCount - 1
 				return
 			end
