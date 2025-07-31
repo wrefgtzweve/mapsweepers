@@ -990,7 +990,7 @@
 					if state == NPC_STATE_COMBAT then
 						combat = combat + 1
 					elseif not npcTbl.jcms_ignoreStraggling then
-						if not npc:IsInWorld() then 
+						if not npc:IsInWorld() or npc:GetInternalVariable("startburrowed") then 
 							confirmedStraggler = true
 						end
 

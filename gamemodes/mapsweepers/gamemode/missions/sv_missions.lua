@@ -92,6 +92,7 @@
 		
 			local success, genRtn = pcall(jcms.mapgen_FromMission, data)
 			if success then
+				jcms.runprogress_SetLastMission()
 				jcms.director.fullyInited = true
 
 				-- // Mission-Specific Orders {{{
@@ -168,16 +169,16 @@
 	end
 
 	function jcms.mission_Randomize()
-		local newType = jcms.mission_GetRandomType( jcms.util_GetMissionType() )
+		local lastMis, lastFac = jcms.runprogress_GetLastMissionTypes()
+		local newType = jcms.mission_GetRandomType( lastMis )
 		local data = assert(jcms.missions[ newType ], "error randomizing mission type, picked an invalid one: '" .. tostring(newType) .. "'")
 		
 		game.GetWorld():SetNWString("jcms_missiontype", newType)
 		if data.faction == "any" then
-			local currentFaction = jcms.util_GetMissionFaction()
 			local otherFactions = {}
 			
 			for i, faction in ipairs(jcms.factions_GetOrder()) do
-				otherFactions[ faction ] = (currentFaction == currentEnemies) and 0.000001 or 1
+				otherFactions[ faction ] = (currentFaction == lastFac) and 0.000001 or 1
 			end
 
 			local newFaction = jcms.util_ChooseByWeight(otherFactions)

@@ -1258,7 +1258,7 @@ end)
 				jcms_debug_fileLog("Stats file doesn't exist. If this is your first time playing this is normal. Otherwise (and if your stats reset) go tell one of the devs.")
 				local statsFile = file.Open( statsFile, "rb", "DATA" )
 				jcms_debug_fileLog("file.Open returned: " .. tostring(statsFile) )
-				statsFile:Close()
+				if statsFile then statsFile:Close() end
 			end
 		end)
 

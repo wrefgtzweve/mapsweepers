@@ -182,7 +182,9 @@ end
 			game.ConsoleCommand("ai_serverragdolls 0\n")
 		end)
 
-		jcms.mission_Randomize()
+		timer.Simple(0, function() --Needed so that our runprogress can be loaded first
+			jcms.mission_Randomize()
+		end)
 
 		team.SetColor(0, Color(180, 180, 180))
 		team.SetColor(1, Color(255, 16, 16))
@@ -511,7 +513,10 @@ end
 		difficulty = 0.9,
 		winstreak = 0,
 		totalWins = 0,
-		playerStartingCash = {} -- key is Steam ID 64, value is starting cash. 
+		playerStartingCash = {}, -- key is Steam ID 64, value is starting cash. 
+
+		lastMission = "",
+		lastFaction = ""
 	}
 
 	function jcms.runprogress_CalculateDifficultyFromWinstreak(winstreak, totalWins)
@@ -582,6 +587,16 @@ end
 		rp.difficulty = jcms.runprogress_CalculateDifficultyFromWinstreak(rp.winstreak, rp.totalWins)
 		table.Empty(jcms.runprogress.playerStartingCash)
 		game.GetWorld():SetNWInt("jcms_winstreak", rp.winstreak)
+	end
+
+	function jcms.runprogress_GetLastMissionTypes()
+		return jcms.runprogress.lastMission, jcms.runprogress.lastFaction
+	end
+
+	function jcms.runprogress_SetLastMission()
+		local rp = jcms.runprogress
+		rp.lastMission = jcms.util_GetMissionFaction()
+		rp.lastFaction = jcms.util_GetMissionType()
 	end
 
 -- // }}}
