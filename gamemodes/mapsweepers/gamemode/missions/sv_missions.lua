@@ -203,7 +203,7 @@
 		for i, map in ipairs(jcms.cvar_map_list:GetString():Split(",")) do
 			local trimmed = map:Trim():lower()
 			if trimmed ~= "" then
-				mapDict[ trimmed ] = false
+				mapDict[ trimmed ] = true
 			end
 		end
 		
