@@ -791,7 +791,7 @@ jcms.npc_types.zombie_spawner = {
 			table.insert(positions, v:GetPos())
 		end
 
-		local validZones = jcms.director_GetAreasAwayFrom(jcms.mapdata.validAreas, positions, 1000, math.huge)
+		local validZones = jcms.director_GetAreasAwayFrom(jcms.mapdata.zoneList()[jcms.mapdata.largestZone], positions, 1000, math.huge)
 		if #validZones == 0 then return end
 		table.Shuffle(validZones)
 

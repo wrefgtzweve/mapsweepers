@@ -1254,6 +1254,8 @@ end)
 					jcms_debug_fileLog("Failed to read stats file. Stats reset.")
 					Error("[Map Sweepers] Failed to read stats file. Stats reset.")
 				end
+			else
+				jcms_debug_fileLog("Stats file doesn't exist. If this is your first time playing this is normal. Otherwise (and if your stats reset) go tell one of the devs.")
 			end
 		end)
 
