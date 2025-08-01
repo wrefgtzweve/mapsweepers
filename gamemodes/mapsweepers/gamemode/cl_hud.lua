@@ -316,7 +316,7 @@
 		local time = CurTime() * 0.56
 		
 		local pad = 100
-		local off, sv = 12 + 0.13 * math.sin(time), gui.ScreenToVector(left and pad*1.2 or ScrW()-pad*1.2, top and pad or ScrH()-pad)
+		local off, sv = 12 + 0.13 * math.sin(time), gui.ScreenToVector(left and pad*1.2 or jcms.scrW-pad*1.2, top and pad or jcms.scrH-pad)
 
 		swayVec:SetUnpacked(math.sin(time) * 0.1, math.cos(time) * 0.1, math.sin(time*2) * 0.04)
 		sv:Mul(32)
@@ -343,19 +343,19 @@
 		local offX, offY = 0, 0
 
 		if dir == "top" then 
-			sv = gui.ScreenToVector(ScrW()/2, pad)
+			sv = gui.ScreenToVector(jcms.scrW/2, pad)
 			offY = 24 + 1.13 * math.sin(time)
 		elseif dir == "bottom" then 
-			sv = gui.ScreenToVector(ScrW()/2, ScrH() - pad)
+			sv = gui.ScreenToVector(jcms.scrW/2, jcms.scrH - pad)
 			offY = -24 - 1.13 * math.sin(time)
 		elseif dir == "left" then 
-			sv = gui.ScreenToVector(pad*1.25, ScrH()/2)
+			sv = gui.ScreenToVector(pad*1.25, jcms.scrH/2)
 			offX = 24 + 1.13 * math.sin(time)
 		elseif dir == "right" then 
-			sv = gui.ScreenToVector(ScrW() - pad*1.25, ScrH()/2)
+			sv = gui.ScreenToVector(jcms.scrW - pad*1.25, jcms.scrH/2)
 			offX = -24 - 1.13 * math.sin(time)
 		elseif dir == "center" then
-			sv = gui.ScreenToVector(ScrW()/2, ScrH()/2)
+			sv = gui.ScreenToVector(jcms.scrW/2, jcms.scrH/2)
 		else
 			error("invalid direction") 
 		end
@@ -444,13 +444,13 @@
 				surface.SetAlphaMultiplier(anim*0.2)
 				render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
 					surface.SetDrawColor(0, 200*anim2, 255)
-					surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+					surface.DrawTexturedRect(0, 0, jcms.scrW, jcms.scrH)
 				render.OverrideBlend(false)
 
 				if shouldDrawVignette then
 					surface.SetAlphaMultiplier(1-anim2)
 					surface.SetDrawColor(jcms.color_dark)
-					surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+					surface.DrawTexturedRect(0, 0, jcms.scrW, jcms.scrH)
 				end
 
 				if jcms.hud_shieldRestoredAnim >= 1 then
@@ -458,7 +458,7 @@
 				end
 			elseif shouldDrawVignette then
 				surface.SetDrawColor(jcms.color_dark)
-				surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+				surface.DrawTexturedRect(0, 0, jcms.scrW, jcms.scrH)
 			end
 		cam.End2D()
 	end
@@ -1308,46 +1308,37 @@
 	end
 
 	function jcms.hud_GetLocatorColor(loc)
-		local clr = jcms.color_bright
-		local remaining = 0
-
-		if loc.tout then
-			remaining = math.max(math.ceil(loc.tout - loc.t), 0)
-		end
-
-		if (loc.type == jcms.LOCATOR_WARNING) or (loc.type == jcms.LOCATOR_TIMED and remaining < 10) then
-			clr = jcms.color_alert
+		--is a warning, or timed and remaining time < 10s
+		if (loc.type == jcms.LOCATOR_WARNING) or (loc.type == jcms.LOCATOR_TIMED and math.max(math.ceil(loc.tout - loc.t), 0) < 10) then
+			return jcms.color_alert
 		elseif loc.type == jcms.LOCATOR_SIGNAL then
-			clr = jcms.color_bright_alt
+			return jcms.color_bright_alt
 		end
 
-		return clr
+		return jcms.color_bright
 	end
 	
-	local jcms_dl_vOff = Vector(1.5,1.5,0)
+	local jcms_dl_mOff = Matrix()
+	jcms_dl_mOff:Translate(Vector(1.5, 1.5, 0))
+	local jcms_dl_m = Matrix()
+	local jcms_dl_transformVec = Vector(0,0,0) --Re-usable vector object since we need them for arbitrary transformations
+
+	local arrow = {
+		{ x = 0, y = 0 },
+		{ x = -3, y = -6 },
+		{ x = 8, y = 0 },
+		{ x = -3, y = 6 }
+	}
+
 	function jcms.draw_Locators() --todo: this is 1/3 of the (lua) perf cost of regular hud supposedly
-		local sw, sh = ScrW(), ScrH()
+		local sw, sh = jcms.scrW, jcms.scrH
 		local pad = 64
 		local eyePos = EyePos()
-
-		local arrow = {
-			{ x = 0, y = 0 },
-			{ x = -3, y = -6 },
-			{ x = 8, y = 0 },
-			{ x = -3, y = 6 }
-		}
-		
-		local matrix = Matrix()
-
-		local offMatrix = Matrix()
-		offMatrix:Translate(jcms_dl_vOff)
 		
 		for i, loc in ipairs(jcms.hud_locators) do
 			local pos = loc.at
-
-			if isvector(loc.at) then
-				pos = loc.at
-			elseif isentity(loc.at) then
+			
+			if isentity(loc.at) then
 				if IsValid(loc.at) then
 					pos = loc.at:WorldSpaceCenter()
 				else
@@ -1359,7 +1350,7 @@
 						loc.tout = 10
 					end
 				end
-			else
+			elseif not isvector(loc.at) then
 				loc.t = 999
 				loc.tout = 0
 				loc.a = 0
@@ -1378,20 +1369,24 @@
 
 			local spos = pos:ToScreen()
 			local x, y = spos.x, spos.y
-			--local sw, sh = ScrW(), ScrH()
 			
 			if x > pad and y > pad and x < sw-pad and y < sh-pad then
 				local dist = eyePos:Distance(pos)
 				local distStr = jcms.util_ToDistance(dist, true)
 				local distToScreenCenter = math.Distance(sw/2, sh/2, x, y)
 				local dsc = math.max(math.min(1, (150 - distToScreenCenter)/100), (3000/(dist*(loc.type == jcms.LOCATOR_GENERIC and 1 or 0.1)+3000)))
-				matrix:Identity()
-				matrix:Translate(Vector(x, y, 0))
+				
+				jcms_dl_m:Identity()
+				jcms_dl_transformVec:SetUnpacked(x, y, 0)
+				jcms_dl_m:Translate(jcms_dl_transformVec)
 				x, y = 0, 0
-				matrix:Scale(Vector(dsc, dsc, dsc))
+
+				jcms_dl_transformVec:SetUnpacked(dsc,dsc,dsc)
+				jcms_dl_m:Scale(jcms_dl_transformVec)
+
 				local size = Lerp(math.ease.OutBack(loc.a), 14, 24)
 
-				cam.PushModelMatrix(matrix, true)
+				cam.PushModelMatrix(jcms_dl_m, true)
 					local remaining = 0
 					if loc.tout then
 						remaining = math.max(math.ceil(loc.tout - loc.t), 0)
@@ -1408,18 +1403,8 @@
 
 					local landmarkDistanceAlphaMul = loc.icon and math.Clamp( (dist - 512)/128, 0, 1 ) or 1
 					surface.SetAlphaMultiplier( landmarkDistanceAlphaMul * (loc.directlyVisible and 1 or 0.35) * math.Clamp(distToCenter*3, 0.25, 1) )
-
-					surface.SetDrawColor(jcms.color_dark)
-					jcms.draw_Circle(x, y, size, size, 4, 4) --todo: Expensive to construct these, make an optimised/rendertarget version.
-
+					
 					local clr = jcms.hud_GetLocatorColor(loc)
-
-					cam.PushModelMatrix(offMatrix, true)
-						render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-							surface.SetDrawColor(clr)
-							jcms.draw_Circle(x, y, size, size, 4, 4)
-						render.OverrideBlend(false)
-					cam.PopModelMatrix()
 
 					if loc.type == jcms.LOCATOR_TIMED then
 						draw.SimpleTextOutlined(distStr, "jcms_small", x, y + 12, clr, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, jcms.color_dark)
@@ -1443,13 +1428,15 @@
 				local cos, sin = math.cos(dir), math.sin(dir)
 				draw.NoTexture()
 				
-				matrix:Identity()
+				jcms_dl_m:Identity()
 				local xScrOff, yScrOff = sw*Lerp(frac, 0.35, 0.3), sh*Lerp(frac, 0.35, 0.3)
-				matrix:Translate(Vector(sw/2 + cos*xScrOff, sh/2 + sin*yScrOff, 0))
-				matrix:Rotate(Angle(0, math.deg(dir), 0))
+				jcms_dl_transformVec:SetUnpacked(sw/2 + cos*xScrOff, sh/2 + sin*yScrOff, 0)
+				jcms_dl_m:Translate(jcms_dl_transformVec)
+				jcms_dl_m:Rotate(Angle(0, math.deg(dir), 0))
 				if loc.new then
 					local bop = frac*2 + 1
-					matrix:Scale(Vector(bop,bop,1))
+					jcms_dl_transformVec:SetUnpacked(bop, bop, 1)
+					jcms_dl_m:Scale(jcms_dl_transformVec)
 				end
 				
 				local clr = loc.new and jcms.color_bright_alt or jcms.color_bright
@@ -1465,17 +1452,17 @@
 				local yAlign = sin < -0.33 and TEXT_ALIGN_TOP or sin < 0.33 and TEXT_ALIGN_CENTER or TEXT_ALIGN_BOTTOM
 
 				surface.SetDrawColor(clr_dark)
-				cam.PushModelMatrix(matrix, true)
+				cam.PushModelMatrix(jcms_dl_m, true)
 					surface.DrawPoly(arrow)
 				cam.PopModelMatrix()
 				local xScr, yScr = sw/2+cos*(xScrOff-12), sh/2+sin*(yScrOff-12)
 				draw.SimpleText(loc.name, "jcms_small", xScr, yScr, clr_dark, xAlign, yAlign)
 
-				cam.PushModelMatrix(offMatrix, true)
+				cam.PushModelMatrix(jcms_dl_mOff, true)
 				render.OverrideBlend(true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
 
 					surface.SetDrawColor(clr)
-					cam.PushModelMatrix(matrix, true)
+					cam.PushModelMatrix(jcms_dl_m, true)
 						surface.DrawPoly(arrow)
 					cam.PopModelMatrix()
 
@@ -1483,7 +1470,6 @@
 
 				render.OverrideBlend(false)
 				cam.PopModelMatrix()
-
 			end
 		end
 
@@ -1822,7 +1808,7 @@
 					local f = math.ease.InOutCubic(math.Clamp((jcms.vm_evacd-3.5)/1.5, 0, 1))
 					cam.Start2D()
 						surface.SetDrawColor(0, 0, 0, 255*f)
-						surface.DrawRect(-2,-2,ScrW()+4,ScrH()+4)
+						surface.DrawRect(-2,-2,jcms.scrW+4,jcms.scrH+4)
 					cam.End2D()
 				end
 			end
@@ -2382,7 +2368,7 @@
 			local f = math.ease.InOutCubic(math.Clamp((jcms.hud_dead-0.6)/3, 0, 1))
 			cam.Start2D()
 				surface.SetDrawColor(0, 0, 0, 255*f)
-				surface.DrawRect(-2,-2,ScrW()+4,ScrH()+4)
+				surface.DrawRect(-2,-2,jcms.scrW+4,jcms.scrH+4)
 			cam.End2D()
 		end
 		
@@ -2490,7 +2476,7 @@
 				surface.SetMaterial(jcms.hud_myclassMat)
 				surface.DrawTexturedRectRotated(-24 - nickwidth/2, -256+64-off, 96, 96, 0)
 				
-				local sw = ScrW()
+				local sw = jcms.scrW
 				local healthWidth = math.min( sw, tg:GetMaxHealth() * 4 )
 				local armorWidth = math.min( sw, tg:GetMaxArmor() * 4 )
 
@@ -2591,7 +2577,7 @@
 		local f2 = math.ease.InOutCubic(jcms.hud_dead)
 		cam.Start2D()
 			surface.SetDrawColor(0, 0, 0, 255*f2)
-			surface.DrawRect(-2,-2,ScrW()+4,ScrH()+4)
+			surface.DrawRect(-2,-2,jcms.scrW+4,jcms.scrH+4)
 		cam.End2D()
 	end
 
@@ -2602,11 +2588,11 @@
 			cam.Start2D()
 				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
 					surface.SetDrawColor(255, 255*f, 255*f, 255*f)
-					surface.DrawRect(-2,-2,ScrW()+4,ScrH()+4)
+					surface.DrawRect(-2,-2,jcms.scrW+4,jcms.scrH+4)
 				render.OverrideBlend( false )
 
 				surface.SetDrawColor(0, 0, 0, 255*f2)
-				surface.DrawRect(-2,-2,ScrW()+4,ScrH()+4)
+				surface.DrawRect(-2,-2,jcms.scrW+4,jcms.scrH+4)
 			cam.End2D()
 		end
 	end
@@ -2662,12 +2648,12 @@
 						local f = 1-math.Clamp(t-0.3, 0, 1)
 						surface.SetDrawColor(255*f, 255*f*f*f, 255*f*f*f, 255*f*f)
 					end
-					surface.DrawRect(-4, -4, ScrW() + 8, ScrH() + 8)
+					surface.DrawRect(-4, -4, jcms.scrW + 8, jcms.scrH + 8)
 					
 					local clr = math.Remap(t, 0.3, 3.5, 255, 0)
 					surface.SetMaterial(jcms.mat_tpeye)
 					surface.SetDrawColor(clr, 0, clr, clr)
-					surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+					surface.DrawTexturedRect(0, 0, jcms.scrW, jcms.scrH)
 				cam.End2D()
 				
 				render.ClearDepth()
@@ -2728,7 +2714,7 @@
 					else
 						surface.SetDrawColor(0, 0, 0, 255 * math.max(0, 1-(t-4.3)/5 ))
 					end
-					surface.DrawRect(-4, -4, ScrW() + 8, ScrH() + 8)
+					surface.DrawRect(-4, -4, jcms.scrW + 8, jcms.scrH + 8)
 				cam.End2D()
 				
 				render.ClearDepth()

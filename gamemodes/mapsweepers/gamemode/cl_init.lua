@@ -315,6 +315,9 @@ end)
 	-- // Defaults {{{
 		jcms.EyePos_lowAccuracy = EyePos()
 		jcms.EyeFwd_lowAccuracy = EyeAngles():Forward() 
+		jcms.scrW = ScrW()
+		jcms.scrH = ScrH()
+
 		jcms.cachedValues.playerClass = "infantry"
 
 		jcms.cachedValues.crosshair_gap = jcms.cvar_crosshair_gap:GetInt()
@@ -338,7 +341,7 @@ end)
 
 		jcms.cachedValues.playerClass = locPly:GetNWString("jcms_class", "infantry")
 		jcms.EyePos_lowAccuracy = EyePos() --This doesn't work for things like the 3D2D HUD elements, but is suitable for LOD systems.
-		jcms.EyeFwd_lowAccuracy = EyeAngles():Forward() 
+		jcms.EyeFwd_lowAccuracy = EyeAngles():Forward() --TODO: Not actually helpful, should be removed eventually (is used in one niche context/needs to be undone there)
 	end)
 	
 	hook.Add("Think", "jcms_cachevalues_slow", function() --Stuff that doesn't change often/that we don't need accuracy for.
@@ -357,6 +360,9 @@ end)
 
 		jcms.cachedValues.motionSickness = jcms.cvar_motionsickness:GetBool()
 		jcms.cachedValues.hudScale = jcms.cvar_hud_scale:GetFloat()
+
+		jcms.scrW = ScrW()
+		jcms.scrH = ScrH()
 
 		jcms.nextCacheValues = CurTime() + 0.25
 	end)
