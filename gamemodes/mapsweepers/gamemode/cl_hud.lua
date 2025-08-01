@@ -2790,7 +2790,10 @@
 -- // Ending sequence {{{
 
 	function jcms.hud_EndingSequence(victory)
-		
+		if CustomChat then --Integration, stops drawing over the lobby.
+			CustomChat:Disable()
+		end
+
 		jcms.offgame_ShowPostMission(victory)
 		table.Empty(jcms.hud_locators)
 		
