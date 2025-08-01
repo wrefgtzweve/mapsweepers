@@ -826,6 +826,10 @@ if CLIENT then
 				end
 				
 				jcms.hud_BeginningSequence()
+
+				if CustomChat then 
+					CustomChat:Enable()
+				end
 			else
 				local isBonuses = net.ReadBool()
 				if isBonuses then

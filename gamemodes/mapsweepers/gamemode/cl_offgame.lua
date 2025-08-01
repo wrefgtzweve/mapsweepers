@@ -222,6 +222,10 @@ jcms.offgame = jcms.offgame or NULL
 
 	-- Lobby {{{
 		function jcms.offgame_ShowPreMission()
+			if CustomChat then --Integration, stops drawing over the lobby.
+				CustomChat:Disable()
+			end
+
 			local pnl = makeBasePanel(jcms.offgame_paint_LobbyFrame)
 
 			-- Primary {{{
