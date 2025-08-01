@@ -1040,7 +1040,7 @@ if CLIENT then
 
 		local dist = jcms.EyePos_lowAccuracy:DistToSqr(self:WorldSpaceCenter())
 		if dist < 1000^2 then 
-			self:DrawAmmoCounter()
+			self:DrawAmmoCounter(dist)
 		end
 	end
 	
@@ -1056,40 +1056,45 @@ if CLIENT then
 		end
 	end
 	
-	function ENT:DrawAmmoCounter() --TODO: see if there's any way to further optimise this.
+	function ENT:DrawAmmoCounter( eyeDistSqr )
 		local pos = self:GetPos()
 		local ang = self:GetAngles()
 		local selfTbl = self:GetTable()
 		
 		local up = ang:Up()
-		pos = pos + ang:Forward()*-21 + up*2 + ang:Right()*0.4
+		local fw = ang:Forward()
+		fw:Mul(-21)
+		local right = ang:Right()
+		right:Mul(0.4)
+		pos:Add(fw)
+		pos:Add(up*2)
+		pos:Add(right)
 
 		ang:RotateAroundAxis(up, -90)
 		ang:RotateAroundAxis(ang:Forward(), 90)
 		
 		cam.Start3D2D(pos, ang, 1/32)
-			local f = 1 - selfTbl:GetTurretClip() / selfTbl:GetTurretMaxClip()
+			local clip, maxClip = selfTbl:GetTurretClip(), selfTbl:GetTurretMaxClip()
+			local f = 1 - clip / maxClip
 			local x, y, w, h, p = -276, 0, 530, 170, 16
 			
+			local r, g, b = 255, 0, 0
+			if selfTbl:GetHackedByRebels() then 
+				r, g, b = 162, 81, 255
+			end
 			if f >= 0.5 then
 				local blip = math.ease.InCirc( (math.sin(CurTime()*24) + 1)/2 )
-				local r, g, b = 255, 0, 0
-				if selfTbl:GetHackedByRebels() then 
-					r, g, b = 162, 81, 255
-				end
 				surface.SetDrawColor(Lerp(blip, r*0.12, r), Lerp(blip, g*0.12, g), Lerp(blip, b*0.12, b))
 			else
-				local r, g, b = 255, 0, 0
-				if selfTbl:GetHackedByRebels() then 
-					r, g, b = 162, 81, 255
-				end
 				surface.SetDrawColor(r, g, b)
 			end
 			
-			surface.DrawOutlinedRect(x,y,w,h, p/3)
 			local ch = w - p*2
 			surface.DrawRect(x+p,y+p,w-p*2-ch*f,h-p*2)
-			draw.SimpleTextOutlined(("%d / %d"):format(selfTbl:GetTurretClip(), selfTbl:GetTurretMaxClip()), "jcms_hud_big", x + w/2, y + h/2, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, surface.GetDrawColor())
+			if jcms.performanceEstimate > 40 or eyeDistSqr < 600^2 then --If lagging, LOD the text & outline more aggressively.
+				surface.DrawOutlinedRect(x,y,w,h, p/3)
+				draw.SimpleTextOutlined(("%d / %d"):format(clip, maxClip), "jcms_hud_big", x + w/2, y + h/2, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, surface.GetDrawColor())
+			end
 		cam.End3D2D()
 	end
 end
