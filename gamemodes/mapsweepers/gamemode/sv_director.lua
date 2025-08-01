@@ -785,13 +785,26 @@
 	-- }}}
 
 	-- Main Methods, Thinking {{{
-		jcms.director_propNames = { --TODO: There should be a way to fade these out with internal variables instead of disintegrating them.
+		jcms.director_debrisPropNames = { --TODO: There should be a way to fade these out with internal variables instead of disintegrating them.
 			["models/gibs/manhack_gib01.mdl"] = 7.5,
 			["models/gibs/manhack_gib02.mdl"] = 7.5,
 			["models/gibs/manhack_gib03.mdl"] = 7.5,
 			["models/gibs/manhack_gib04.mdl"] = 7.5,
 			["models/gibs/manhack_gib05.mdl"] = 7.5,
-			["models/gibs/manhack_gib06.mdl"] = 7.5
+			["models/gibs/manhack_gib06.mdl"] = 7.5,
+
+			["models/gibs/antlion_gib_large_1.mdl"] = 7.5,
+			["models/gibs/antlion_gib_large_2.mdl"] = 7.5,
+			["models/gibs/antlion_gib_large_3.mdl"] = 7.5,
+			["models/gibs/antlion_gib_medium_1.mdl"] = 7.5,
+			["models/gibs/antlion_gib_medium_2.mdl"] = 7.5,
+			["models/gibs/antlion_gib_medium_3.mdl"] = 7.5,
+			["models/gibs/antlion_gib_medium_3a.mdl"] = 7.5,
+			["models/gibs/antlion_gib_small_1.mdl"] = 7.5,
+			["models/gibs/antlion_gib_small_2.mdl"] = 7.5,
+			["models/gibs/antlion_gib_small_3.mdl"] = 7.5,
+
+			["models/gibs/antlion_worker_gibs_head.mdl"] = 7.5, --The rest of the worker gibs are ragdolls.
 		}
 
 		jcms.director_debrisClasses = {
@@ -802,7 +815,12 @@
 		jcms.director_debrisClasses_important = {
 			["item_ammo_ar2_altfire"] = true,
 			["item_battery"] = true, --Leaving health-kits alone because they're more important. Suit batteries basically only matter to sentinel
-		}	
+		}
+		
+		jcms.director_debrisFadeClasses = { --classes to fade with instead of dissolving.
+			["prop_physics"] = true,
+			["gib"] = true
+		}
 
 		function jcms.director_DebrisClear(d) --NOTE: This is primarily to reduce *render lag* rather than physics/anything like that. Most of this stuff is stationary.
 			local npcCount = #jcms.director.npcs
@@ -820,9 +838,9 @@
 				if not (isWeapon or jcms.director_debrisClasses[entClass] or isImportant or isProp) then continue end --Only our entities
 				if IsValid(ent:GetOwner()) or ent:CreatedByMap() then continue end  --Don't kill map-entities or ones in an inventory
 				local model = ent:GetModel() 
-				if isProp and not jcms.director_propNames[model] then continue end
+				if isProp and not jcms.director_debrisPropNames[model] then continue end
 
-				local dissolveDelay = (isWeapon or isImportant) and (110 - impDelay) or jcms.director_debrisClasses[entClass] or jcms.director_propNames[model]
+				local dissolveDelay = (isWeapon or isImportant) and (110 - impDelay) or jcms.director_debrisClasses[entClass] or jcms.director_debrisPropNames[model]
 
 				local entTbl = ent:GetTable() 
 				entTbl.jcms_weaponDieTime = entTbl.jcms_weaponDieTime or (CurTime() + dissolveDelay) --Set our timer if we don't have one
@@ -831,7 +849,19 @@
 					if (isWeapon or isImportant) and #jcms.GetSweepersInRange(ent:GetPos(), impNearbyDist) > 0 then -- Give us more if a sweeper's nearby
 						entTbl.jcms_weaponDieTime = CurTime() + 20
 					else
-						ent:Dissolve() -- Clean us up
+						if jcms.director_debrisFadeClasses[entClass] then 
+							if not(ent:GetRenderFX() == kRenderFxFadeSlow) then
+								ent:SetRenderMode(RENDERMODE_TRANSCOLOR)
+								ent:SetRenderFX(kRenderFxFadeSlow)
+								timer.Simple(2.5, function() 
+									if IsValid(ent) then
+										ent:Remove()
+									end
+								end)
+							end
+						else
+							ent:Dissolve() -- Clean us up
+						end
 					end
 				end
 			end

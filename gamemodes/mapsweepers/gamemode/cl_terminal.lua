@@ -1193,6 +1193,7 @@ jcms.terminal_modeTypes = {
 	circuit = function(ent, mx, my, w, h, modedata)
 		local color_bg, color_fg, color_accent = jcms.terminal_GetColors(ent)
 		local split = string.Split(modedata, " ")
+		if not(#split >= 3) then return end --Prevent errors if our modedata hasn't networked
 		
 		local selected = tonumber(split[4])
 		local seed = ent:EntIndex() .. split[1]
