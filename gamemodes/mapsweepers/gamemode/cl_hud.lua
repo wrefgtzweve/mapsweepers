@@ -511,6 +511,7 @@
 		if me:Alive() then
 			surface.SetAlphaMultiplier(1)
 
+			local bubbleshields = me:GetNWInt("jcms_shield", 0)
 			local healthWidth = ( me:GetMaxHealth() * 4 )
 			local armorWidth = ( me:GetMaxArmor() * 4 )
 			local addX = 64
@@ -619,6 +620,18 @@
 					surface.DrawRect(128 + addX + offsetArmor + fromX*armorWidth, -48 - 12 - offsetArmor, widthFrac*armorWidth, 16)
 				end
 			render.OverrideBlend( false )
+
+			if bubbleshields > 0 then
+				for i=1, bubbleshields do
+					draw.SimpleText("⛊", "jcms_hud_medium", 124 + addX + armorWidth - 34*(i-1), -48 - 12, jcms.color_dark_alt, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+				end
+
+				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+					for i=1, bubbleshields do
+						draw.SimpleText("⛊", "jcms_hud_medium", 124 + addX + offsetArmor + armorWidth - 34*(i-1), -48 - 12 - offsetArmor, jcms.color_bright_alt, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+					end
+				render.OverrideBlend( false )
+			end
 		else
 			local offset = 6
 			draw.SimpleText("#jcms.userdead", "jcms_hud_big", 24, -38, jcms.color_dark, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
@@ -2917,7 +2930,9 @@
 
 	function jcms.hud_DispatchDamage(dmgType, negated)
 		local ct = CurTime()
-		jcms.hud_damageTimeLast = ct
+		if not negated then
+			jcms.hud_damageTimeLast = ct
+		end
 
 		for i, indicator in ipairs(jcms.hud_damageIndicators) do
 			if bit.band(dmgType, indicator.dmgType) > 0 then

@@ -45,6 +45,8 @@ class.matOverrides = {
 	["models/cstrike/ct_sas_glass"] = "jcms/jglow"
 }
 
+jcms.class_useNewSentinel = false
+
 if SERVER then
 	function class.OnSpawn(ply, data)
 		local filt = RecipientFilter()
@@ -80,7 +82,9 @@ if SERVER then
 					rtnDmgInfo:SetDamage(rtnDmg)
 					rtnDmgInfo:SetDamagePosition(attkPos)
 
+					ply.jcms_sentinelReturningDamage = true
 					attacker:TakeDamageInfo(rtnDmgInfo)
+					ply.jcms_sentinelReturningDamage = nil
 
 					local effectdata = EffectData()
 					effectdata:SetStart(attkPos)
@@ -244,16 +248,34 @@ if SERVER then
 		end
 	end
 
-	function class.OnKill(ply, npc, inflictor) --Shield charge on kill.
-		local charge = math.ceil((npc.jcms_bounty or 1) / 30) --We receive some shield even if our target has no bounty.
+	function class.OnKill(ply, npc, inflictor)
+		if jcms.class_useNewSentinel then
+			-- Experimental sentinel
+			if ply.jcms_sentinelReturningDamage then
+				return -- Don't get a shield from thorn kills
+			end
+
+			local shieldCount = ply:GetNWInt("jcms_shield", 0)
+			local shieldCountCap = 3
+			local final = shieldCount == shieldCountCap - 1
+			ply:SetNWInt("jcms_shield", math.min(shieldCount + 1, shieldCountCap))
+
+			if shieldCount < shieldCountCap then
+				local sfx = final and ("ambient/energy/newspark0"..math.random(10, 11)..".wav") or ("ambient/energy/newspark0"..math.random(8, 9)..".wav")
+				ply:EmitSound("ambient/energy/newspark09.wav", 75, math.Remap(shieldCount, 0, shieldCountCap-1, 104, 119), 1)
+			end
+		else
+			--Shield charge on kill.
+			local charge = math.ceil((npc.jcms_bounty or 1) / 30) --We receive some shield even if our target has no bounty.
 		
-		if charge > 0 then
-			local oldArmor = ply:Armor()
-			local newArmor = math.min( oldArmor + charge, ply:GetMaxArmor() )
-			
-			if newArmor ~= oldArmor then
-				ply:SetArmor( newArmor )
-				ply:EmitSound("items/battery_pickup.wav", 50, 110 + charge * 5 + math.random()*5, 0.75)
+			if charge > 0 then
+				local oldArmor = ply:Armor()
+				local newArmor = math.min( oldArmor + charge, ply:GetMaxArmor() )
+				
+				if newArmor ~= oldArmor then
+					ply:SetArmor( newArmor )
+					ply:EmitSound("items/battery_pickup.wav", 50, 110 + charge * 5 + math.random()*5, 0.75)
+				end
 			end
 		end
 	end

@@ -230,10 +230,13 @@ end
 		end
 
 		local shield = ent:GetNWInt("jcms_shield", 0)
-		if shield > 0 and bit.band(dmgType, DMG_CRUSH) == 0 then 
+		if shield > 0 and bit.band(dmgType, bit.bor(DMG_CRUSH, DMG_FALL)) == 0 and dmg:GetDamage() > 0 then 
 			ent:SetNWInt("jcms_shield", math.max(shield - 1, 0))
 			dmg:SetDamage(0)
 			return 0
+		elseif ent:IsPlayer() then
+			ent.jcms_lastDamaged = CurTime()
+			jcms.net_SendDamage(ent, dmginfo)
 		end
 
 		local swpShield = ent:GetNWInt("jcms_sweeperShield", 0)
@@ -716,14 +719,8 @@ end
 
 	hook.Add("PostEntityTakeDamage", "jcms_DamageTracker", function(ent, dmg, took)
 		if not took then return end
-		ent.jcms_lastDamaged = CurTime()
-
-		if ent:IsPlayer() then
-			local data = jcms.class_GetData(ent)
-
-			if data and data.PostTakeDamage then
-				data.PostTakeDamage(ent, dmg, took, data)
-			end
+		if not ent:IsPlayer() then
+			ent.jcms_lastDamaged = CurTime()
 		end
 	end)
 	
@@ -1166,9 +1163,6 @@ end
 
 	function GM:HandlePlayerArmorReduction(ply, dmginfo)
 		local dmgType = dmginfo:GetDamageType()
-
-		ply.jcms_lastDamaged = CurTime()
-		jcms.net_SendDamage(ply, dmginfo)
 		
 		if (ply:Armor() <= 0) or bit.band(dmgType, bit.bor(DMG_FALL, DMG_DROWN)) > 0 then 
 			return 
