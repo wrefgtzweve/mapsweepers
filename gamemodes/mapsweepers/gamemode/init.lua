@@ -1277,7 +1277,7 @@ end
 								ply:SetNWInt("jcms_desiredteam", 1)
 								jcms.playerspawn_RespawnAs(ply, "spectator")
 								ply.jcms_lastDeathTime = CurTime()
-							elseif state == "evacuated" or (d.missionData and d.missionData.evacuating) then
+							elseif state == "evacuated" then
 								-- We've evacuated before. Now we're just spectating with the option to be an NPC.
 								ply:SetNWInt("jcms_desiredteam", 1)
 								ply:SetNWBool("jcms_evacuated", true)
@@ -1292,7 +1292,17 @@ end
 								ply.jcms_isNPC = true
 							else
 								-- We have never joined this game yet.
-								jcms.playerspawn_Menu(ply)
+								if table.Count(d.evacuated) > 0 then
+									-- Someone evacuated, we'll be considered evacuated as well
+									ply:SetNWInt("jcms_desiredteam", 1)
+									ply:SetNWBool("jcms_evacuated", true)
+									jcms.playerspawn_RespawnAs(ply, "spectator")
+									jcms.director_stats_SetLockedState(d, ply, "evacuated")
+									d.evacuated[ply] = true
+								else
+									-- Take us to the lobby
+									jcms.playerspawn_Menu(ply)
+								end
 							end
 						end
 					else

@@ -219,8 +219,11 @@ if CLIENT then
 			end
 		else
 			if self:IsBeamActive() then
-				if not self.hasPlayedMusic and jcms.shouldPlayMusic() then 
-					jcms.playRandomCombatSong()
+				if not self.hasPlayedMusic then
+					if jcms.shouldPlayMusic() and player.GetCount() > 1 then 
+						jcms.playRandomCombatSong()
+					end
+					
 					self.hasPlayedMusic = true 
 				end
 
