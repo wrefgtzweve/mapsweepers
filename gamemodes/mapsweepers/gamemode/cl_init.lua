@@ -606,7 +606,7 @@ end)
 			if not IsValid(ply) or ply:IsDormant() or ply:GetNoDraw() or not(ply:GetObserverMode() == OBS_MODE_NONE) then continue end
 
 			local ffKills = ply:GetNWInt("jcms_friendlyfire_counter", 0)
-			if ffKills < 5 then continue end
+			if ffKills < 4 then continue end
 
 
 			local pos = ply:GetPos()

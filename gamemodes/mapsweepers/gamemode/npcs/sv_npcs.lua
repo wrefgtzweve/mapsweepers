@@ -186,9 +186,10 @@ jcms.npcSquadSize = 4 -- Let's see if smaller squads fix their strange behavior.
 			local plyCount = jcms.director and jcms.director.livingPlayers or 1
 
 			--Add 50% of the boss's base HP to its pool for each player over 1.
-			local mult = 0.5 * math.Max(plyCount-1, 0)
-			npc:SetMaxHealth(npcMHP * (1 + mult) * jcms.runprogress_GetDifficulty())
-			npc:SetHealth(npcHP * (1 + mult) * jcms.runprogress_GetDifficulty())
+			local mult = 0.55 * math.Max(plyCount-1, 0)
+			local scalar = ((1 + mult) * jcms.runprogress_GetDifficulty()) ^ (3/4) --Starts to taper off if it gets too ridiculously high.
+			npc:SetMaxHealth(npcMHP * scalar)
+			npc:SetHealth(npcHP * scalar)
 
 			npcTbl.jcms_bounty = npcTbl.jcms_bounty * (1 + mult/2) --25% increase in bounty per player to keep the economy vaguely similar.
 		end

@@ -295,6 +295,10 @@ end
 					if data.OnDealDamage then
 						data.OnDealDamage(attacker, ent, dmg, data)
 					end
+					
+					if not data.jcorp then
+						dmg:ScaleDamage(jcms.npc_GetScaledDamage(jcms.director and jcms.director.livingPlayers))
+					end
 				end
 			else
 				dmg:ScaleDamage(attacker.jcms_dmgMult or 1)
@@ -583,6 +587,13 @@ end
 
 	function jcms.runprogress_Reset()
 		local rp = jcms.runprogress
+
+		if not rp.highScore or rp.highScore.winstreak < rp.winstreak then
+			--Save the highest winstreak the server's had, including all runprogress data (players / winstreak / etc)
+			rp.highScore = nil
+			rp.highScore = table.Copy(rp)
+		end
+
 		rp.winstreak = 0
 		rp.difficulty = jcms.runprogress_CalculateDifficultyFromWinstreak(rp.winstreak, rp.totalWins)
 		table.Empty(jcms.runprogress.playerStartingCash)
@@ -656,7 +667,7 @@ end
 
 	--TODO: Shared/use the NW int instead.
 	function jcms.playerData_IsPlayerLiability(ply_or_sid64)
-		return jcms.playerData_GetFriendlyKills(ply_or_sid64) > 5
+		return jcms.playerData_GetFriendlyKills(ply_or_sid64) > 4
 	end
 -- // }}}
 
@@ -876,10 +887,9 @@ end
 
 	hook.Add("PlayerPostThink", "jcms_PlayerMenuThink", function(ply)
 		if (ply:GetObserverMode() == OBS_MODE_FIXED or ply:GetObserverMode() == OBS_MODE_CHASE) then
-
 			local eIndex = ply:EntIndex()
 			local pos
-			if #jcms.pathfinder.airNodes >= player.GetCount() then --Airgraph is our best bet for reliability. I should make a better solution later.
+			if #jcms.pathfinder.airNodes > player.GetCount() then --Airgraph is our best bet for reliability. I should make a better solution later.
 				local node = jcms.pathfinder.airNodes[eIndex]
 				pos = node.pos
 			else

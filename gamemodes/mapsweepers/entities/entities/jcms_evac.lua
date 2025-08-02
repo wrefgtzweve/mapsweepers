@@ -48,12 +48,15 @@ end
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "Charge")
 	self:NetworkVar("Int", 1, "MaxCharge")
+	self:NetworkVar("Int", 2, "ClerksRecruited")
 	self:NetworkVar("Bool", 0, "CanCharge")
 	self:NetworkVar("Bool", 1, "SlowCharge")
+	self:NetworkVar("Bool", 2, "AllSwpNear")
 	
 	if SERVER then
 		self:SetCharge(0)
 		self:SetMaxCharge(45) -- takes 45s to charge up (previously (1:30)
+		self:SetClerksRecruited(0)
 	end
 end
 
@@ -98,6 +101,8 @@ if SERVER then
 			
 			ent:Remove()
 		end
+
+		self:SetClerksRecruited( math.min(self:GetClerksRecruited() + 1, jcms.cvar_cash_maxclerks:GetInt()) )
 	end
 
 	function ENT:IsSafe()
@@ -125,7 +130,8 @@ if SERVER then
 		if jcms.director or selfTbl.forceCharging then
 			local charge, maxcharge = selfTbl:GetCharge(), selfTbl:GetMaxCharge()
 			local safe = self:IsSafe()
-			local swpNearby = #jcms.GetSweepersInRange(self:WorldSpaceCenter(), 1000) > 0
+			local swpsInRange = jcms.GetSweepersInRange(self:WorldSpaceCenter(), 1000)
+			local swpNearby = #swpsInRange > 0
 			
 			if swpNearby ~= selfTbl:GetCanCharge() then
 				selfTbl:SetCanCharge(swpNearby)
@@ -136,6 +142,10 @@ if SERVER then
 			end
 			
 			if selfTbl:IsBeamActive() then
+				if #swpsInRange == #jcms.GetAliveSweepers() then 
+					self:SetAllSwpNear(true)
+				end
+
 				for _, ent in ipairs(ents.FindInSphere(self:GetPos(), 64)) do
 					if jcms.team_GoodTarget(ent) then
 						if ent:IsPlayer() and jcms.team_JCorp_player(ent) then
@@ -154,11 +164,19 @@ if SERVER then
 					selfTbl:SetCharge(charge + 1)
 					selfTbl.nextSlowCharge = cTime + 10
 				end
+
+				if selfTbl:GetCharge() > maxcharge then 
+					self:AddEFlags(EFL_FORCE_CHECK_TRANSMIT)
+				end
 			end
 		end
 		
 		self:NextThink( CurTime() + (selfTbl:IsBeamActive() and 0.25 or 1) )
 		return true
+	end
+
+	function ENT:UpdateTransmitState()
+		return (self:GetCharge() < self:GetMaxCharge() and TRANSMIT_PVS) or TRANSMIT_ALWAYS
 	end
 end
 
@@ -218,6 +236,12 @@ if CLIENT then
 					ed:SetScale(5)
 					ed:SetEntity(self)
 					util.Effect("TeslaHitboxes", ed)
+				end
+
+				if self:GetAllSwpNear() and not game.SinglePlayer() then --TODO: Needs some visuals but I'll do that later.
+					self.soundAlarm:ChangePitch(200)
+				else
+					self.soundAlarm:ChangePitch(180)
 				end
 
 				if not self.soundWhine or not self.soundWhine:IsPlaying() then
@@ -281,24 +305,54 @@ if CLIENT then
 			local time = CurTime()
 			
 			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-			for i=1, 5 do
-				local frac = (time/2 + i/5)%1
-				local frac2 = 1 - (1-frac)^3
-				
-				local size = 82 - frac*4
-				render.SetMaterial(self.mat_ring)
-				
-				local color = Color(Lerp(frac2, 255, 0), Lerp(frac2, 255, 100), 255, frac<0.15 and frac/0.15*255 or Lerp(frac*frac, 255, 0))
-				local ringSegments = 24
+				for i=1, 5 do
+					local frac = (time/2 + i/5)%1
+					local frac2 = 1 - (1-frac)^3
+					
+					local size = 82 - frac*4
+					render.SetMaterial(self.mat_ring)
+					
+					local color = Color(Lerp(frac2, 255, 0), Lerp(frac2, 255, 100), 255, frac<0.15 and frac/0.15*255 or Lerp(frac*frac, 255, 0))
+					local ringSegments = 24
 
-				render.StartBeam(ringSegments)
-				for j=1, ringSegments do
-					local a = (j-1) / (ringSegments - 1) * math.pi * 2
-					local ringoffset = Vector( math.cos(a) * size, math.sin(a) * size, frac*64 )
-					render.AddBeam(pos + ringoffset, 12, a / (math.pi * 2) + time - i * 0.3, color)
+					render.StartBeam(ringSegments)
+					for j=1, ringSegments do
+						local a = (j-1) / (ringSegments - 1) * math.pi * 2
+						local ringoffset = Vector( math.cos(a) * size, math.sin(a) * size, frac*64 )
+						render.AddBeam(pos + ringoffset, 12, a / (math.pi * 2) + time - i * 0.3, color)
+					end
+					render.EndBeam()
 				end
-				render.EndBeam()
-			end
+				
+
+				local clerks = self:GetClerksRecruited()
+				if clerks > 0 then --Only display if we've recruited at least one already.
+					local pos2 = self:WorldSpaceCenter()
+					local ang = self:GetAngles()
+					local sine = (math.sin(CurTime()*2 + self:EntIndex())+1)/2
+					pos2:Add(ang:Up()*Lerp(sine, 24, 32))
+					ang:RotateAroundAxis(ang:Forward(), 90)
+					ang.y = (EyePos() - pos2):Angle().y + 90
+
+					local n =  math.random(3, 5)
+
+					local maxClerks = jcms.cvar_cash_maxclerks:GetInt()
+					cam.Start3D2D(pos2, ang, 1/4)
+						for i=1, n do
+							local frac = (i-1)/(n-1)
+							local color
+							if clerks >= maxClerks then
+								color = Color(Lerp(frac, 255, 100), Lerp(frac*frac, Lerp(sine, 32, 128), 0), Lerp(frac*frac, 64, 0), 255/n)
+							else
+								color = Color(Lerp(frac, 64, 0), Lerp(frac, 180, 0), 255, Lerp(frac*frac, 255, 0), 255/n)
+							end
+							
+							draw.SimpleText("#jcms.evacClerks", "jcms_hud_medium", math.Rand(-4, 4), math.Rand(-1, 1), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+							draw.SimpleText(string.format("%d / %d", clerks, maxClerks), "jcms_hud_small", math.Rand(-4, 4), math.Rand(-1, 1) + 48, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						end
+					cam.End3D2D()
+				end
+
 			render.OverrideBlend( false )
 		else
 			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
