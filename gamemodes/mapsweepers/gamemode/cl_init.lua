@@ -534,15 +534,18 @@ end)
 			local entTbl = ent:GetTable()
 			local jcorp = ent:IsPlayer() and ent:Team() == 1
 			local time = jcorp and CurTime()*(shield+2) or CurTime()*8
+			local imInside = ent == jcms.locPly and not ent:ShouldDrawLocalPlayer()
 			
 			if not entTbl.jcms_shieldDamageAnim then
 				entTbl.jcms_shieldDamageAnim = 0
 				entTbl.jcms_shieldLastCount = shield
 			elseif entTbl.jcms_shieldLastCount ~= shield then
-				entTbl.jcms_shieldDamageAnim = 1
+				if entTbl.jcms_shieldLastCount > shield then
+					entTbl.jcms_shieldDamageAnim = 1
+				end
 				entTbl.jcms_shieldLastCount = shield
 			else
-				entTbl.jcms_shieldDamageAnim = math.max(0, entTbl.jcms_shieldDamageAnim - FrameTime() * 4)
+				entTbl.jcms_shieldDamageAnim = math.max(0, entTbl.jcms_shieldDamageAnim - FrameTime() * (imInside and 1 or 4))
 			end
 
 			if not entTbl.jcms_shieldColor then
@@ -552,9 +555,16 @@ end)
 			local damageAnim = entTbl.jcms_shieldDamageAnim
 			local color = entTbl.jcms_shieldColor
 			
-			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+			local pos, rad = ent:WorldSpaceCenter(), ent:BoundingRadius()
+			if imInside then
+				rad = -rad
+				
+				if damageAnim <= 0.01 then
+					return
+				end
+			end
 
-				local pos, rad = ent:WorldSpaceCenter(), ent:BoundingRadius()
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
 				local osc = jcorp and (time+0.6)%2-1 or math.sin(time+i)
 				local size = rad*2.4*(1-osc^2) + damageAnim * 50
 				render.SetColorMaterial()
@@ -566,6 +576,9 @@ end)
 					local alpha = shield * 8
 					color:SetUnpacked(255, 200, 100*damageAnim, alpha+150*damageAnim)
 				end
+				if imInside then
+					color.a = color.a*damageAnim*0.2
+				end
 				render.DrawSphere(pos, rad - math.random()*4, 6, 6, color )
 				render.SetMaterial(jcms.render_matRing)
 
@@ -574,12 +587,18 @@ end)
 				else
 					color:SetUnpacked(255, 255, damageAnim*255, 255)
 				end
+				if imInside then
+					color.a = color.a*damageAnim
+				end
 				render.DrawQuadEasy(pos + osc*rad*1.1*vUp, vUp, size, size, color, 0)
 				
 				if jcorp then
 					color:SetUnpacked(255, 0, shield*8+175*damageAnim, 150)
 				else
 					color:SetUnpacked(255, 140+150*damageAnim, 175*damageAnim, 150)
+				end
+				if imInside then
+					color.a = color.a*damageAnim
 				end
 				osc = jcorp and time%2-1 or math.sin(time+i+0.6)
 				size = rad*2.7*(1-osc^2)
@@ -604,7 +623,7 @@ end)
 		end
 
 		for i, ent in ipairs( player.GetAll() ) do
-			if IsValid(ent) and not emt.GetNoDraw(ent) and not emt.IsDormant(ent) and ent:GetObserverMode() == OBS_MODE_NONE and ent:ShouldDrawLocalPlayer() then
+			if IsValid(ent) and not emt.GetNoDraw(ent) and not emt.IsDormant(ent) and ent:GetObserverMode() == OBS_MODE_NONE then
 				drawBulletShield(ent, i)
 			else
 				local entTbl = ent:GetTable()
