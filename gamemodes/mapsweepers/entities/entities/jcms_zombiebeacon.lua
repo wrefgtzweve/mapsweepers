@@ -33,6 +33,7 @@ jcms.team_jCorpClasses["jcms_zombiebeacon"] = true
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "IsComplete")
 	self:NetworkVar("Bool", 1, "Active")
+	self:NetworkVar("Bool", 2, "SwpNear")
 	
 	self:NetworkVar("Float", 0, "Charge")
 	self:NetworkVar("Float", 1, "HealthFraction")
@@ -79,13 +80,22 @@ if SERVER then
 	end
 
 	function ENT:jcms_terminal_Callback()
-		self:StartCountdown()
-		return true, tostring( CurTime() + 60 )
+		if self:GetSwpNear() then 
+			self:StartCountdown()
+			return true, tostring( CurTime() + 60 )
+		else
+			return false
+		end
 	end
 
-	function ENT:Think() 
-		if not self:GetActive() or self:GetIsComplete() or self.jcms_beaconDead then return end 
+	function ENT:Think()
+		local selfPos = self:GetPos()
+
+		local required = math.ceil(#jcms.GetAliveSweepers() * 0.25)
+		self:SetSwpNear( #jcms.GetSweepersInRange(selfPos, 650) >= required )
+
 		self:NextThink(CurTime() + 1)
+		if not self:GetActive() or self:GetIsComplete() or self.jcms_beaconDead then return true end 
 
 		local chrg = self:GetCharge() + 1 / 60
 		self:SetCharge(chrg) --60s to charge.
@@ -96,7 +106,6 @@ if SERVER then
 
 		if not jcms.director then return true end
 		
-		local selfPos = self:GetPos()
 		for i, npc in ipairs(jcms.director.npcs) do 
 			if not IsValid(npc) then continue end
 

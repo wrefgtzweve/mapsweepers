@@ -579,8 +579,20 @@ jcms.terminal_modeTypes = {
 
 			local spin = 0
 			if modedata == "1" then
-				draw.SimpleText("#jcms.terminal_inactive", "jcms_hud_big", w-48, h/2, color_accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-				draw.SimpleText("#jcms.terminal_nukehelp", "jcms_hud_small", w-64, h/2 + 72, color_accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				if ent:GetSwpNear() then
+					draw.SimpleText("#jcms.terminal_inactive", "jcms_hud_big", w-48, h/2, color_accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+					draw.SimpleText("#jcms.terminal_nukehelp", "jcms_hud_small", w-64, h/2 + 72, color_accent, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				else					
+					local str1 = "#jcms.error"
+					draw.SimpleText(str1, "jcms_hud_big", w/2, h/2, jcms.color_alert, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					draw.SimpleText(str1, "jcms_hud_big", w/2-4, h/2+4, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+					local required = math.ceil(#jcms.GetAliveSweepers() * 0.25) --duplicate across client/server which isn't good, but I don't want to make a NetworkVar just for this
+					local str2 = string.format(language.GetPhrase("jcms.terminal_nukesweeperspresent"), required)
+					draw.SimpleText(str2, "jcms_hud_small", w/2-4, h/2 + 72+4, color_bg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					draw.SimpleText(str2, "jcms_hud_small", w/2, h/2 + 72, jcms.color_alert, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+				end
 				surface.SetDrawColor(color_bg)
 
 				local bx, by, bw, bh = 46, 464, 400, 320
