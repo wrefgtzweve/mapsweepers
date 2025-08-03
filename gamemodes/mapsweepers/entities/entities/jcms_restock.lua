@@ -76,17 +76,19 @@ if SERVER then
 		local sortedByCost = {}
 
 		for i, wep in ipairs(ply:GetWeapons()) do
-			local ammoType = wep:GetPrimaryAmmoType()
-			local ammoTypeName = game.GetAmmoName(ammoType)
-			if ammoTypeName and ammoType and ammoType >= 0 then
-				ammoTypeName = ammoTypeName:lower()
-				if not typeCosts[ammoTypeName] then
-					local ammoPrice = jcms.weapon_ammoCosts[ ammoTypeName ] or jcms.weapon_ammoCosts._DEFAULT
-					typeCosts[ammoTypeName] = ammoPrice
-					table.insert(sortedByCost, ammoTypeName)
-				end
+			for j=1,2 do
+				local ammoType = j==1 and wep:GetPrimaryAmmoType() or wep:GetSecondaryAmmoType()
+				local ammoTypeName = game.GetAmmoName(ammoType)
+				if ammoTypeName and ammoType and ammoType >= 0 then
+					ammoTypeName = ammoTypeName:lower()
+					if not typeCosts[ammoTypeName] then
+						local ammoPrice = jcms.weapon_ammoCosts[ ammoTypeName ] or jcms.weapon_ammoCosts._DEFAULT
+						typeCosts[ammoTypeName] = ammoPrice
+						table.insert(sortedByCost, ammoTypeName)
+					end
 
-				typeDemands[ammoTypeName] = (typeDemands[ammoTypeName] or 0) + math.max(1, wep:GetMaxClip1())
+					typeDemands[ammoTypeName] = (typeDemands[ammoTypeName] or 0) + math.max(1, j==1 and wep:GetMaxClip1() or math.ceil(wep:GetMaxClip2()/2))
+				end
 			end
 		end
 

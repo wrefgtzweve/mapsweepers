@@ -633,7 +633,7 @@
 				local col = Color(255, 32, 32)
 				local boosted = jcms.isPlayerEngineer(ply)
 				local crate, flare = jcms.spawnmenu_Airdrop(pos, "jcms_restock", 10, "#jcms.restock", col)
-				crate:SetAmmoCashInside( 300 + (boosted and 200 or 0) )
+				crate:SetAmmoCashInside( 400 + (boosted and 200 or 0) )
 				crate:SetHealthInside( 0 )
 				crate:SetOwnerNickname( ply:Nick() )
 				crate:SetLocalAngularVelocity( AngleRand(48, 128) )
