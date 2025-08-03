@@ -414,7 +414,9 @@
 					ent:SetSpawnerType(jcms.director.faction)
 				end
 
-				ent:SetPos(area:GetCenter() + Vector(0, 0, 24))
+				local v = jcms.mapgen_AreaPointAwayFromEdges(area, 64)
+				v.z = v.z + 24
+				ent:SetPos(v)
 				ent:Spawn()
 				return ent
 			end
@@ -422,7 +424,7 @@
 
 		thumper = {
 			check = function(area)
-				local center = area:GetCenter()
+				local center = jcms.mapgen_AreaPointAwayFromEdges(area, 128)
 				local tr = util.TraceHull { start = center, endpos = center + Vector(0, 0, 100), mins = Vector(-24, -24, 0), maxs = Vector(24, 24, 64) }
 				
 				if not tr.Hit then
@@ -458,7 +460,7 @@
 
 		flashpoint = {
 			check = function(area)
-				local centre = area:GetCenter()
+				local centre = jcms.mapgen_AreaPointAwayFromEdges(area, 150)
 
 				local checkLength = 100
 				local checkAngle = Angle(0, 0, 30)
@@ -505,7 +507,7 @@
 
 		thumpersabotage = {
 			check = function(area)
-				local center = area:GetCenter()
+				local center = jcms.mapgen_AreaPointAwayFromEdges(area, 128)
 				local tr = util.TraceHull { start = center, endpos = center + Vector(0, 0, 100), mins = Vector(-24, -24, 0), maxs = Vector(24, 24, 64) }
 				
 				if not tr.Hit then
@@ -643,7 +645,7 @@
 
 		zombiebeacon = {
 			check = function(area)
-				local center = area:GetCenter()
+				local center = jcms.mapgen_AreaPointAwayFromEdges(area, 200)
 				local tr = util.TraceHull { start = center, endpos = center + Vector(0, 0, 100), mins = Vector(-24, -24, 0), maxs = Vector(24, 24, 64) }
 				
 				if not tr.Hit then

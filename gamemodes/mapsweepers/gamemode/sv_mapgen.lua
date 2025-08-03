@@ -215,6 +215,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 	end
 
 	function jcms.mapgen_Wait( progress )
+		if game.SinglePlayer() then return end
 		game.GetWorld():SetNWFloat( "jcms_mapgen_progress", progress )
 		if coroutine.running() then coroutine.yield() end
 	end
