@@ -255,6 +255,10 @@ if SERVER then
 				return -- Don't get a shield from thorn kills
 			end
 
+			if jcms.util_IsStunstick(inflictor) or (not npc.jcms_bounty or npc.jcms_bounty < 20) then
+				return -- Dont give shields for kills that are too cheap. Unless we're using stunstick.
+			end
+
 			local shieldCount = ply:GetNWInt("jcms_shield", 0)
 			local shieldCountCap = 3
 			local final = shieldCount == shieldCountCap - 1
