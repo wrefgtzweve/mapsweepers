@@ -201,6 +201,12 @@ jcms.npc_types.antlion_worker = {
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
 			npc.jcms_shouldUnburrow = true
+
+			timer.Simple(60, function() --fall-back
+				if IsValid(npc) and npc:GetInternalVariable("startburrowed") then 
+					npc:Remove()
+				end
+			end)
 		end
 	end,
 	
@@ -248,6 +254,12 @@ jcms.npc_types.antlion_drone = {
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
 			npc.jcms_shouldUnburrow = true
+			
+			timer.Simple(60, function() --fall-back
+				if IsValid(npc) and npc:GetInternalVariable("startburrowed") then 
+					npc:Remove()
+				end
+			end)
 		end
 	end
 }
@@ -308,6 +320,12 @@ jcms.npc_types.antlion_waster = {
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
 			npc.jcms_shouldUnburrow = true
+			
+			timer.Simple(60, function() --fall-back
+				if IsValid(npc) and npc:GetInternalVariable("startburrowed") then 
+					npc:Remove()
+				end
+			end)
 		end
 	end,
 }
@@ -358,6 +376,12 @@ jcms.npc_types.antlion_guard = {
 		if not npc.jcms_fromPortal then
 			npc:Fire "Unburrow"
 			npc.jcms_shouldUnburrow = true
+
+			timer.Simple(60, function() --fall-back
+				if IsValid(npc) and npc:GetInternalVariable("startburrowed") then 
+					npc:Remove()
+				end
+			end)
 		end
 	end,
 
