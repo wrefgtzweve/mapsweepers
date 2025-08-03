@@ -926,7 +926,6 @@
 			-- Game summary {{{
 				local missionType = jcms.util_GetMissionType()
 				local missionData = jcms.missions[ missionType ]
-				local ongoing = false -- TODO
 				local missionNameX = w - 32 - 600
 				
 				if (missionType ~= "") then
@@ -937,7 +936,7 @@
 					local font = smallscreen and "jcms_hud_small" or "jcms_hud_medium"
 					surface.SetFont(font)
 					local tw, th = surface.GetTextSize(name)
-					tw = math.max(tw, 128)
+					tw = math.max(tw, 210)
 					local xpad = 48
 					local ypad = 8
 
@@ -1081,8 +1080,10 @@
 			-- }}}
 
 			-- Mission Timer {{{
-				local isTimerOn = jcms.util_IsGameTimerGoing()
-				local timeRemains = jcms.util_GetTimeUntilStart()
+				local ongoing = jcms.util_IsGameOngoing()
+				local missionTime = ongoing and jcms.util_GetMissionTime() or 0
+				local isTimerOn = ongoing or jcms.util_IsGameTimerGoing()
+				local timeRemains = ongoing and missionTime or jcms.util_GetTimeUntilStart()
 				
 				if isTimerOn then
 					if not p.didTimerBeep then
@@ -1091,7 +1092,10 @@
 					end
 
 					local timerCol = timeRemains <= 10 and jcms.color_alert or jcms.color_bright_alt
-					
+					if ongoing then
+						timerCol = jcms.color_bright
+					end
+
 					surface.SetAlphaMultiplier(0.3)
 					surface.SetDrawColor(timerCol)
 					local tw, th = w - missionNameX - 36, 32
@@ -1102,9 +1106,16 @@
 					surface.SetDrawColor(timerCol)
 					surface.DrawRect(tx, ty, 1, th)
 					surface.DrawRect(tx + tw - 1, ty, 1, th)
-					draw.SimpleText(timeRemains < 5 and "#jcms.missionbegins" or "#jcms.countdowntomission", "jcms_medium", tx + th/2, ty + th/2, timerCol, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-					draw.SimpleText(string.FormattedTime(timeRemains, "%02i:%02i"), "jcms_hud_small", tx + tw - th/2, ty+th/2, timerCol, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
+					if ongoing then
+						local time = string.FormattedTime( missionTime )
+						local formatted = string.format("%02i:%02i:%02i", time.h, time.m, time.s)
+						draw.SimpleText("#jcms.missioninprogress", "jcms_medium", tx + th/2, ty + th/2, timerCol, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+						draw.SimpleText(formatted, "jcms_hud_small", tx + tw - th/2, ty+th/2, timerCol, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+					else
+						draw.SimpleText(timeRemains < 5 and "#jcms.missionbegins" or "#jcms.countdowntomission", "jcms_medium", tx + th/2, ty + th/2, timerCol, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+						draw.SimpleText(string.FormattedTime(timeRemains, "%02i:%02i"), "jcms_hud_small", tx + tw - th/2, ty+th/2, timerCol, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+					end
 				else
 					if p.didTimerBeep then
 						p.didTimerBeep = false
