@@ -1250,6 +1250,10 @@ jcms.vectorOne = Vector(1, 1, 1)
 		return math.max(0, game.GetWorld():GetNWFloat("jcms_missionStartTime", 0) - CurTime())
 	end
 
+	function jcms.util_GetMapGenProgress() -- -1: not generating, 0-1: generating
+		return math.Clamp(game.GetWorld():GetNWFloat("jcms_mapgen_progress", -1), -1, 1)
+	end
+
 	function jcms.util_IsGameTimerGoing()
 		local startTime = game.GetWorld():GetNWFloat("jcms_missionStartTime", 0)
 		return startTime > 0.25 and startTime + 2 > CurTime()

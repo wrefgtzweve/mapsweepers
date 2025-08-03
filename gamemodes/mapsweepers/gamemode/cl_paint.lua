@@ -1084,8 +1084,26 @@
 				local missionTime = ongoing and jcms.util_GetMissionTime() or 0
 				local isTimerOn = ongoing or jcms.util_IsGameTimerGoing()
 				local timeRemains = ongoing and missionTime or jcms.util_GetTimeUntilStart()
+				local loadProgress = jcms.util_GetMapGenProgress()
+				local isLoading = loadProgress >= 0
+				loadProgress = math.Clamp(loadProgress, 0, 1)
 				
-				if isTimerOn then
+				if isLoading then
+					local tw, th = w - missionNameX - 36, 32
+					local tx, ty = missionNameX, 48
+
+					surface.SetAlphaMultiplier(1)
+					surface.SetDrawColor(jcms.color_pulsing)
+					surface.DrawOutlinedRect(tx, ty-2, tw, th+4)
+					
+					surface.SetDrawColor(jcms.color_bright)
+					surface.DrawRect(tx+4, ty+2, (tw-8)*loadProgress, th-4)
+					surface.SetDrawColor(jcms.color_pulsing)
+					jcms.hud_DrawStripedRect(tx+4+(tw-8)*loadProgress, ty+2+4, (tw-8)*(1-loadProgress), th-4-8, 32, CurTime()*-32)
+
+					draw.SimpleTextOutlined( ("%s - %.1f%%"):format(language.GetPhrase("#jcms.generatingmap"), loadProgress*100), "jcms_medium", tx+tw/2, ty+th/2, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, jcms.color_dark)
+					
+				elseif isTimerOn then
 					if not p.didTimerBeep then
 						p.didTimerBeep = true
 						surface.PlaySound("buttons/blip1.wav")

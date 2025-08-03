@@ -135,6 +135,8 @@
 				PrintMessage(HUD_PRINTTALK, "[Map Sweepers] Mission failed to generate, switching mission as a fall-back.")
 				jcms.mission_Randomize()
 			end
+
+			game.GetWorld():SetNWFloat("jcms_mapgen_progress", 1)
 			return true
 		end)
 
@@ -142,6 +144,7 @@
 			local success, shouldEnd = coroutine.resume(co)
 			if shouldEnd then 
 				timer.Remove("jcms_mission_run")
+				game.GetWorld():SetNWFloat("jcms_mapgen_progress", 1)
 			end
 		end)
 	end
@@ -151,6 +154,7 @@
 	end
 
 	function jcms.mission_Clear()
+		game.GetWorld():SetNWFloat("jcms_mapgen_progress", -1)
 		jcms.director = nil
 
 		for i, ply in ipairs(player.GetAll()) do
@@ -355,6 +359,7 @@
 
 		if isOngoing then
 			-- The game is ongoing. We can spawn the players.
+			game.GetWorld():SetNWFloat("jcms_mapgen_progress", -1)
 
 			if not jcms.director.gameover then
 				for i, ply in player.Iterator() do
@@ -423,6 +428,7 @@
 			end
 
 			if timerIsGoing and CurTime() >= startTime then
+				game.GetWorld():SetNWFloat("jcms_mapgen_progress", 0.01)
 				jcms.mission_StartFromCVar()
 			end
 		end
