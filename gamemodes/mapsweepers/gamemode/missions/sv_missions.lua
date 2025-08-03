@@ -140,7 +140,7 @@
 			return true
 		end)
 
-		timer.Create( "jcms_mission_run", 0, 0, function()
+		timer.Create( "jcms_mission_run", 0.01, 0, function()
 			local success, shouldEnd = coroutine.resume(co)
 			if shouldEnd then 
 				timer.Remove("jcms_mission_run")
