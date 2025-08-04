@@ -165,8 +165,6 @@ if SERVER then
 	ENT.HoverDistance = 64
 	ENT.Speed = 400
 	ENT.TurnSpeed = 80
-	ENT.Traction = 90
-	ENT.TractionLoose = 1
 	ENT.SpeedLooseMul = 0.645
 	ENT.MoveTurnSpeedMul = 0.5
 	ENT.MaxDampForce = 1000
@@ -720,9 +718,6 @@ end
 if CLIENT then
 	ENT.mat_pointer = Material "effects/spark"
 	ENT.mat_ring = Material "jcms/ring"
-	
-	function ENT:Think()
-	end
 	
 	function ENT:DrawHUDBottom()
 		local healthWidth = 1200
