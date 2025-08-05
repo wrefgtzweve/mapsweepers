@@ -645,7 +645,7 @@
 
 		zombiebeacon = {
 			check = function(area)
-				local center = jcms.mapgen_AreaPointAwayFromEdges(area, 250)
+				local center = jcms.mapgen_AreaPointAwayFromEdges(area, 300)
 				local tr = util.TraceHull { start = center, endpos = center + Vector(0, 0, 100), mins = Vector(-24, -24, 0), maxs = Vector(24, 24, 64) }
 				
 				if not tr.Hit then

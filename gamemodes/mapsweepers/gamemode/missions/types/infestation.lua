@@ -34,7 +34,7 @@
 
 		generate = function(data, missionData)
 			local count = math.ceil( jcms.runprogress_GetDifficulty() * 3)
-			missionData.beacons = jcms.mapgen_SpreadPrefabs("zombiebeacon", count, 250, true)
+			missionData.beacons = jcms.mapgen_SpreadPrefabs("zombiebeacon", count, 300, true)
 
 			missionData.stormController = ents.Create("jcms_stormmanager")
 			missionData.stormController:Spawn()
