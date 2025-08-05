@@ -618,23 +618,42 @@ jcms.terminal_modeTypes = {
 		generate = function(ent)
 			local count = math.random(6, 7)
 			local str = math.random(0,9) .. " "
-			
+
 			local pieces = {}
 			for i = 1, count do
 				table.insert(pieces, i)
 				table.insert(pieces, i)
 			end
-			table.Shuffle(pieces)
-			
-			for i, piece in ipairs(pieces) do
+
+			-- Shuffle and ensure no adjacent pairs
+			local maxAttempts = 100
+			local validArrangement = false
+
+			for _ = 1, maxAttempts do
+				table.Shuffle(pieces)
+
+				validArrangement = true
+				for i = 1, #pieces - 1 do
+					if pieces[i] == pieces[i + 1] then
+						validArrangement = false
+						break
+					end
+				end
+
+				if validArrangement then
+					break
+				end
+			end
+
+			for _, piece in ipairs(pieces) do
 				str = str .. piece
 			end
-			
+
 			str = str .. " "
-			for i = 1, count do
+			for _ = 1, count do
 				str = str .. "0"
 			end
-			
+
 			return str
 		end,
 
