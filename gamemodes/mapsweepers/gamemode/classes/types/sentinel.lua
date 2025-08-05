@@ -135,6 +135,7 @@ if SERVER then
 						ply.sentinel_isTeleporting = false
 
 						if ply:Armor() > 10 then return end --Allow recovery.
+						if IsValid(ply:GetNWEntity("jcms_vehicle", NULL)) then return end -- Don't teleport us out of vehicles
 
 						local zoneList = jcms.mapgen_ZoneList()
 						local zoneDict = jcms.mapgen_ZoneDict()

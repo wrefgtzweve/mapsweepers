@@ -1317,6 +1317,12 @@ end
 	end
 
 	function GM:DoPlayerDeath(ply, attacker, dmg)
+		local veh = ply:GetNWEntity("jcms_vehicle", NULL)
+		if IsValid(veh) then
+			veh:SetDriver()
+			ply:SetNWEntity("jcms_vehicle", NULL)
+		end
+
 		if not (jcms.director and ( (not ply.jcms_isNPC and jcms.director.evacuated[ply]) or jcms.director.gameover)) then
 			local classData = jcms.class_GetData(ply)
 			ply.jcms_lastDamageType = dmg:GetDamageType()
