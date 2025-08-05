@@ -947,7 +947,7 @@ jcms.vectorOne = Vector(1, 1, 1)
 
 	jcms.cvar_noepisodes = GetConVar("jcms_noepisodes")
 	function jcms.HasEpisodes()
-		return ( not jcms.cvar_noepisodes:GetBool() ) and IsMounted("ep2") and IsMounted("episodic")
+		return not jcms.cvar_noepisodes:GetBool()
 	end
 -- }}}
 
