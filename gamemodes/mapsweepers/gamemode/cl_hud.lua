@@ -914,9 +914,16 @@
 				surface.SetAlphaMultiplier(alphamul*0.33)
 			end
 			surface.SetDrawColor(color)
-			local cmat = jcms.classmats[ class ]
-			surface.SetMaterial(cmat)
-			surface.DrawTexturedRectRotated(x-w/2+h/2+4, y, 96, 96, 0)
+
+			if dead and evacuated then
+				surface.SetMaterial(jcms.mat_evac)
+				surface.DrawTexturedRectRotated(x-w/2+h/2+4, y, 96, 96, 0)
+			else
+				local cmat = jcms.classmats[ class ]
+				surface.SetMaterial(cmat)
+				surface.DrawTexturedRectRotated(x-w/2+h/2+4, y, 96, 96, 0)
+			end
+
 			draw.SimpleText(nick, "jcms_hud_medium", x - w/2 + h, y, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 			
 			local cashLineX = x + w/2 - h + 26
@@ -933,9 +940,6 @@
 				surface.SetDrawColor(jcms.color_bright_alt)
 				surface.DrawRect(x - 48, y, armorWidth*armorFrac, 24)
 				jcms.hud_DrawStripedRect(x - 48 + armorWidth*armorFrac, y, armorWidth*(1-armorFrac), 24, 100)
-			elseif evacuated then
-				surface.SetMaterial(jcms.mat_evac)
-				surface.DrawTexturedRectRotated(x + w/2 - h/2 - 4, y, 72, 72, 0)
 			end
 		render.OverrideBlend( false )
 	end
