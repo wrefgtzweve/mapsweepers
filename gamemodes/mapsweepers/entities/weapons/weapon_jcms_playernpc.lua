@@ -100,6 +100,10 @@ SWEP.m_bPlayPickupSound = false
 -- // }}}
 
 if CLIENT then
+	function SWEP:DrawWorldModel()
+		-- NOTHING. NOTHING HAPPENS. NOTHING EVER HAPPENS!!!!!!!!!!!!!
+	end
+
 	function SWEP:ShouldDrawViewModel()
 		return false
 	end
