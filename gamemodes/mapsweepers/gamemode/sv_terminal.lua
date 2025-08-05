@@ -516,7 +516,7 @@ jcms.terminal_modeTypes = {
 		weight = 1,
 
 		generate = function(ent)
-			local size = math.random(8, 9)
+			local size = math.random(9, 12)
 			local startY = math.random(1, size)
 			local goalY = math.random(1, size)
 
