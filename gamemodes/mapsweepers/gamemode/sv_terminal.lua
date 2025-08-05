@@ -520,12 +520,65 @@ jcms.terminal_modeTypes = {
 			local startY = math.random(1, size)
 			local goalY = math.random(1, size)
 
-			local map = ""
+			local map = {}
 			for i=1, size*size do
-				map = map .. math.random(1, 6)
+				map[i] = 1
 			end
 
-			return size .. " " .. startY .. " " .. goalY .. " " .. map
+			local x, y = 1, startY
+			local dx, dy = 1, 0
+
+			local flow = {
+				{ ["10"]="10", ["-10"]="-10" },
+				{ ["01"]="01", ["0-1"]="0-1" },
+				{ ["-10"]="01", ["0-1"]="10" },
+				{ ["10"]="01", ["0-1"]="-10" },
+				{ ["10"]="0-1", ["01"]="-10" },
+				{ ["-10"]="0-1", ["01"]="10" }
+			}
+
+			-- Create path to goal
+			while x <= size and y >= 1 and y <= size do
+				local pos = (y-1)*size + x
+				local targetFlow = dx..dy
+				local validPieces = {}
+				for pieceType = 1, 6 do
+					for inputFlow, outputFlow in pairs(flow[pieceType]) do
+						if outputFlow == targetFlow then
+							table.insert(validPieces, pieceType)
+						end
+					end
+				end
+
+				if #validPieces > 0 then
+					map[pos] = validPieces[math.random(#validPieces)]
+				end
+
+				x = x + dx
+				y = y + dy
+
+				if x == size and y ~= goalY then
+					if y < goalY then
+						dx, dy = 0, 1
+					else
+						dx, dy = 0, -1
+					end
+				elseif x == size and y == goalY then
+					break
+				end
+			end
+
+			-- Randomize remaining pieces that aren't part of the solution path
+			for i = 1, size*size do
+				map[i] = math.random(1, 6)
+			end
+
+			local mapStr = ""
+			for i = 1, size*size do
+				mapStr = mapStr .. tostring(map[i])
+			end
+
+			return size .. " " .. startY .. " " .. goalY .. " " .. mapStr
 		end,
 
 		command = function(ent, cmd, data, ply)
