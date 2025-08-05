@@ -53,18 +53,16 @@ if SERVER then
 		local dmg = DamageInfo()
 		dmg:SetAttacker(self)
 		dmg:SetInflictor(self)
-		--dmg:SetReportedPosition(selfPos)
 		dmg:SetDamageType( bit.bor(DMG_GENERIC, DMG_DIRECT, DMG_RADIATION) )
 		dmg:SetDamage(2)
 
 		local cloudRange = self:GetCloudRange() 
-		for i, ent in ipairs(ents.FindInSphere(selfPos , cloudRange)) do 
-			--if self:Disposition(ent) == D_HT then
-			if ent:IsPlayer() then
+		for i, ent in ipairs(ents.FindInSphere(selfPos , cloudRange)) do
+			if ent:IsPlayer() and ent:GetObserverMode() == OBS_MODE_NONE and ent:Team() == 1 and ent:Alive() then
 				local entPos = ent:GetPos()
-				local dist = selfPos:Distance(entPos)
-				
+				--local dist = selfPos:Distance(entPos)
 				--dmg:SetDamage( math.ceil(Lerp( dist/cloudRange , 10, 1)) )
+
 				dmg:SetDamagePosition(entPos)
 				dmg:SetReportedPosition(entPos)
 				ent:TakeDamageInfo(dmg)
