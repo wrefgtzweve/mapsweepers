@@ -827,17 +827,30 @@ end)
 		--x = x + w/2
 		--y = y + h/2
 		segments = math.min(segments, 100)
+		local vtx = {
+			{ 0,0 },
+			{ 0,0 },
+			{ 0,0 },
+			{ 0,0 }
+		}
+
 		for i=0, segments do
 			local a1 = math.Remap(i, 0, segments+1, fromAngle, toAngle)
 			local a2 = math.Remap(i+1, 0, segments+1, fromAngle, toAngle)
 			local cos1, sin1 = math.cos(a1), math.sin(a1)
 			local cos2, sin2 = math.cos(a2), math.sin(a2)
-			local vtx = {
-				{ x = x + cos1*w, y = y + sin1*h },
-				{ x = x + cos2*w, y = y + sin2*h },
-				{ x = x + cos2*(w-thickness), y = y + sin2*(h-thickness) },
-				{ x = x + cos1*(w-thickness), y = y + sin1*(h-thickness) }
-			}
+			
+			vtx[1].x = x + cos1*w
+			vtx[1].y = y + sin1*h
+
+			vtx[2].x = x + cos2*w
+			vtx[2].y = y + sin2*h
+
+			vtx[3].x = x + cos2*(w-thickness)
+			vtx[3].y = y + sin2*(h-thickness)
+
+			vtx[4].x = x + cos1*(w-thickness)
+			vtx[4].y = y + sin1*(h-thickness)
 
 			surface.DrawPoly(vtx)
 		end
