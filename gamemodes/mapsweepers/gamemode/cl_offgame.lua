@@ -2847,7 +2847,7 @@ jcms.offgame = jcms.offgame or NULL
 					end
 				end
 
-				if not game.SinglePlayer() and jcms.aftergame.vote then
+				if not game.SinglePlayer() and jcms.aftergame and jcms.aftergame.vote then
 					local mapVotes = {}
 					for ply, mapname in pairs( jcms.aftergame.vote.votes ) do
 						mapVotes[ mapname ] = (mapVotes[ mapname ] or 0) + 1
