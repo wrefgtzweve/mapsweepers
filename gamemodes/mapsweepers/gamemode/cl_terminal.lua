@@ -1142,57 +1142,48 @@ jcms.terminal_modeTypes = {
 		local output
 		local mtx, mty = math.floor((mx-vx) / (rw+4)) + 1, math.floor((my-vy) / (rh+4)) + 1
 		local i = 0
+
+		local syms = {
+			["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5, ["f"] = 6,
+			["1"] = 1, ["2"] = 2, ["3"] = 3, ["4"] = 4, ["5"] = 5, ["6"] = 6
+		}
 		
 		for y=1,size do
 			for x=1,size do
 				i = i + 1
 				local rx, ry = vx + (rw+4)*(x-1), vy + (rh+4)*(y-1)
-				local th = 4
-				if x == mtx and y == mty then
-					surface.SetDrawColor(color_fg)
-					output = i
-				else
-					surface.SetDrawColor(color_bg)
-				end
-
+				local selected = x == mtx and y == mty
+				if selected then output = i end
 				local sym = map:sub(i,i)
 				local completed = sym:match("%a") == sym
-				if completed then surface.SetDrawColor(color_accent) end
+
 				render.OverrideBlend( false )
+				surface.SetDrawColor(color_bg)
 				surface.DrawRect(rx,ry,rw,rh)
+
+				local u0 = (syms[sym]-1)/6
 				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-
-				surface.SetDrawColor( (not completed and (x==mtx and y==mty)) and color_accent or color_fg)
-				cam.PushModelMatrix(getGlitchMatrix(24), true)
-				if sym == "1" or sym == "a" then
-					surface.DrawRect(rx, ry+(rh-th)/2, rw, th)
-				elseif sym == "2" or sym == "b" then
-					surface.DrawRect(rx+(rw-th)/2, ry, th, rh)
-				elseif sym == "3" or sym == "c" then
-					surface.DrawRect(rx+(rw-th)/2, ry+(rh-th)/2, rw/2, th)
-					surface.DrawRect(rx+(rw-th)/2, ry+(rh-th)/2, th, rh/2)
-				elseif sym == "4" or sym == "d" then
-					surface.DrawRect(rx+th/2, ry+(rh-th)/2, rw/2, th)
-					surface.DrawRect(rx+(rw-th)/2, ry+(rh-th)/2, th, rh/2)
-				elseif sym == "5" or sym == "e" then
-					surface.DrawRect(rx+th/2, ry+(rh-th)/2, rw/2, th)
-					surface.DrawRect(rx+(rw-th)/2, ry+th/2, th, rh/2)
-				elseif sym == "6" or sym == "f" then
-					surface.DrawRect(rx+(rw-th)/2, ry+(rh-th)/2, rw/2, th)
-					surface.DrawRect(rx+(rw-th)/2, ry+th/2, th, rh/2)
+				surface.SetMaterial(jcms.mat_maze)
+				if completed or selected then
+					surface.SetDrawColor(completed and color_accent or color_bg)
+					surface.DrawTexturedRectUV(rx, ry, rw, rh, u0, 0.5, u0+1/6, 1)
 				end
 
-				if x == 1 and y == startY then
-					render.OverrideBlend( false )
-					draw.RoundedBoxEx(32, rx-32-4, ry+(rh-48)/2, 32, 48, color_bg, true, false, true, false)
-					render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-					draw.SimpleText(">", "jcms_hud_small", rx-16, ry+rh/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-				elseif x == size and y == goalY then
-					render.OverrideBlend( false )
-					draw.RoundedBoxEx(32, rx+rw+4, ry+(rh-48)/2, 32, 48, color_bg, false, true, false, true)
-					render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
-					draw.SimpleText(">", "jcms_hud_small", rx+rw+20, ry+rh/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-				end
+				cam.PushModelMatrix(getGlitchMatrix(5, -0.3), true)
+					surface.SetDrawColor(selected and color_accent or color_fg)
+					surface.DrawTexturedRectUV(rx, ry, rw, rh, u0, 0, u0+1/6, 0.5)
+
+					if x == 1 and y == startY then
+						render.OverrideBlend( false )
+						draw.RoundedBoxEx(32, rx-32-4, ry+(rh-48)/2, 32, 48, color_bg, true, false, true, false)
+						render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
+						draw.SimpleText(">", "jcms_hud_small", rx-16, ry+rh/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					elseif x == size and y == goalY then
+						render.OverrideBlend( false )
+						draw.RoundedBoxEx(32, rx+rw+4, ry+(rh-48)/2, 32, 48, color_bg, false, true, false, true)
+						render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD)
+						draw.SimpleText(">", "jcms_hud_small", rx+rw+20, ry+rh/2, color_fg, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					end
 				cam.PopModelMatrix()
 				render.OverrideBlend( false )
 			end
