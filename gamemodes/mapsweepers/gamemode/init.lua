@@ -2791,7 +2791,6 @@ end
 			newcrate:SetAngles(oldcrate:GetAngles())
 			oldcrate:Remove()
 			newcrate:Spawn()
-			print("Crate replaced", i)
 		end
 	end
 
