@@ -65,8 +65,7 @@ if SERVER then
 		end
 	end
 
-	function ENT:TryGiveAmmo(ply, cashOverride)
-		local cash = cashOverride or self:GetAmmoCashInside()
+	function jcms.util_TryGiveAmmo(ply, cash)
 		if cash <= 0 then
 			return false
 		end
@@ -130,6 +129,12 @@ if SERVER then
 			worked = worked or (count > 0)
 		end
 		
+		return worked
+	end
+
+	function ENT:TryGiveAmmo(ply, cashOverride)
+		local cash = cashOverride or self:GetAmmoCashInside()
+		local worked = jcms.util_TryGiveAmmo(ply, cash)
 		return worked
 	end
 

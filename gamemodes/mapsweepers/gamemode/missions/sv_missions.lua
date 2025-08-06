@@ -80,7 +80,8 @@
 			end
 
 			game.CleanUpMap()
-			jcms.recolorAllDollies()
+			jcms.RecolorAllDollies()
+			jcms.ReplaceAllCrates()
 			
 			game.GetWorld():SetNWString("jcms_missiontype", missionType)
 			game.GetWorld():SetNWString("jcms_missionfaction", factionType)

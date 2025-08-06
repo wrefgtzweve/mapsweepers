@@ -2774,12 +2774,24 @@ end
 
 -- // Post {{{
 
-	function jcms.recolorAllDollies()
+	function jcms.RecolorAllDollies()
 		-- this is EXTREMELY important
 		for i, ent in ipairs(ents.GetAll()) do
 			if ent.GetModel and ent:GetModel() == "models/maxofs2d/companion_doll.mdl" then
 				ent:SetColor(Color(255, 0, 0))
 			end
+		end
+	end
+
+	function jcms.ReplaceAllCrates()
+		-- TODO Account for hammer names and I/O
+		for i, oldcrate in ipairs(ents.FindByClass("item_ammo_crate")) do
+			local newcrate = ents.Create("jcms_ammo_crate")
+			newcrate:SetPos(oldcrate:GetPos())
+			newcrate:SetAngles(oldcrate:GetAngles())
+			oldcrate:Remove()
+			newcrate:Spawn()
+			print("Crate replaced", i)
 		end
 	end
 
