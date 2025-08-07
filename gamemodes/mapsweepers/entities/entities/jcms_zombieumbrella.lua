@@ -80,23 +80,7 @@ if SERVER then
 			local inflictor, attacker = dmg:GetInflictor(), dmg:GetAttacker()
 
 			if IsValid(inflictor) and jcms.util_IsStunstick(inflictor) and jcms.team_JCorp(attacker) then --Repairs
-				local repairValue = 7
-				if jcms.isPlayerEngineer(attacker) then
-					repairValue = repairValue * 2.5
-				end
-				
-				local oldValue = self:Health()
-				local newValue = math.min(self:Health() + repairValue, self:GetMaxHealth())
-				
-				if oldValue < newValue then
-					if newValue == self:GetMaxHealth() then
-						attacker:EmitSound("buttons/button9.wav", 100)
-					else
-						attacker:EmitSound("buttons/lever7.wav", 100)
-					end
-					self:SetHealth(newValue)
-				end
-
+				jcms.util_PerformRepairs(self, attacker)
 				return 0
 			elseif dmg:GetDamage() > 0 then
 				local dmgtype = dmg:GetDamageType()

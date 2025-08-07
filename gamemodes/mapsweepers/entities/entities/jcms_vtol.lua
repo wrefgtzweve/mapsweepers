@@ -492,6 +492,15 @@ if SERVER then
 	function ENT:OnTakeDamage(dmg)
 		if self.jcms_destroyed or self.jcms_crashtime then return end
 		
+		if self:Health() > 0 then
+			local inflictor, attacker = dmg:GetInflictor(), dmg:GetAttacker()
+			if IsValid(inflictor) and jcms.util_IsStunstick(inflictor) and jcms.team_JCorp(attacker) then
+				jcms.util_PerformRepairs(self, attacker, 20)
+				self:SetHealthFraction(self:Health()/self:GetMaxHealth())
+				return 0
+			end
+		end
+
 		local dmgAmount = dmg:GetDamage()
 		if bit.band( dmg:GetDamageType(), bit.bor(DMG_BUCKSHOT, DMG_BULLET) ) > 0 then
 			dmgAmount = math.max(0.1, dmgAmount - 2)
@@ -636,6 +645,10 @@ if SERVER then
 				driver.noFallDamage = true
 				driver:EmitSound("physics/body/body_medium_impact_soft3.wav")
 			end
+
+			local ea = driver:EyeAngles()
+			ea.r = 0
+			driver:SetEyeAngles(ea)
 
 			self:SetDriverEntity(NULL)
 		end

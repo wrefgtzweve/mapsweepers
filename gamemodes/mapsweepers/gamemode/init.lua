@@ -2572,7 +2572,7 @@ end
 		sfw_thunderbolt = 499,
 		sfw_acidrain = 999,
 		sfw_fathom = 319,
-		sfw_meteor = 1319,
+		sfw_meteor = 1799,
 		sfw_vk21 = 519,
 
 		-- Sanctum 2
@@ -2725,6 +2725,25 @@ end
 		allPlayers:AddAllPlayers()
 		
 		EmitSound("jcms_jetby", v, 0, CHAN_AUTO, 1, 100, 0, 100, 22, allPlayers)
+	end
+
+	function jcms.util_PerformRepairs(ent, ply, repairValue)
+		repairValue = tonumber(repairValue) or 7
+		if jcms.isPlayerEngineer(ply) then
+			repairValue = repairValue * 2.5
+		end
+		
+		local oldValue = ent:Health()
+		local newValue = math.min(ent:Health() + repairValue, ent:GetMaxHealth())
+		
+		if oldValue < newValue then
+			if newValue == ent:GetMaxHealth() then
+				ply:EmitSound("buttons/button9.wav", 100)
+			else
+				ply:EmitSound("buttons/lever7.wav", 100)
+			end
+			ent:SetHealth(newValue)
+		end
 	end
 
 	function jcms.util_UnHack(ent)

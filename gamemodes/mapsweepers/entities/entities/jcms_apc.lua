@@ -446,6 +446,10 @@ if SERVER then
 				self.driver:SetPos(self:GetExitPos())
 			end
 
+			local ea = self.driver:EyeAngles()
+			ea.r = 0
+			self.driver:SetEyeAngles(ea)
+
 			self.driver = nil
 		end
 		
@@ -473,6 +477,15 @@ if SERVER then
 		if self:GetShieldActive() then
 			jcms_util_shieldDamageEffect(dmg, dmgAmount)
 			return
+		end
+
+		if self:Health() > 0 then
+			local inflictor, attacker = dmg:GetInflictor(), dmg:GetAttacker()
+			if IsValid(inflictor) and jcms.util_IsStunstick(inflictor) and jcms.team_JCorp(attacker) then
+				jcms.util_PerformRepairs(self, attacker, 20)
+				self:SetHealthFraction(self:Health()/self:GetMaxHealth())
+				return 0
+			end
 		end
 
 		if bit.band(dmg:GetDamageType(), bit.bor(DMG_BULLET, DMG_BUCKSHOT, DMG_BLAST, DMG_ENERGYBEAM)) > 0 then
