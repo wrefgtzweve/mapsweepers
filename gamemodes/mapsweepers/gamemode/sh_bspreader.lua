@@ -201,7 +201,7 @@ bspReader = bspReader or {} --Likely to use this in other addons, don't want to 
 		local brushOffs, brushLen = bspReader.getOffset(mapFile, 18)
 		local brushSideOffs, brushSideLen = bspReader.getOffset(mapFile, 19)
 
-		for i = 1, brushLen/16, 1 do 
+		for i = 1, brushLen/12, 1 do 
 			mapFile:Seek(brushOffs + ((i-1) * 12))
 			local firstSide = mapFile:ReadLong()
 			local numSides = mapFile:ReadLong()
@@ -212,9 +212,13 @@ bspReader = bspReader or {} --Likely to use this in other addons, don't want to 
 			local br = {}
 			bspReader.brushes[i] = br
 			bspReader.brushContents[i] = contents
-			for j=1, numSides, 1 do 
-				mapFile:Seek(brushOffs + firstSide + ((j-1) * 8))
-				br.planeNum = mapFile:ReadUShort()
+
+			for j=1, numSides, 1 do
+				local brushSide = {}
+				table.insert(br, brushSide)
+
+				mapFile:Seek(brushOffs + (firstSide * 8) + ((j-1) * 8))
+				brushSide.planeNum = mapFile:ReadUShort()
 			end
 		end
 
