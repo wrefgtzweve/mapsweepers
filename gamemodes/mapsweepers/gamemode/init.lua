@@ -1891,7 +1891,7 @@ end
 	}
 
 	concommand.Add("jcms_addValidMap", function(ply, cmd, args)
-		if not ply:IsAdmin() then return end
+		if not(not ply:IsPlayer() or ply:IsAdmin()) then return end
 		
 		local map = tostring(args[1]) or ""
 		jcms.addValidMap(map)
@@ -2104,7 +2104,7 @@ end
 	end, nil, "Instantly unlocks the terminal you're looking at.", FCVAR_CHEAT)
 	
 	concommand.Add("jcms_debug_enable", function(ply, cmd, args)
-		if ply:IsAdmin() then
+		if not ply:IsPlayer() or ply:IsAdmin() then
 			if jcms.director then
 				if tostring(args[1]) == "0" then
 					jcms.director.debug = false
@@ -2179,14 +2179,14 @@ end
 	end)
 	
 	concommand.Add("jcms_forcestart", function(ply, cmd, args)
-		if not jcms.director and ply:IsAdmin() then
+		if not jcms.director and (not ply:IsPlayer() or ply:IsAdmin()) then
 			-- TODO We can force-start the mission even if nobody is ready, which is going to start the mission without anyone at all.
 			jcms.mission_StartFromCVar()
 		end
 	end)
 
 	concommand.Add("jcms_mission", function(ply, cmd, args)
-		if not jcms.director and ply:IsAdmin() then
+		if not jcms.director and (not ply:IsPlayer() or ply:IsAdmin()) then
 			local data = jcms.missions[ args[1] ]
 
 			if data then
@@ -2228,7 +2228,7 @@ end
 	end, "Only works in-lobby. Sets the pending mission and enemy (for universal missions) types.")
 
 	concommand.Add("jcms_mission_randomize", function(ply, cmd, args)
-		if not jcms.director and ply:IsAdmin() then
+		if not jcms.director and (not ply:IsPlayer() or ply:IsAdmin()) then
 			jcms.mission_Randomize()
 		end
 	end, nil, "Only works in-lobby. Randomizes pending mission type.")
@@ -2370,7 +2370,7 @@ end
 	end)
 
 	concommand.Add("jcms_setweaponprice", function(ply, cmd, args)
-		if ply:IsAdmin() then
+		if not ply:IsPlayer() or ply:IsAdmin() then
 			local class = tostring(args[1])
 			
 			if jcms.weapon_predefinedPrices[class] or weapons.GetStored(class) or jcms.weapon_prices[class] or jcms.weapon_HL2Prices[class] then
@@ -2407,7 +2407,7 @@ end
 	end)
 
 	concommand.Add("jcms_setorderdetails", function(ply, cmd, args)
-		if ply:IsAdmin() then
+		if not ply:IsPlayer() or ply:IsAdmin() then
 			local class = tostring(args[1])
 			local orderData = jcms.orders[class]
 			
