@@ -51,7 +51,7 @@ if SERVER then
 	end
 
 	function ENT:OnRemove() 
-		self.fogController:SetSaveValue("farz", self.fogDefaultZ)
+		self.fogController:SetKeyValue("farz", self.fogDefaultZ)
 	end
 
 	function ENT:Think()
