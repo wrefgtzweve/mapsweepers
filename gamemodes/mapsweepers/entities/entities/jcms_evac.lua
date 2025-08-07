@@ -172,6 +172,8 @@ if SERVER then
 			end
 		end
 		
+		self:SetSaveValue("m_vecAbsVelocity", Vector(0,0,0)) --Inefficient but I'm concerned source may fuck with the original vector object, and this only runs 1-4 times per second.
+
 		self:NextThink( CurTime() + (selfTbl:IsBeamActive() and 0.25 or 1) )
 		return true
 	end

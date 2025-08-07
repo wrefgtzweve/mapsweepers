@@ -290,7 +290,13 @@ if CLIENT then
 
 		local headId = self:LookupBone("Antlion.Head_Bone")
 		if headId and headId > 0 then
-			pos, a = self:GetBonePosition(headId)
+			local mat = self:GetBoneMatrix(headId)
+			local pos, a
+			if mat then
+				pos, a = mat:GetTranslation(), mat:GetAngles()
+			else
+				pos, a = self:GetBonePosition(headId)
+			end
 			a:RotateAroundAxis(a:Forward(), 90)
 			a:RotateAroundAxis(a:Right(), 180)
 		end
