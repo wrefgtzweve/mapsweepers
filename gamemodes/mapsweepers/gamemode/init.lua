@@ -1621,7 +1621,7 @@ end
 
 -- // }}}
 
--- // Misc {{{
+-- // Maps {{{
 	local map_blacklist = { --CSS and TF2 maps have navmeshes, but they're incompatible with gmod.
 		--CSS
 			["cs_assault"] = true,
@@ -1866,6 +1866,41 @@ end
 			["zi_woods"] = true,
 	}
 
+	--[[
+		Detecting navmeshes / Nodegraphs is unfortunately highly unreliable.
+		As a bandaid I've created a system for bypassing these checks, which can
+		be set up manually, or automatically on loading a map.
+
+		This seems to sometimes happen even with default maps sometimes, so I'm just including everything.
+	--]]
+	jcms.validMaps = {
+		--Pre-made list to save people some trouble.
+		--Vanilla
+		["gm_construct"] = true,
+		["jcms_jcorpdistrict"] = true,
+		["jcms_mafiadistrict"] = true,
+		
+		--Recommended collection
+		["gm_voidtown"] = true,
+		["gm_citygateway"] = true,
+		["gm_diprip_refinery"] = true,
+		["gm_lair"] = true,
+		["gm_born"] = true,				--This one has packed content which means it just outright doesn't show up at all.
+		["gm_shattered_reality"] = true,
+		["gm_hillfoot_construct"] = true,
+	}
+
+	concommand.Add("jcms_addValidMap", function(ply, cmd, args)
+		if not ply:IsAdmin() then return end
+		
+		local map = tostring(args[1]) or ""
+		jcms.addValidMap(map)
+	end, nil, "Manually mark a map as compatible (for maps with packed navmeshes/nodegraphs).")
+
+	function jcms.addValidMap(map)
+		jcms.validMaps[map] = true
+	end
+
 	function jcms.generateValidMapOptions()
 		local validMaps = {}
 		
@@ -1875,10 +1910,11 @@ end
 		for i, map in ipairs(maps) do
 			map = map:gsub("%.bsp", "")
 			if
-				not map_blacklist[map]
-				and (map ~= game.GetMap())
+				not map_blacklist[map] and
+				(jcms.validMaps[map] or --Known as valid
+				((map ~= game.GetMap()) --or detected as valid (unreliable)
 				and file.Exists("maps/" .. map .. ".nav", "GAME")
-				and file.Exists("maps/graphs/" .. map .. ".ain", "GAME")
+				and file.Exists("maps/graphs/" .. map .. ".ain", "GAME")))
 			then
 				table.insert(validMaps, map)
 			end
@@ -1897,7 +1933,9 @@ end
 			end
 		end
 	end
+-- // }}}
 	
+-- // Misc {{{
 	function jcms.processBounty(npc, attacker, inflictor)
 		local bounty = npc.jcms_bounty or 0
 		
@@ -2730,6 +2768,8 @@ end
 	file.CreateDir("mapsweepers")
 	file.CreateDir("mapsweepers/server")
 
+	--TODO: These should probably have a standardised set-up function at this point, it's mostly duplicate code here.
+
 	do 
 		local runProgFile = "mapsweepers/server/runprogress_" .. (game.SinglePlayer() and "solo" or "multiplayer") .. ".dat"
 		hook.Add("InitPostEntity", "jcms_RestorePreviousRun", function()
@@ -2767,6 +2807,23 @@ end
 		hook.Add("ShutDown", "jcms_SavePlayerData", function()
 			local dataStr = util.Compress(util.TableToJSON(jcms.playerData))
 			file.Write(playerDataFile, dataStr)
+		end)
+	end
+
+	do
+		local validMapsFile = "mapsweepers/server/validMaps.json"
+		hook.Add("InitPostEntity", "jcms_RestorePlayerData", function()
+			if file.Exists(validMapsFile, "DATA") then
+				local dataTxt = file.Read(validMapsFile, "DATA")
+				local dataTbl = util.JSONToTable(dataTxt)
+
+				table.Merge(jcms.validMaps, dataTbl, true)
+			end
+		end)
+
+		hook.Add("ShutDown", "jcms_SavePlayerData", function()
+			local dataStr = util.TableToJSON(jcms.validMaps)
+			file.Write(validMapsFile, dataStr)
 		end)
 	end
 

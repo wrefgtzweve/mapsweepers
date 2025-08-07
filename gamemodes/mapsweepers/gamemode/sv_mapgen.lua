@@ -515,6 +515,10 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		if md.areaCount <= 1 then
 			md.valid = false
 		end
+
+		if md.valid and (not ai.GetNodeCount or ai.GetNodeCount() > 0) then --checks if the function exists bc I don't wanna boot up 32bit just to check if it's only on dev rn
+			jcms.addValidMap(game.GetMap()) --might be more accurate to call this setValidMap?
+		end
 	end
 
 	function jcms.mapgen_ExpandedAreaList(areas)
