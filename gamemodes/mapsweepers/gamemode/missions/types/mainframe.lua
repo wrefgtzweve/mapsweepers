@@ -353,11 +353,15 @@
 			local totalComplete = 0
 			for i, track in ipairs(missionData.terminal_tracks) do 
 				local trackComplete = 0 
+				local trackTotal = 0
 				for i, terminal in ipairs(track) do 
-					trackComplete = trackComplete + ((terminal.isComplete and 1) or 0)
+					if IsValid(terminal) then
+						trackComplete = trackComplete + ((terminal.isComplete and 1) or 0)
+						trackTotal = trackTotal + 1
+					end
 				end
 
-				if trackComplete == #track and not missionData.completedTracks[i] then 
+				if trackComplete == trackTotal and not missionData.completedTracks[i] then 
 					missionData.completedTracks[i] = true
 
 					local completedTrackEffects = jcms.missions.mainframe.completedTrackEffects
@@ -367,7 +371,7 @@
 				end
 
 				totalComplete = totalComplete + trackComplete
-				total = total + #track
+				total = total + trackTotal
 			end
 
 			

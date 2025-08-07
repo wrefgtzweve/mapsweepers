@@ -78,7 +78,7 @@
 				end
 			end
 
-			if chargedCount < #flashpoints then
+			if chargedCount < totalCount then
 				local objectives = {}
 
 				if (not missionData.lastObjectiveCount or missionData.lastObjectiveCount < chargedCount) then
