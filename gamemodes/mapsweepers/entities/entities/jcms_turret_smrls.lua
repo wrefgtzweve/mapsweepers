@@ -240,7 +240,7 @@ if SERVER then
 			missile.Proximity = self.MissileBlastRadius/4
 			missile.jcms_owner = self.jcms_owner
 			missile.Target = self.currentTarget
-			missile.Damping = 0.66
+			missile.Damping = 0.76
 			missile.Speed = 1500
 			missile.ActivationTime = CurTime() + 0.5
 			local col = self:GetHackedByRebels() and jcms.factions_GetColor("rebel") or Color(255, 0, 0)
@@ -254,14 +254,14 @@ if SERVER then
 
 				if not self:TurretVisibleTrace(self.currentTarget) then
 					--Start node is precalculated / stored because missile turrets don't move. Saves some performance.
-					if IsValid(self.startNode) then --Lua error prevention. Some maps don't have an airgraph at all.
+					if self.startNode then --Lua error prevention. Some maps don't have an airgraph at all.
 						missile.Path = jcms.pathfinder.navigate(self.startNode, self.currentTarget:WorldSpaceCenter())
 					end
 					missile.Damping = 0.89
 				end
 			end
 			
-			missile:GetPhysicsObject():SetVelocity(dir*900)
+			missile:GetPhysicsObject():SetVelocity(dir*300)
 			
 			local effectdata = EffectData()
 			effectdata:SetEntity(self)
