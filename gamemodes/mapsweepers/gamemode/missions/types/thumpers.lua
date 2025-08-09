@@ -90,7 +90,7 @@
 			local missionData = director.missionData
 			
 			if missionData.workingThumpers then
-				return Lerp(missionData.workingThumpers / #missionData.thumpers, baseCooldown, baseCooldown/2)
+				return Lerp(missionData.workingThumpers / math.max(1, #missionData.thumpers), baseCooldown, baseCooldown/2)
 			else
 				return baseCooldown
 			end
