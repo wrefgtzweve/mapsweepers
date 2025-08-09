@@ -35,7 +35,7 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 				local f = ProjectedTexture()
 				jcms.flashlights_anims[ply] = 0
 				f:SetColor( color_black )
-				f:SetTexture("effects/flashlight/soft")
+				f:SetTexture("effects/flashlight/hard")
 				f:Update()
 				jcms.flashlights[ply] = f
 			end
@@ -130,9 +130,9 @@ hook.Add("Think", "jcms_Flashlights", function(ply) --todo: see if I can have th
 			end
 
 			if anim > thres then
-				f:SetFarZ(Lerp(anim, 620, 920))
+				f:SetFarZ(Lerp(anim, 1320, 1500))
 				f:SetNearZ(4)
-				f:SetFOV(Lerp(anim, 50, 66))
+				f:SetFOV(Lerp(anim, 54, 64))
 				f:Update()
 			end
 		else
