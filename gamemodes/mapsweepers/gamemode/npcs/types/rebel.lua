@@ -601,7 +601,7 @@ jcms.npc_types.rebel_rgg = {
 
 				local waypoint = npc:GetNextWaypointPos()
 				if waypoint:LengthSqr() > 1 then -- They may sometimes teleport to world origin if waypoint is invalid.
-					npc:SetPos(waypoint)
+					npc:SetPos(waypoint + Vector(0,0,10))
 					npc:AdvancePath()
 
 					local ed = EffectData()

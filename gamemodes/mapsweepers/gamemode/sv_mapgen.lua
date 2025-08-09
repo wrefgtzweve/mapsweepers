@@ -173,6 +173,10 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			return false 
 		end
 
+		if jcms.isAreaInClip(area) then --Potentially one of the most expensive checks, so we do this last.
+			return false
+		end
+
 		return true 
 	end
 
@@ -218,6 +222,98 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 		if game.SinglePlayer() then return end
 		game.GetWorld():SetNWFloat( "jcms_mapgen_progress", progress )
 		if coroutine.running() then coroutine.yield() end
+	end
+
+	function jcms.isAreaInClip(area)
+		local areaPoints = {}
+		for i=1, 4, 1 do
+			table.insert(areaPoints, area:GetCorner(i-1))
+		end
+
+		for i, brush in pairs(bspReader.brushes) do
+			--Only care about playerclips
+			if not bit.band(bspReader.brushContents[i], CONTENTS_PLAYERCLIP) then continue end
+
+			--Copy of our area table, we're going to modify it.
+			local areaCopy = {}
+			for i, v in ipairs(areaPoints) do 
+				areaCopy[i] = Vector(v)
+			end
+
+			--Are our points inside the planes?
+			local rejected = false
+			for i, brushside in ipairs(brush) do
+				local planeNormal = bspReader.planeNormals[brushside.planeNum+1]
+				local planeDistance = bspReader.planeDistances[brushside.planeNum+1]
+				local planePoint = planeNormal * planeDistance --Used for plane-intersection
+
+				local inside = {}
+				local insideCount = 0
+				for i, vec in ipairs(areaCopy) do
+					if vec:Dot(planeNormal) - planeDistance < 0 then 
+						inside[vec] = true
+						insideCount = insideCount + 1
+					else
+						inside[vec] = false
+					end
+				end
+
+				if insideCount == 0 then --We're entirely outside of this plane, so we're outside the brush.
+					rejected = true
+					break
+				end
+
+				--[[
+					TODO: It may be possible to compress the following loops into a single one (which would be more performant).
+					I've done it in a way that's easier to think about / test for the moment, though.
+				--]]
+				for i=#areaCopy, 1, -1 do --Cull nodes with only outside neighbours.
+					local vec = areaCopy[i]
+					if inside[vec] then continue end
+
+					local neighbour1 = areaCopy[ (i-1)%#areaCopy ]
+					local neighbour2 = areaCopy[ (i+1)%#areaCopy ]
+
+					if not inside[neighbour1] and not inside[neighbour2] then
+						table.remove(areaCopy, i)
+					end
+				end
+
+				local newAreaCopy = {}
+				for i, vec in ipairs(areaCopy) do
+					if inside[vec] then
+						table.insert(newAreaCopy, vec)
+						continue
+					end
+
+					local neighbour1 = areaCopy[ (i-1)%#areaCopy ]
+					local neighbour2 = areaCopy[ (i+1)%#areaCopy ]
+
+					if inside[neighbour1] and inside[neighbour2] then --Both neighbours are inside, split us.
+						local toNeighbour1 = neighbour1 - vec
+						local toNeighbour2 = neighbour2 - vec
+
+						local intersection1 = util.IntersectRayWithPlane(vec, toNeighbour1, planePoint, planeNormal) --yay! I get to be lazy. Thank you facepunch!
+						local intersection2 = util.IntersectRayWithPlane(vec, toNeighbour2, planePoint, planeNormal)
+
+						table.insert(newAreaCopy, intersection1)
+						table.insert(newAreaCopy, intersection2)
+					elseif inside[neighbour1] or inside[neighbour2] then --One is inside, this condition is technically redundant as we already know this, but this is more readable.
+						local inNeighbour = inside[neighbour1] and neighbour1 or neighbour2
+
+						local toInNeighbour = inNeighbour - vec
+						local intersection = util.IntersectRayWithPlane(vec, toInNeighbour, planePoint, planeNormal)
+						table.insert(newAreaCopy, intersection)
+					end
+				end
+				areaCopy = newAreaCopy
+			end
+
+			if not rejected then --If we're still inside the brush at the end, this area intersects a playerclip (return). Otherwise keep going.
+				return true
+			end
+		end
+		return false
 	end
 
 -- // }}
@@ -336,7 +432,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				
 				local zoneAround = nil
 				for j, oarea in ipairs(adj) do
-					if oarea:IsUnderwater() or oarea:IsDamaging() then continue end
+					if not jcms.mapgen_ValidArea(oarea) then continue end
 					
 					if areaZones[oarea] then
 						zoneAround = areaZones[oarea]
@@ -347,7 +443,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 				if zoneAround then
 					areaZones[area] = zoneAround
 					for j, oarea in ipairs(adj) do
-						if oarea:IsUnderwater() or oarea:IsDamaging() then continue end
+						if not jcms.mapgen_ValidArea(oarea) then continue end
 						if areaZones[oarea] and areaZones[oarea] ~= zoneAround then
 							replacezones(areaZones[oarea], zoneAround)
 						else
@@ -358,7 +454,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 					local inZone = areaZones[area] or i
 					
 					for j, oarea in ipairs(adj) do
-						if oarea:IsUnderwater() or oarea:IsDamaging() then continue end
+						if not jcms.mapgen_ValidArea(oarea) then continue end
 						areaZones[oarea] = inZone
 					end
 				end
@@ -451,7 +547,7 @@ jcms.MAPGEN_CONSTRUCT_DIAMETER = math.sqrt(82411875)
 			local zindex = 0
 			
 			for area, zone in pairs(areaZones) do
-				if area:IsUnderwater() or area:IsDamaging() then continue end
+				if not jcms.mapgen_ValidArea(area) then continue end
 
 				if not translation[zone] then
 					zindex = zindex + 1

@@ -217,7 +217,7 @@ bspReader = bspReader or {} --Likely to use this in other addons, don't want to 
 				local brushSide = {}
 				table.insert(br, brushSide)
 
-				mapFile:Seek(brushOffs + (firstSide * 8) + ((j-1) * 8))
+				mapFile:Seek(brushSideOffs + (firstSide * 8) + ((j-1) * 8))
 				brushSide.planeNum = mapFile:ReadUShort()
 			end
 		end
