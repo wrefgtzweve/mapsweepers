@@ -647,7 +647,9 @@ jcms.offgame = jcms.offgame or NULL
 					end
 				end
 
-				-- TODO Mission vote
+				function bJoinSweeper:Think()
+					bJoinNPC:SetVisible(jcms.cvar_npcteam_restrict:GetInt() == 0)
+				end
 			end
 
 			if not jcms.statistics.playedTutorial then

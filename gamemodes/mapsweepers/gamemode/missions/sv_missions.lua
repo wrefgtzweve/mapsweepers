@@ -455,6 +455,8 @@
 		local evacCount = 0
 		local evacChargePercent = 1
 		local evacIsCharging = false
+
+		local secondsUntilSuddenDeath = d.suddenDeathTime and math.max(0, d.suddenDeathTime - jcms.director_GetMissionTime() )
 		
 		for ply, evacuated in pairs(d.evacuated) do
 			if IsValid(ply) then
@@ -485,11 +487,28 @@
 			end
 		end
 
+		local objectives = {}
+
 		if evacChargePercent >= 1 then
-			return { { type = "evac", progress = evacCount, total = totalCount, completed = evacCount > 0  } }
+			objectives[1] = { type = "evac", progress = evacCount, total = totalCount, completed = evacCount > 0  }
 		else
-			return { { type = "evaccharge", progress = evacChargePercent*100, total = 100, percent = true, completed = evacIsCharging } }
+			objectives[1] = { type = "evaccharge", progress = evacChargePercent*100, total = 100, percent = true, completed = evacIsCharging }
 		end
+
+		if secondsUntilSuddenDeath then
+			if secondsUntilSuddenDeath > 0 then
+				objectives[2] = { type = "suddendeath", progress = secondsUntilSuddenDeath, total = 0, style = 1 }
+			else
+				objectives[2] = { type = "die", progress = 0, total = 0, completed = false }
+
+				if missionData and not missionData.suddenDeathTip then
+					jcms.net_SendTip("all", true, "#jcms.suddendeathtip", 1)
+					missionData.suddenDeathTip = true
+				end
+			end
+		end
+
+		return objectives
 	end
 
 -- // }}}
@@ -558,6 +577,20 @@
 			ply.jcms_justSpawned = false
 			
 			jcms.net_NotifyEvac(ply)
+		end
+
+		if jcms.director then
+			local suddenDeathDelay = jcms.cvar_suddendeathtimer:GetInt()
+
+			if suddenDeathDelay > 0 and not jcms.director.suddenDeathTime then
+				jcms.director.suddenDeathTime = math.ceil( jcms.director_GetMissionTime() + suddenDeathDelay )
+
+				local filter = RecipientFilter()
+				filter:AddAllPlayers()
+
+				EmitSound("ambient/levels/labs/teleport_winddown1.wav", vector_origin, 0, CHAN_STATIC, 1, 140, 0, 100, 0, filter)
+				jcms.net_SendTip("all", true, "#jcms.suddendeathsoon", 1)
+			end
 		end
 	end
 

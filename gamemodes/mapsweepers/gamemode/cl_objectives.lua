@@ -29,22 +29,89 @@
 -- // Functions {{{
 
 	function jcms.objective_Localize(obj)
-		return type(obj)=="string" and language.GetPhrase("jcms.obj_" .. obj) or "???"
+		if type(obj) == "string" then
+			local key1 = "jcms.obj_" .. obj
+			local loc = language.GetPhrase(key1)
+			if loc == key1 then
+				loc = language.GetPhrase(obj)
+			end
+			return loc
+		else
+			return "???"
+		end
 	end
 
-	function jcms.objective_UpdateEverything(dataString)
-		local missionType, objectivesString = dataString:match("^(%w+):([%w%d_,-]+)")
-		local objectivesList = string.Explode(",%s*", objectivesString, true)
-		
-		jcms.objective_title = missionType
-
+	function jcms.objective_UpdateEverything(missionType, newObjectives)
+		jcms.objective_title = tostring(missionType)
 		table.Empty(jcms.objectives)
-		for i, objectiveKeyValue in ipairs(objectivesList) do
-			local type, x, n, percent, complete = objectiveKeyValue:match("(%w+)%-(%d+)%-(%d+)%-([10])([10])")
-			if complete then
-				table.insert(jcms.objectives, { type = type, progress = tonumber(x), n = tonumber(n), percent = percent == "1", completed = complete=="1" })
-			end
+		table.Add(jcms.objectives, newObjectives)
+	end
+
+-- // }}}
+
+-- // Drawing {{{
+
+	function jcms.objective_Draw(i, objective)
+		local off = 2
+
+		local color, colorDark = jcms.color_bright, jcms.color_dark
+		if objective.completed then
+			color, colorDark = jcms.color_bright_alt, jcms.color_dark_alt
 		end
+
+		local str = jcms.objective_Localize(objective.type)
+		local x = objective.progress
+		local n = objective.n
+
+		if x and n>0 then
+			local progress = math.Clamp(x / n, 0, 1)
+			objective.fProgress = progress
+			objective.anim_fProgress = ((objective.anim_fProgress or progress)*8 + progress)/9
+
+			local barw = 200
+			local progressString
+			if objective.percent then
+				progressString = string.format("%d%%  ", progress*100)
+			else
+				progressString = string.format("%d/%d  ", x, n)
+			end
+			surface.SetFont("jcms_hud_small")
+			local tw = surface.GetTextSize(progressString)
+
+			local f = objective.anim_fProgress
+			draw.SimpleText(progressString, "jcms_hud_small", 24, 16, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			draw.SimpleText(str, "jcms_hud_small", 32, 2, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			surface.SetDrawColor(colorDark)
+			surface.DrawRect(24 + tw, 16, barw - tw, 6)
+			render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+				surface.SetDrawColor(color)
+				surface.DrawRect(24 + off + tw, 16 + off, (barw - tw)*f, 4)
+				draw.SimpleText(progressString, "jcms_hud_small", 24 + off, 16 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				draw.SimpleText(str, "jcms_hud_small", 32 + off, 2 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			render.OverrideBlend( false )   
+		else
+			if objective.style == 1 then -- TODO more styles + put all of that code into tables. This is quick and rough cuz I gtg
+				color = jcms.color_alert
+				draw.SimpleText(str, "jcms_hud_small", 0, -2, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				
+				local timestr = string.FormattedTime(x, "%02i:%02i")
+				draw.SimpleText(timestr, "jcms_hud_medium", 16, -2+48, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
+				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+					draw.SimpleText(str, "jcms_hud_small", off, -2+off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+					draw.SimpleText(timestr, "jcms_hud_medium", 16+off, -2+48+off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				render.OverrideBlend( false ) 
+
+				return false, 84
+			else
+				draw.SimpleText(str, "jcms_hud_small", 32, -2, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+					draw.SimpleText(str, "jcms_hud_small", 32 + off, -2 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+				render.OverrideBlend( false ) 
+			end 
+		end
+
+		return true, 84
 	end
 
 -- // }}}

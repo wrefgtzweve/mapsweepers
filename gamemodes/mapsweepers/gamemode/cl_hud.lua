@@ -1687,66 +1687,39 @@
 				shiftMatrix:Identity()
 				shiftMatrix:Translate(objShift)
 				
+				local y = 0
 				for i, objective in ipairs(jcms.objectives) do
-					local color, colorDark = jcms.color_bright, jcms.color_dark
-					if objective.completed then
-						color, colorDark = jcms.color_bright_alt, jcms.color_dark_alt
-					end
-
-					off = 2
-					local str = jcms.objective_Localize(objective.type)
-					local x, n = objective.progress, objective.n
 					cam.PushModelMatrix(shiftMatrix, true)
-						cam.PushModelMatrix(rotationMatrix, true)
-							surface.SetDrawColor(colorDark)
-							surface.DrawOutlinedRect(-12, -12, 24, 24, 3)
-							if objective.completed then
-								surface.DrawRect(-6, -6, 12, 12)
-							end
-							render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-							surface.SetDrawColor(color)
-							surface.DrawOutlinedRect(-12 + off, -12, 24, 24, 3)
-							if objective.completed then
-								surface.DrawRect(-6 + off, -6, 12, 12)
-							end
-							render.OverrideBlend( false )
-						cam.PopModelMatrix()
-
-						if x and n>0 then
-							local progress = math.Clamp(x / n, 0, 1)
-							objective.fProgress = progress
-							objective.anim_fProgress = ((objective.anim_fProgress or progress)*8 + progress)/9
-
-							local barw = 200
-							local progressString
-							if objective.percent then
-								progressString = string.format("%d%%  ", progress*100)
-							else
-								progressString = string.format("%d/%d  ", x, n)
-							end
-							surface.SetFont("jcms_hud_small")
-							local tw = surface.GetTextSize(progressString)
-
-							local f = objective.anim_fProgress
-							draw.SimpleText(progressString, "jcms_hud_small", 24, 16, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-							draw.SimpleText(str, "jcms_hud_small", 32, 2, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-							surface.SetDrawColor(colorDark)
-							surface.DrawRect(24 + tw, 16, barw - tw, 6)
-							render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-								surface.SetDrawColor(color)
-								surface.DrawRect(24 + off + tw, 16 + off, (barw - tw)*f, 4)
-								draw.SimpleText(progressString, "jcms_hud_small", 24 + off, 16 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-								draw.SimpleText(str, "jcms_hud_small", 32 + off, 2 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-							render.OverrideBlend( false )   
-						else
-							draw.SimpleText(str, "jcms_hud_small", 32, -6, colorDark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-							surface.SetDrawColor(colorDark)
-							render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
-								surface.SetDrawColor(color)
-								draw.SimpleText(str, "jcms_hud_small", 32 + off, -8 + off, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-							render.OverrideBlend( false )   
-						end
+						local doDrawDiamond, yShift = jcms.objective_Draw(i, objective)
 					cam.PopModelMatrix()
+
+					if doDrawDiamond then
+						local color, colorDark = jcms.color_bright, jcms.color_dark
+						if objective.completed then
+							color, colorDark = jcms.color_bright_alt, jcms.color_dark_alt
+						end
+
+						off = 2
+						cam.PushModelMatrix(shiftMatrix, true)
+							cam.PushModelMatrix(rotationMatrix, true)
+								surface.SetDrawColor(colorDark)
+								surface.DrawOutlinedRect(-12, -12, 24, 24, 3)
+								if objective.completed then
+									surface.DrawRect(-6, -6, 12, 12)
+								end
+								render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE, BLENDFUNC_ADD )
+								surface.SetDrawColor(color)
+								surface.DrawOutlinedRect(-12 + off, -12, 24, 24, 3)
+								if objective.completed then
+									surface.DrawRect(-6 + off, -6, 12, 12)
+								end
+								render.OverrideBlend( false )
+							cam.PopModelMatrix()
+						cam.PopModelMatrix()
+					end
+					
+					yShift = tonumber(yShift) or 84
+					objShiftDown.y = yShift
 					shiftMatrix:Translate(objShiftDown)
 				end
 			end
@@ -2534,37 +2507,43 @@
 			cam.End3D2D()
 
 			if not game.SinglePlayer() and jcms.locPly:GetNWInt("jcms_desiredteam", 0) < 2 then
-				setup3d2dDiagonal(false, true)
-				local binding = input.LookupBinding("+reload", true)
-				if binding then
-					binding = binding:upper()
-					local anim = jcms.hud_npcConfirmation
-					local str = language.GetPhrase(jcms.vm_evacd > 0.5 and "#jcms.switchsides_evac" or "#jcms.switchsides")
+				local restriction = jcms.cvar_npcteam_restrict:GetInt()
+				local evacuated = jcms.vm_evacd > 0.5
+				local canSwitch = (restriction == 0) or (restriction == 1 and evacuated)
 
-					surface.SetDrawColor(jcms.color_dark)
-					jcms.draw_Circle(0, -200, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
-					draw.SimpleText(binding, "jcms_hud_big", 0, -200, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-					
-					surface.SetDrawColor(jcms.color_bright)
-					jcms.draw_Circle(0, -200-off, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
-					draw.SimpleText(binding, "jcms_hud_big", x, -200-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-					
-					local angleoff = math.pi/3 - anim*0.3
-					surface.SetDrawColor(jcms.color_dark_alt)
-					jcms.draw_Circle(0, -200, 48, 48, 8, 16, -angleoff, math.pi*2*anim-angleoff)
+				if canSwitch then
+					setup3d2dDiagonal(false, true)
+					local binding = input.LookupBinding("+reload", true)
+					if binding then
+						binding = binding:upper()
+						local anim = jcms.hud_npcConfirmation
+						local str = language.GetPhrase(evacuated and "#jcms.switchsides_evac" or "#jcms.switchsides")
 
-					surface.SetDrawColor(jcms.color_bright_alt)
-					jcms.draw_Circle(0, -200-off, 48, 48, 8, 16, -angleoff, math.pi*2*anim-angleoff)
+						surface.SetDrawColor(jcms.color_dark)
+						jcms.draw_Circle(0, -200, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
+						draw.SimpleText(binding, "jcms_hud_big", 0, -200, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						
+						surface.SetDrawColor(jcms.color_bright)
+						jcms.draw_Circle(0, -200-off, 38*1.5, 38*1.5, 5*1.5, 12*1.5)
+						draw.SimpleText(binding, "jcms_hud_big", x, -200-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+						
+						local angleoff = math.pi/3 - anim*0.3
+						surface.SetDrawColor(jcms.color_dark_alt)
+						jcms.draw_Circle(0, -200, 48, 48, 8, 16, -angleoff, math.pi*2*anim-angleoff)
 
-					draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200, jcms.color_dark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-					draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200-off, jcms.color_bright, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+						surface.SetDrawColor(jcms.color_bright_alt)
+						jcms.draw_Circle(0, -200-off, 48, 48, 8, 16, -angleoff, math.pi*2*anim-angleoff)
 
-					if anim <= 0 then
-						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-						draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+						draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200, jcms.color_dark, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+						draw.SimpleText(str, "jcms_hud_medium", 64*1.5, -200-off, jcms.color_bright, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
+						if anim <= 0 then
+							draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5, jcms.color_dark, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+							draw.SimpleText("#jcms.switchsides_tip", "jcms_hud_medium", 0, -200+48*1.5-off, jcms.color_bright, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+						end
 					end
+					cam.End3D2D()
 				end
-				cam.End3D2D()
 			end
 
 			if jcms.locPly:GetNWInt("jcms_desiredteam", 0) == 1 and jcms.vm_evacd <= 0 then

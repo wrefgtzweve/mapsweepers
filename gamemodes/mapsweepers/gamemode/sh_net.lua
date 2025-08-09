@@ -249,10 +249,17 @@ if SERVER then
 			net.WriteUInt(#objectives, 4)
 			for i, obj in ipairs(objectives) do
 				net.WriteString(obj.type)
-				net.WriteUInt(obj.progress, 10)
-				net.WriteUInt(obj.total, 10)
+				net.WriteUInt(obj.progress or 0, 10)
+				net.WriteUInt(obj.total or 0, 10)
 				net.WriteBool(obj.percent)
 				net.WriteBool(obj.completed)
+				net.WriteUInt(tonumber(obj.style) or 0, 3)
+
+				local formatCount = math.min(31, obj.format and #obj.format or 0)
+				net.WriteUInt(formatCount, 5)
+				for i=1, formatCount do
+					net.WriteString(tostring(obj.format[i]))
+				end
 			end
 		if ply then
 			net.Send(ply)
@@ -773,14 +780,40 @@ if CLIENT then
 			local isObjectives = net.ReadBool()
 			if isObjectives then
 				-- Update mission objectives
-				local dataString = net.ReadString() .. ":"
+				local missionName = net.ReadString()
 				local objectiveCount = net.ReadUInt(4)
+
+				local objectives = {}
 				for i=1, objectiveCount do
-					local type, x, n, perc, completed = net.ReadString(), net.ReadUInt(10), net.ReadUInt(10), net.ReadBool(), net.ReadBool()
-					dataString = dataString .. ("%s-%d-%d-%s%s%s"):format(type,x,n,perc and "1" or "0",completed and "1" or "0",i==objectiveCount and "" or ",")
+					local objectivetype = net.ReadString()
+					local x, n = net.ReadUInt(10), net.ReadUInt(10)
+					local perc = net.ReadBool()
+					local completed = net.ReadBool()
+					local style = net.ReadUInt(3)
+					local formatCount = net.ReadUInt(5)
+
+					local fmt = {}
+
+					for j=1, formatCount do
+						table.insert(fmt, net.ReadString())
+					end
+
+					if #fmt > 0 then
+						local s, rtn = pcall(string.format, objectivetype, unpack(fmt)) -- TODO Fix this in next update. objectivetype is NOT localized. Formatting must apply afterwards.
+						objectivetype = tostring(s and rtn or objectivetype)
+					end
+
+					table.insert(objectives, {
+						type = objectivetype,
+						progress = x, 
+						n = n,
+						percent = perc,
+						completed = completed,
+						style = style
+					})
 				end
 				
-				jcms.objective_UpdateEverything(dataString)
+				jcms.objective_UpdateEverything(missionName, objectives)
 			else
 				local compressedDmgType = net.ReadUInt( #jcms.util_dmgTypesCompression )
 				jcms.hud_DispatchDamage( jcms.util_dmgTypeDecompress( compressedDmgType ), net.ReadBool() )

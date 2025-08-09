@@ -123,6 +123,12 @@ jcms.vectorOne = Vector(1, 1, 1)
 	jcms.cvar_distance_headshot_extralengths = CreateConVar("jcms_distance_headshot_extralengths", "200", FCVAR_JCMS_NOTIFY_AND_SAVE, "For every X units (200 by default) starting from 'jcms_distance_headshot', one extra j-credit will be rewarded to the killer. By default, headshot distance is 2000 and 'extra' distance is 200, so, for example, at the distance of 2600 the reward will be: <base headshot bonus> + 3 for the extra 600 units.", 0, 100000)
 	jcms.cvar_distance_very_far = CreateConVar("jcms_distance_very_far", "5000", FCVAR_JCMS_NOTIFY_AND_SAVE, "A distance that counts as an impressive sniping distance for a cash multiplier. Ideally, only players with long-range scopes should be able to get kills over this range.", 0, 100000)
 
+	jcms.cvar_npcteam_restrict = CreateConVar("jcms_npcteam_restrict", "0", FCVAR_JCMS_SHARED_SAVED, "Restrictions on NPC Team. 0 = no restrictions, 1 = can only join as NPC post-evac, 2 = can never join as NPCs", 0, 2)
+	jcms.cvar_suddendeathtimer = CreateConVar("jcms_suddendeathtimer", "0", FCVAR_JCMS_SHARED_SAVED, "(If set above 0) This is the number of seconds that must pass since the first sweeper evacuates, until J Corp stops giving credits for kills to remaining sweepers, encouraging evacuation. If set to 0, people can take their time with EVAC as long as they want with no penalties.", 0, 600)
+
+	jcms.cvar_swarm_frequency = CreateConVar("jcms_swarm_frequency", "1", FCVAR_JCMS_NOTIFY_AND_SAVE, "Swarm frequency multiplier.", 0, 5)
+	jcms.cvar_swarm_size = CreateConVar("jcms_swarm_size", "1", FCVAR_JCMS_NOTIFY_AND_SAVE, "Swarm size multiplier.", 0, 5)
+	
 	-- Replicated
 	jcms.cvar_announcer_type = CreateConVar("jcms_announcer_type", "default", FCVAR_JCMS_SHARED_SAVED, "Selects the current announcer by name.")
 	jcms.cvar_noepisodes = CreateConVar("jcms_noepisodes", "0", FCVAR_JCMS_SHARED_SAVED, "If set to 1, Half-Life 2: Episode One & Two content will never appear in-game. Useful if you don't want your poor friends to see errors.")

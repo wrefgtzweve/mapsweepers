@@ -1937,6 +1937,12 @@ end
 	
 -- // Misc {{{
 	function jcms.processBounty(npc, attacker, inflictor)
+		if jcms.director then
+			if jcms.director_IsSuddenDeath() then
+				return
+			end
+		end
+		
 		local bounty = npc.jcms_bounty or 0
 		
 		if bounty > 0 then
@@ -2234,6 +2240,14 @@ end
 	end, nil, "Only works in-lobby. Randomizes pending mission type.")
 
 	concommand.Add("jcms_jointeam", function(ply, cmd, args)
+		local restriction = jcms.cvar_npcteam_restrict:GetInt() -- 0: No restrictions, 1: Only post-evac, 2: Can never be an NPC
+		local canJoinNpcs = false
+		if restriction == 0 then
+			canJoinNpcs = true
+		elseif restriction == 1 then
+			canJoinNpcs = jcms.director and jcms.director.evacuated[ply]
+		end
+		
 		local team = tonumber(args[1]) or tostring(args[1])
 
 		if ply:GetObserverMode() == OBS_MODE_FIXED then
@@ -2243,7 +2257,7 @@ end
 			elseif team == 1 or team == "sweeper" or team == "jcorp" then
 				-- Sweeper
 				ply:SetNWInt("jcms_desiredteam", 1)
-			elseif not game.SinglePlayer() then
+			elseif canJoinNpcs and not game.SinglePlayer() then
 				if team == 2 or team == "npc" or team == "enemy" then
 					-- NPC
 					ply:SetNWInt("jcms_desiredteam", 2)
@@ -2254,7 +2268,7 @@ end
 		if jcms.director and not game.SinglePlayer() then
 			if (ply:GetObserverMode() == OBS_MODE_CHASE) or (ply:GetObserverMode() == OBS_MODE_NONE and not ply:Alive()) then
 				
-			if (team == 2 or team == "npc" or team == "enemy") and (ply:GetNWInt("jcms_desiredteam", 0) < 2) then
+			if canJoinNpcs and (team == 2 or team == "npc" or team == "enemy") and (ply:GetNWInt("jcms_desiredteam", 0) < 2) then
 					ply.jcms_classAtEvac = ply:GetNWString("jcms_class", "infantry")
 					ply:SetNWInt("jcms_desiredteam", 2)
 					ply:SetNWString("jcms_class", jcms.npc_PickPlayerNPCClass(jcms.director.faction))
@@ -2728,6 +2742,10 @@ end
 	end
 
 	function jcms.util_PerformRepairs(ent, ply, repairValue)
+		if jcms.director_IsSuddenDeath() then
+			return
+		end
+		
 		repairValue = tonumber(repairValue) or 7
 		if jcms.isPlayerEngineer(ply) then
 			repairValue = repairValue * 2.5

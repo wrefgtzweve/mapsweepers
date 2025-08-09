@@ -142,6 +142,10 @@
 		function jcms.director_GetMissionTime()
 			return CurTime() - (jcms.director.missionStartTime or 0)
 		end
+
+		function jcms.director_IsSuddenDeath()
+			return jcms.director.suddenDeathTime and jcms.director_GetMissionTime() > jcms.director.suddenDeathTime
+		end
 		
 		function jcms.director_GetAreasAwayFrom(zoneAreas, origins, minDist, maxDist)
 			local areas = {}
@@ -212,6 +216,8 @@
 		
 		function jcms.director_FindRespawnBeacon(evenBusyOnes)
 			if not jcms.director then return end
+			if jcms.director_IsSuddenDeath() then return end
+			
 			local beacons = jcms.director.respawnBeacons
 			if not beacons or #beacons <= 0 then return end
 			
@@ -1296,12 +1302,17 @@
 					
 					cooldown = cooldown / 1.6
 				end
+
 				
 				if missionTypeData and missionTypeData.swarmCalcCooldown then
 					cooldown = missionTypeData.swarmCalcCooldown(d, cooldown, swarmCost)
 				end
 
-				d.swarmNext = missionTime + cooldown
+				local difficulty_freq = jcms.cvar_swarm_frequency:GetFloat()
+				local difficulty_size = jcms.cvar_swarm_size:GetFloat()
+
+				d.swarmNext = missionTime + cooldown/difficulty_freq
+				swarmCost = swarmCost * difficulty_size
 				
 				if swarmCost >= 20 then
 					jcms.announcer_SpeakChance(0.75,jcms.ANNOUNCER_SWARM_BIG)
