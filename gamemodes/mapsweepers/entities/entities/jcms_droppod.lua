@@ -219,7 +219,7 @@ if SERVER then
 			if not game.SinglePlayer() then
 				self.forceExitTime = CurTime() + 40
 			end
-			self.cleanupTime = CurTime() + math.random(5, 15)
+			self.cleanupTime = CurTime() + 180
 		end
 	end
 end
